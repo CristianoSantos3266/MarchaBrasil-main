@@ -1,0 +1,55 @@
+/* Brazilian flag hero background - stylized flag design */
+.hero-bg-1 {
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(135deg, 
+      #009639 0%, 
+      #009639 25%, 
+      #FEDF00 25%, 
+      #FEDF00 50%, 
+      #009639 50%, 
+      #009639 75%, 
+      #002776 75%, 
+      #002776 100%
+    ),
+    url('https://images.unsplash.com/photo-1553986723-3a7e8d5e5e4d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+  background-size: 50px 50px, 30px 30px, cover, cover;
+  background-position: 0 0, 25px 25px, center, center;
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
+  position: relative;
+}
+
+.hero-bg-1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 100, 0, 0.3);
+  pointer-events: none;
+}
+
+.hero-bg-2 {
+  background-image: 
+    linear-gradient(rgba(0, 128, 0, 0.8), rgba(255, 215, 0, 0.8), rgba(0, 39, 118, 0.8)),
+    url('https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.protest-card-bg {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+    url('https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.brazilian-flag-overlay {
+  background: linear-gradient(45deg, 
+    #009639 0%, #009639 33%, 
+    #FEDF00 33%, #FEDF00 66%, 
+    #002776 66%, #002776 100%);
+}
