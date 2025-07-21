@@ -12,8 +12,9 @@ export default function CensorshipAlert() {
     const info = getStoredMirrorInfo();
     setMirrorInfo(info);
     
-    // Show alert if using a mirror domain
-    if (info.isUsingMirror) {
+    // Only show alert if using a mirror domain AND user hasn't dismissed it
+    const alertDismissed = localStorage.getItem('alertDismissed');
+    if (info.isUsingMirror && !alertDismissed) {
       setShowAlert(true);
     }
   }, []);
@@ -40,13 +41,13 @@ export default function CensorshipAlert() {
   };
 
   // Don't show if dismissed or not using mirror
-  if (!showAlert || !mirrorInfo?.isUsingMirror) {
+  if (!showAlert) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <button
           onClick={() => setShowAlert(true)}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-full shadow-lg text-sm"
-          title="Verificar acesso"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-full shadow-lg text-sm transition-all hover:scale-110"
+          title="Verificar opções de acesso"
         >
           🛡️
         </button>
@@ -55,79 +56,55 @@ export default function CensorshipAlert() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-yellow-100 border-b-2 border-yellow-400 p-4 z-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 text-yellow-600 text-xl">⚠️</div>
+    <div className="fixed bottom-4 left-4 right-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg shadow-xl p-4 z-50 max-w-md ml-auto mr-4">
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0 text-yellow-600 text-lg">⚠️</div>
+        
+        <div className="flex-1">
+          <h3 className="font-bold text-yellow-800 text-sm mb-2">
+            Domínio Espelho Ativo
+          </h3>
           
-          <div className="flex-1">
-            <h3 className="font-bold text-yellow-800 text-sm mb-2">
-              Aviso de Segurança - Domínio Espelho Ativo
-            </h3>
+          <div className="text-yellow-700 text-xs space-y-2">
+            <p>
+              Usando domínio alternativo para acesso seguro.
+            </p>
             
-            <div className="text-yellow-700 text-xs space-y-2">
-              <p>
-                Você foi redirecionado para um domínio espelho. Isso pode indicar que o domínio principal 
-                foi bloqueado ou está inacessível.
-              </p>
+            <div className="space-y-1">
+              <p><strong>Atual:</strong> {window.location.origin.replace('https://', '')}</p>
               
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 space-y-2">
-                <p><strong>Domínio Atual:</strong> {window.location.origin}</p>
-                {mirrorInfo?.originalDomain && (
-                  <p><strong>Domínio Original:</strong> {mirrorInfo.originalDomain}</p>
-                )}
-                
-                <div className="space-y-1">
-                  <p><strong>Opções de acesso alternativo:</strong></p>
-                  <ul className="list-disc list-inside space-y-1 text-xs">
-                    <li>Use uma VPN (recomendado: Psiphon, Outline)</li>
-                    <li>Acesse via Tor: <code className="bg-gray-200 px-1 rounded">{TOR_ONION_ADDRESS}</code></li>
-                    <li>Tente outros domínios espelho disponíveis</li>
-                  </ul>
+              <details className="mt-2">
+                <summary className="text-yellow-700 text-xs cursor-pointer hover:text-yellow-800">
+                  Ver opções de acesso
+                </summary>
+                <div className="mt-2 space-y-1">
+                  <p>• Use VPN (Psiphon, Outline)</p>
+                  <p>• Tor: <code className="bg-yellow-100 px-1 rounded text-xs">{TOR_ONION_ADDRESS}</code></p>
+                  <p>• Outros domínios espelho</p>
                 </div>
-              </div>
+              </details>
             </div>
-          </div>
-
-          <div className="flex-shrink-0 space-x-2">
-            <button
-              onClick={handleFindMirror}
-              disabled={isChecking}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-xs font-medium"
-            >
-              {isChecking ? 'Verificando...' : 'Buscar Espelho'}
-            </button>
-            
-            <button
-              onClick={handleDismiss}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs font-medium"
-            >
-              Dispensar
-            </button>
           </div>
         </div>
 
-        {/* Mirror domains list */}
-        <details className="mt-3">
-          <summary className="text-yellow-700 text-xs cursor-pointer hover:text-yellow-800">
-            Ver todos os domínios espelho disponíveis
-          </summary>
-          <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-2">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 text-xs">
-              {MIRROR_DOMAINS.map((domain, index) => (
-                <a
-                  key={index}
-                  href={domain + window.location.pathname}
-                  className="text-blue-600 hover:text-blue-800 underline break-all"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {domain.replace('https://', '')}
-                </a>
-              ))}
-            </div>
-          </div>
-        </details>
+        <div className="flex-shrink-0 space-x-1">
+          <button
+            onClick={handleFindMirror}
+            disabled={isChecking}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-2 py-1 rounded text-xs"
+            title="Buscar outro espelho"
+          >
+            {isChecking ? '...' : '🔍'}
+          </button>
+          
+          <button
+            onClick={handleDismiss}
+            className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs"
+            title="Dispensar"
+          >
+            ✕
+          </button>
+        </div>
       </div>
     </div>
   );

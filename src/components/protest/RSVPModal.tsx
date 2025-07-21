@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
+import { ShieldCheckIcon, EyeSlashIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 interface RSVPModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation) => void;
+  onSubmit: (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation, verification?: { email?: string; phone?: string }) => void;
   protestTitle: string;
   isConvoy?: boolean;
 }
@@ -29,12 +30,16 @@ const joinLocationOptions = [
 export default function RSVPModal({ isOpen, onClose, onSubmit, protestTitle, isConvoy = false }: RSVPModalProps) {
   const [selectedType, setSelectedType] = useState<ParticipantType>('populacao_geral');
   const [selectedJoinLocation, setSelectedJoinLocation] = useState<ConvoyJoinLocation>('inicio');
+  const [wantsVerification, setWantsVerification] = useState(false);
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(selectedType, isConvoy ? selectedJoinLocation : undefined);
+    const verification = wantsVerification ? { email: email || undefined, phone: phone || undefined } : undefined;
+    onSubmit(selectedType, isConvoy ? selectedJoinLocation : undefined, verification);
     onClose();
   };
 
@@ -113,11 +118,104 @@ export default function RSVPModal({ isOpen, onClose, onSubmit, protestTitle, isC
               </div>
             )}
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800">
-                <strong>Importante:</strong> Suas informações são anônimas. Não coletamos dados pessoais.
-                Esta confirmação é apenas para organização e contagem de participantes.
-              </p>
+            {/* Verification Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <EyeSlashIcon className="h-6 w-6 text-blue-600" />
+                  <div>
+                    <h3 className="font-medium text-blue-900">Apoio Anônimo</h3>
+                    <p className="text-sm text-blue-700">Confirmação rápida e privada</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWantsVerification(false)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    !wantsVerification
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-50'
+                  }`}
+                >
+                  Escolher
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <ShieldCheckIcon className="h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-medium text-green-900">Patriota Verificado</h3>
+                    <p className="text-sm text-green-700">Dados confiáveis + benefícios extras</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWantsVerification(true)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    wantsVerification
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-green-600 border border-green-300 hover:bg-green-50'
+                  }`}
+                >
+                  Escolher
+                </button>
+              </div>
+
+              {wantsVerification && (
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <p className="text-sm text-gray-700 font-medium">
+                    Opcional: Forneça pelo menos um contato para se tornar um Patriota Verificado
+                  </p>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <EnvelopeIcon className="h-4 w-4 inline mr-2" />
+                        Email (opcional)
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="seu@email.com"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <PhoneIcon className="h-4 w-4 inline mr-2" />
+                        WhatsApp (opcional)
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="(11) 99999-9999"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-100 border border-green-300 rounded p-3">
+                    <p className="text-xs text-green-800">
+                      🛡️ <strong>Benefícios do Patriota Verificado:</strong><br/>
+                      • Suas confirmações contam mais para estatísticas oficiais<br/>
+                      • Notificações sobre eventos próximos (opcional)<br/>
+                      • Badge de "Patriota Verificado" em rankings<br/>
+                      • Ajuda a combater bots e inflação artificial
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>🔒 Privacidade Garantida:</strong> Não rastreamos. Não vendemos dados. 
+                  Seus dados ficam criptografados e são usados apenas para contagem e notificações opcionais.
+                </p>
+              </div>
             </div>
 
             <div className="flex gap-3">
@@ -130,9 +228,19 @@ export default function RSVPModal({ isOpen, onClose, onSubmit, protestTitle, isC
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
               >
-                Confirmar Presença
+                {wantsVerification ? (
+                  <>
+                    <ShieldCheckIcon className="h-4 w-4" />
+                    Confirmar como Patriota Verificado
+                  </>
+                ) : (
+                  <>
+                    <EyeSlashIcon className="h-4 w-4" />
+                    Confirmar Anonimamente
+                  </>
+                )}
               </button>
             </div>
           </form>

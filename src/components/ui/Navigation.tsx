@@ -3,6 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { 
+  MapPinIcon, 
+  CalendarIcon, 
+  CurrencyDollarIcon, 
+  QuestionMarkCircleIcon,
+  WrenchScrewdriverIcon,
+  LockClosedIcon
+} from '@heroicons/react/24/outline'
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -21,50 +29,53 @@ export default function Navigation() {
           <Link href="/" className="flex items-center gap-3">
             <span className="text-2xl">🇧🇷</span>
             <span className="text-xl font-bold text-gray-900">
-              Mobilização Cívica
+              Marcha Brasil
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <Link 
-              href="/" 
-              className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+              href="/create-event" 
+              className="text-gray-700 hover:text-green-600 font-medium transition-colors flex items-center gap-2"
             >
-              🗺️ Ver Mobilizações
+              <MapPinIcon className="h-5 w-5" />
+              Criar Manifestação
             </Link>
             
-            {user && userProfile?.role === 'organizer' && (
-              <Link 
-                href="/create-event" 
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors"
-              >
-                📢 Criar Manifestação
-              </Link>
-            )}
-            
-            {user && userProfile?.role === 'admin' && (
-              <Link 
-                href="/admin" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                🛠️ Admin
-              </Link>
-            )}
+            <Link 
+              href="/" 
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center gap-2"
+            >
+              <CalendarIcon className="h-5 w-5" />
+              Manifestações Confirmadas
+            </Link>
             
             <Link 
               href="/doar" 
-              className="text-gray-700 hover:text-purple-600 font-medium transition-colors"
+              className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-2"
             >
-              💝 Apoiar a Causa
+              <CurrencyDollarIcon className="h-5 w-5" />
+              Apoie a Causa
             </Link>
             
             <Link 
               href="/faq" 
-              className="text-gray-700 hover:text-gray-600 font-medium transition-colors"
+              className="text-gray-700 hover:text-gray-600 font-medium transition-colors flex items-center gap-2"
             >
+              <QuestionMarkCircleIcon className="h-5 w-5" />
               FAQ
             </Link>
+            
+            {user && userProfile?.role === 'admin' && (
+              <Link 
+                href="/admin" 
+                className="text-gray-700 hover:text-red-600 font-medium transition-colors flex items-center gap-2"
+              >
+                <WrenchScrewdriverIcon className="h-5 w-5" />
+                Admin
+              </Link>
+            )}
             
             {/* Auth Section */}
             {user ? (
@@ -82,9 +93,10 @@ export default function Navigation() {
             ) : (
               <Link 
                 href="/login"
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
               >
-                Entrar
+                <LockClosedIcon className="h-5 w-5" />
+                Entrar / Criar Conta
               </Link>
             )}
           </div>
@@ -107,48 +119,51 @@ export default function Navigation() {
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3">
               <Link 
-                href="/" 
-                className="text-gray-700 hover:text-green-600 font-medium py-2 transition-colors"
+                href="/create-event" 
+                className="text-gray-700 hover:text-green-600 font-medium py-2 transition-colors flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                🗺️ Ver Mobilizações
+                <MapPinIcon className="h-5 w-5" />
+                Criar Manifestação
               </Link>
               
-              {user && userProfile?.role === 'organizer' && (
-                <Link 
-                  href="/create-event" 
-                  className="text-gray-700 hover:text-green-600 font-medium py-2 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  📢 Criar Manifestação
-                </Link>
-              )}
-              
-              {user && userProfile?.role === 'admin' && (
-                <Link 
-                  href="/admin" 
-                  className="text-gray-700 hover:text-blue-600 font-medium py-2 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  🛠️ Painel Admin
-                </Link>
-              )}
+              <Link 
+                href="/" 
+                className="text-gray-700 hover:text-blue-600 font-medium py-2 transition-colors flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <CalendarIcon className="h-5 w-5" />
+                Manifestações Confirmadas
+              </Link>
               
               <Link 
                 href="/doar" 
-                className="text-gray-700 hover:text-purple-600 font-medium py-2 transition-colors"
+                className="text-gray-700 hover:text-purple-600 font-medium py-2 transition-colors flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                💝 Apoiar a Causa
+                <CurrencyDollarIcon className="h-5 w-5" />
+                Apoie a Causa
               </Link>
               
               <Link 
                 href="/faq" 
-                className="text-gray-700 hover:text-gray-600 font-medium py-2 transition-colors"
+                className="text-gray-700 hover:text-gray-600 font-medium py-2 transition-colors flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >
+                <QuestionMarkCircleIcon className="h-5 w-5" />
                 FAQ
               </Link>
+              
+              {user && userProfile?.role === 'admin' && (
+                <Link 
+                  href="/admin" 
+                  className="text-gray-700 hover:text-red-600 font-medium py-2 transition-colors flex items-center gap-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <WrenchScrewdriverIcon className="h-5 w-5" />
+                  Admin
+                </Link>
+              )}
               
               {user ? (
                 <div className="pt-3 border-t border-gray-200">
@@ -165,10 +180,11 @@ export default function Navigation() {
               ) : (
                 <Link 
                   href="/login"
-                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg font-bold text-center mt-2"
+                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg font-bold text-center mt-2 flex items-center justify-center gap-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Entrar
+                  <LockClosedIcon className="h-5 w-5" />
+                  Entrar / Criar Conta
                 </Link>
               )}
             </div>

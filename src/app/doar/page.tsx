@@ -7,7 +7,7 @@ export default function DonatePage() {
   const [amount, setAmount] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const predefinedAmounts = [10, 25, 50, 100, 200]
+  const predefinedAmounts = [1, 10, 20]
   
   const handleDonate = async (donationAmount: number) => {
     setIsProcessing(true)

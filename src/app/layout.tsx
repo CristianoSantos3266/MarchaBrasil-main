@@ -3,8 +3,8 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
-  title: "🛡️ Mobilização Cívica",
-  description: "Plataforma de coordenação para manifestações pacíficas",
+  title: "🇧🇷 Marcha Brasil - Manifestações Pacíficas",
+  description: "Plataforma de coordenação para manifestações pacíficas e democráticas no Brasil",
 };
 
 export default function RootLayout({
@@ -22,6 +22,7 @@ export default function RootLayout({
           crossOrigin=""
         />
         <link rel="stylesheet" href="/css/hero-images.css" />
+        <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
       </head>
       <body className="antialiased font-sans">
         <AuthProvider>

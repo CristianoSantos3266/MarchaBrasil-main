@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { 
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  CheckCircleIcon
+} from '@heroicons/react/24/outline';
 
 interface PlatformMetrics {
   totalEvents: number;
@@ -55,8 +61,9 @@ export default function PlatformStats() {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-900">
-          📊 Platform Analytics
+        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <ChartBarIcon className="h-6 w-6 text-blue-600" />
+          Platform Analytics
         </h2>
         
         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -111,7 +118,10 @@ export default function PlatformStats() {
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">User Growth</span>
-            <span className="text-green-600 text-sm font-medium">↗️ +{metrics.weeklyGrowth}%</span>
+            <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+              <ArrowTrendingUpIcon className="h-4 w-4" />
+              +{metrics.weeklyGrowth}%
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
@@ -124,7 +134,10 @@ export default function PlatformStats() {
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Event Activity</span>
-            <span className="text-blue-600 text-sm font-medium">📈 High</span>
+            <span className="text-blue-600 text-sm font-medium flex items-center gap-1">
+              <ArrowTrendingUpIcon className="h-4 w-4" />
+              High
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-blue-500 h-2 rounded-full" style={{width: '78%'}}></div>
@@ -134,7 +147,10 @@ export default function PlatformStats() {
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Platform Health</span>
-            <span className="text-green-600 text-sm font-medium">✅ Excellent</span>
+            <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+              <CheckCircleIcon className="h-4 w-4" />
+              Excellent
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div className="bg-green-500 h-2 rounded-full" style={{width: '95%'}}></div>

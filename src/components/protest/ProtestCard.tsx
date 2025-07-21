@@ -1,7 +1,8 @@
-import { Protest, ParticipantType } from '@/types';
+import { Protest, ParticipantType, RSVPCountsDetailed } from '@/types';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import RSVPDisplay from './RSVPDisplay';
 
 interface ProtestCardProps {
   protest: Protest;
@@ -13,6 +14,7 @@ const participantIcons = {
   caminhoneiros: '🚛',
   motociclistas: '🏍️',
   carros: '🚗',
+  tratores: '🚜',
   produtoresRurais: '🌾',
   comerciantes: '🛍️',
   populacaoGeral: '👥'
@@ -22,6 +24,7 @@ const participantLabels = {
   caminhoneiros: 'Caminhoneiros',
   motociclistas: 'Motociclistas',
   carros: 'Carros',
+  tratores: 'Tratores',
   produtoresRurais: 'Produtores Rurais',
   comerciantes: 'Comerciantes',
   populacaoGeral: 'População Geral'
@@ -32,6 +35,7 @@ const protestTypeLabels = {
   motociata: 'Motociata',
   carreata: 'Carreata',
   caminhoneiros: 'Caminhoneiros',
+  tratorada: 'Tratorada',
   assembleia: 'Assembleia',
   manifestacao: 'Manifestação',
   outro: 'Outro'
@@ -42,13 +46,28 @@ const protestTypeIcons = {
   motociata: '🏍️',
   carreata: '🚗',
   caminhoneiros: '🚛',
+  tratorada: '🚜',
   assembleia: '🏛️',
   manifestacao: '✊',
   outro: '📢'
 };
 
 export default function ProtestCard({ protest, onRSVP, onViewDetails }: ProtestCardProps) {
-  const totalRSVPs = Object.values(protest.rsvps).reduce((sum, count) => sum + count, 0);
+  // Create detailed RSVP structure or use legacy
+  const rsvpsDetailed: RSVPCountsDetailed = protest.rsvpsDetailed || {
+    anonymous: protest.rsvps,
+    verified: {
+      caminhoneiros: 0,
+      motociclistas: 0,
+      carros: 0,
+      tratores: 0,
+      produtoresRurais: 0,
+      comerciantes: 0,
+      populacaoGeral: 0
+    },
+    total: protest.rsvps
+  };
+
   const country = getCountryByCode(protest.country);
   const region = getRegionByCode(protest.country, protest.region);
   
@@ -78,6 +97,17 @@ export default function ProtestCard({ protest, onRSVP, onViewDetails }: ProtestC
         </span>
       </div>
 
+      {/* Thumbnail */}
+      {protest.thumbnail && (
+        <div className="mb-4">
+          <img 
+            src={protest.thumbnail} 
+            alt={protest.title}
+            className="w-full h-48 object-cover rounded-lg border border-gray-200"
+          />
+        </div>
+      )}
+
       <div className="mb-4">
         <p className="text-gray-700 text-sm mb-2">{protest.description}</p>
         <div className="text-sm text-gray-600">
@@ -86,21 +116,7 @@ export default function ProtestCard({ protest, onRSVP, onViewDetails }: ProtestC
         </div>
       </div>
 
-      <div className="mb-4 bg-white/60 rounded-lg p-3 border border-green-100">
-        <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-          🇧🇷 Confirmações ({totalRSVPs.toLocaleString('pt-BR')} brasileiros)
-        </h4>
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          {Object.entries(protest.rsvps).map(([type, count]) => (
-            <div key={type} className="flex items-center gap-2 bg-white/80 rounded-md px-2 py-1">
-              <span>{participantIcons[type as keyof typeof participantIcons]}</span>
-              <span className="text-gray-700">
-                {participantLabels[type as keyof typeof participantLabels]}: {count.toLocaleString('pt-BR')}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <RSVPDisplay rsvps={rsvpsDetailed} className="mb-4" />
 
       <div className="flex gap-3">
         <button

@@ -2,8 +2,22 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import { 
+  HeartIcon, 
+  MapPinIcon, 
+  TruckIcon, 
+  ChartBarIcon,
+  ShieldCheckIcon,
+  HandRaisedIcon,
+  EnvelopeIcon
+} from '@heroicons/react/24/outline';
+import { 
+  CheckBadgeIcon 
+} from '@heroicons/react/24/solid';
 import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
 import { getProtestsByCountryAndRegion } from '@/data/globalProtests';
+import { getDemoEvents, isDemoMode } from '@/lib/demo-events';
 import { Country, Region, getCountryByCode, getRegionByCode } from '@/data/countries';
 import ProtestCard from '@/components/protest/ProtestCard';
 import RSVPModal from '@/components/protest/RSVPModal';
@@ -13,12 +27,16 @@ import AntiCensorshipWidget from '@/components/ui/AntiCensorshipWidget';
 import TrendingEvents from '@/components/analytics/TrendingEvents';
 import PlatformStats from '@/components/analytics/PlatformStats';
 import Navigation from '@/components/ui/Navigation';
+import UpcomingProtestsFeed from '@/components/protest/UpcomingProtestsFeed';
 
 const GlobalMap = dynamic(() => import('@/components/map/GlobalMap'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-      <p className="text-gray-600">Carregando mapa...</p>
+    <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
+      <div className="text-center">
+        <div className="w-8 h-8 bg-blue-600 rounded-full mx-auto mb-2 animate-bounce"></div>
+        <p className="text-gray-600">Carregando mapa...</p>
+      </div>
     </div>
   )
 });
@@ -43,8 +61,21 @@ export default function Home() {
   const handleRegionSelect = (country: Country, region: Region) => {
     setSelectedCountry(country);
     setSelectedRegion(region);
+    
+    // Get static protests for the region
     const regionProtests = getProtestsByCountryAndRegion(country.code, region.code);
-    setProtests(regionProtests);
+    
+    // In demo mode, also include demo events for the same region
+    let allProtests = regionProtests;
+    if (isDemoMode()) {
+      const demoEvents = getDemoEvents();
+      const regionDemoEvents = demoEvents.filter(event => 
+        event.country === country.code && event.region === region.code
+      );
+      allProtests = [...regionProtests, ...regionDemoEvents];
+    }
+    
+    setProtests(allProtests);
   };
 
   const handleRSVP = (protestId: string, _participantType: ParticipantType) => {
@@ -78,40 +109,49 @@ export default function Home() {
       <AntiCensorshipWidget />
       <Navigation />
       <main className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
-      <header className="bg-gradient-to-r from-green-600 via-yellow-400 to-blue-600 shadow-lg">
+      <header className="shadow-lg" style={{backgroundColor: '#002776'}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-white drop-shadow-lg">
-              🇧🇷 Mobilização Cívica Brasil
+              Marcha Brasil
             </h1>
             <p className="mt-2 text-xl text-white/90 drop-shadow">
               Plataforma para manifestações pacíficas e democráticas
             </p>
             <p className="mt-1 text-lg text-white/80">
-              "Ordem e Progresso" - Unidos pela Democracia 🇧🇷
+              "Ordem e Progresso" - Unidos pela Democracia
             </p>
             <div className="mt-4">
               <a 
                 href="/support" 
                 className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur text-white border-2 border-white/30 rounded-lg hover:bg-white/30 transition-all text-lg font-bold shadow-lg"
               >
-                💝 Support Platform
+                <HeartIcon className="h-6 w-6 mr-2" />
+                Apoiar Plataforma
               </a>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section with Brazilian Imagery */}
-      <section className="relative hero-bg-1 py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
+      {/* Hero Section with Brazilian Flag Background */}
+      <section 
+        className="relative py-20 overflow-hidden"
+        style={{
+          backgroundImage: 'url(/images/brazilian-flag-hero.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          filter: 'brightness(1.2) contrast(1.1) saturate(1.2)'
+        }}
+      >
+        <div className="absolute inset-0 bg-black/55"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-8">
-            <div className="text-6xl mb-4">🇧🇷</div>
             <h2 className="text-3xl font-bold text-white drop-shadow-lg mb-4">
               O Povo Unido Jamais Será Vencido
             </h2>
-            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow">
               Junte-se a milhares de brasileiros que defendem a democracia, a liberdade e os direitos constitucionais. 
               Manifestações pacíficas são um direito garantido pela Constituição de 1988.
             </p>
@@ -119,35 +159,67 @@ export default function Home() {
           
           {/* Stats with Brazilian colors */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur rounded-lg p-6 border border-white/20">
-              <div className="text-3xl font-bold text-white">127.3k+</div>
-              <div className="text-white/80">Brasileiros Mobilizados</div>
+            <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
+              <div className="text-3xl font-bold text-white drop-shadow">127.3k+</div>
+              <div className="text-white/90 drop-shadow">Brasileiros Mobilizados</div>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-6 border border-white/20">
-              <div className="text-3xl font-bold text-white">26</div>
-              <div className="text-white/80">Estados + DF</div>
+            <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
+              <div className="text-3xl font-bold text-white drop-shadow">26</div>
+              <div className="text-white/90 drop-shadow">Estados + DF</div>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-6 border border-white/20">
-              <div className="text-3xl font-bold text-white">847</div>
-              <div className="text-white/80">Manifestações Realizadas</div>
+            <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
+              <div className="text-3xl font-bold text-white drop-shadow">847</div>
+              <div className="text-white/90 drop-shadow">Manifestações Realizadas</div>
             </div>
           </div>
-        </div>
-        
-        {/* Brazilian flag pattern overlay */}
-        <div className="absolute top-0 right-0 w-64 h-64 opacity-10">
-          <div className="w-full h-full bg-gradient-to-br from-green-500 via-yellow-400 to-blue-500 rounded-full"></div>
-        </div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 opacity-10">
-          <div className="w-full h-full bg-gradient-to-tr from-blue-500 via-yellow-400 to-green-500 rounded-full"></div>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* National Events Feed */}
+        <section className="mb-8">
+          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg shadow-md p-6 border border-green-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <span className="text-3xl">🇧🇷</span>
+                Manifestações Nacionais
+              </h2>
+              <span className="text-sm text-green-700 bg-green-200 px-3 py-1 rounded-full font-medium">
+                Brasil
+              </span>
+            </div>
+            <UpcomingProtestsFeed 
+              onProtestSelect={handleViewDetails} 
+              countryFilter="BR"
+              hideTitle={true}
+            />
+          </div>
+        </section>
+
+        {/* International Events Feed */}
+        <section className="mb-12">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow-md p-6 border border-blue-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <span className="text-3xl">🌍</span>
+                Diáspora Brasileira
+              </h2>
+              <span className="text-sm text-blue-700 bg-blue-200 px-3 py-1 rounded-full font-medium">
+                Internacional
+              </span>
+            </div>
+            <UpcomingProtestsFeed 
+              onProtestSelect={handleViewDetails} 
+              countryFilter="INTERNATIONAL"
+              hideTitle={true}
+            />
+          </div>
+        </section>
         <section className="mb-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              🗺️ Escolha Seu Estado e Região
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+              <MapPinIcon className="h-8 w-8 mr-3 text-green-600" />
+              Escolha Seu Estado e Região
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Descubra manifestações pacíficas em sua região. Clique no mapa para ver os eventos em sua cidade.
@@ -165,20 +237,20 @@ export default function Home() {
           <section className="mb-8">
             <div className="bg-gradient-to-r from-green-50 via-yellow-50 to-blue-50 border-2 border-green-200 rounded-xl p-6 shadow-lg">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">📍</span>
+                <MapPinIcon className="h-6 w-6 text-green-600" />
                 <h3 className="text-xl font-bold text-gray-900">
                   {selectedRegion.name}, {selectedCountry?.name}
                 </h3>
               </div>
               <p className="text-gray-700 text-lg">
                 {protests.length === 0 
-                  ? '🔍 Nenhuma manifestação encontrada nesta região. Seja o primeiro a organizar!' 
-                  : `🇧🇷 ${protests.length} manifestação(ões) pacífica(s) encontrada(s) em sua região.`
+                  ? 'Nenhuma manifestação encontrada nesta região. Seja o primeiro a organizar!' 
+                  : `${protests.length} manifestação(ões) pacífica(s) encontrada(s) em sua região.`
                 }
               </p>
               {protests.length > 0 && (
                 <div className="mt-4 flex items-center gap-2 text-sm text-green-700">
-                  <span className="font-semibold">✊ Participe da democracia!</span>
+                  <span className="font-semibold">Participe da democracia!</span>
                   <span>Sua voz importa para o Brasil.</span>
                 </div>
               )}
@@ -190,7 +262,7 @@ export default function Home() {
           <section>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                🇧🇷 Manifestações em {selectedRegion?.name}
+                Manifestações em {selectedRegion?.name}
               </h2>
               <p className="text-lg text-gray-600">
                 Manifestações pacíficas organizadas por cidadãos brasileiros em defesa da democracia
@@ -231,14 +303,14 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-6 text-left">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <span className="text-2xl">🗺️</span>
+                      <MapPinIcon className="h-8 w-8 text-green-600 mt-1" />
                       <div>
                         <p className="font-bold text-gray-900">Escolha sua região</p>
                         <p className="text-gray-600">Clique no mapa para ver manifestações em seu estado</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="text-2xl">✋</span>
+                      <HandRaisedIcon className="h-8 w-8 text-blue-600 mt-1" />
                       <div>
                         <p className="font-bold text-gray-900">Confirme presença</p>
                         <p className="text-gray-600">Participe como caminhoneiro, motociclista ou cidadão</p>
@@ -247,14 +319,14 @@ export default function Home() {
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <span className="text-2xl">🚛</span>
+                      <TruckIcon className="h-8 w-8 text-yellow-600 mt-1" />
                       <div>
                         <p className="font-bold text-gray-900">Coordene comboios</p>
                         <p className="text-gray-600">Organize carreatas e motociatas com rotas seguras</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <span className="text-2xl">📊</span>
+                      <ChartBarIcon className="h-8 w-8 text-purple-600 mt-1" />
                       <div>
                         <p className="font-bold text-gray-900">Acompanhe crescimento</p>
                         <p className="text-gray-600">Veja o número de participantes em tempo real</p>
@@ -263,8 +335,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mt-8 p-4 bg-white/60 rounded-lg border border-green-200">
-                  <p className="text-sm text-gray-700">
-                    <strong>🛡️ Manifestação Pacífica:</strong> Todos os eventos devem seguir os princípios da não-violência e respeito às leis.
+                  <p className="text-sm text-gray-700 flex items-center gap-2">
+                    <ShieldCheckIcon className="h-5 w-5 text-green-600" />
+                    <strong>Manifestação Pacífica:</strong> Todos os eventos devem seguir os princípios da não-violência e respeito às leis.
                   </p>
                 </div>
               </div>
@@ -273,7 +346,7 @@ export default function Home() {
         )}
       </div>
 
-      <footer className="bg-gradient-to-r from-green-800 via-yellow-600 to-blue-800 text-white py-12 mt-16">
+      <footer className="text-white py-12 mt-16" style={{backgroundColor: '#009639'}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="text-4xl mb-4">🇧🇷</div>
@@ -284,15 +357,24 @@ export default function Home() {
             
             <div className="grid md:grid-cols-3 gap-8 text-center mb-8">
               <div>
-                <h4 className="font-bold text-lg mb-2">🛡️ Direitos Constitucionais</h4>
+                <h4 className="font-bold text-lg mb-2 flex items-center justify-center gap-2">
+                  <ShieldCheckIcon className="h-6 w-6" />
+                  Direitos Constitucionais
+                </h4>
                 <p className="text-white/80 text-sm">Art. 5º, XVI - Direito de reunião pacífica</p>
               </div>
               <div>
-                <h4 className="font-bold text-lg mb-2">🗳️ Democracia</h4>
+                <h4 className="font-bold text-lg mb-2 flex items-center justify-center gap-2">
+                  <CheckBadgeIcon className="h-6 w-6" />
+                  Democracia
+                </h4>
                 <p className="text-white/80 text-sm">Participação cidadã e liberdade de expressão</p>
               </div>
               <div>
-                <h4 className="font-bold text-lg mb-2">☮️ Paz</h4>
+                <h4 className="font-bold text-lg mb-2 flex items-center justify-center gap-2">
+                  <HandRaisedIcon className="h-6 w-6" />
+                  Paz
+                </h4>
                 <p className="text-white/80 text-sm">Manifestações pacíficas e ordeiras</p>
               </div>
             </div>

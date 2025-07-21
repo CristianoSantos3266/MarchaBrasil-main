@@ -11,7 +11,9 @@ export interface Protest {
   type: ProtestType;
   coordinates?: [number, number];
   convoy?: ConvoyInfo;
-  rsvps: RSVPCounts;
+  thumbnail?: string; // Base64 image data or URL
+  rsvps: RSVPCounts; // Legacy for existing data
+  rsvpsDetailed?: RSVPCountsDetailed; // New structure
   results?: ProtestResults;
   createdAt: string;
   updatedAt: string;
@@ -37,9 +39,16 @@ export interface RSVPCounts {
   caminhoneiros: number;
   motociclistas: number;
   carros: number;
+  tratores: number;
   produtoresRurais: number;
   comerciantes: number;
   populacaoGeral: number;
+}
+
+export interface RSVPCountsDetailed {
+  anonymous: RSVPCounts;
+  verified: RSVPCounts;
+  total: RSVPCounts;
 }
 
 export interface EmailSubscription {
@@ -57,6 +66,10 @@ export interface RSVP {
   participantType: ParticipantType;
   joinLocation?: ConvoyJoinLocation;
   timestamp: string;
+  isVerified?: boolean;
+  email?: string;
+  phone?: string;
+  ipHash?: string;
 }
 
 export type ProtestType = 
@@ -64,6 +77,7 @@ export type ProtestType =
   | 'motociata'
   | 'carreata'
   | 'caminhoneiros'
+  | 'tratorada'
   | 'assembleia'
   | 'manifestacao'
   | 'outro';
@@ -72,6 +86,7 @@ export type ParticipantType =
   | 'caminhoneiro'
   | 'motociclista'
   | 'carro'
+  | 'trator'
   | 'produtor_rural'
   | 'comerciante'
   | 'populacao_geral';

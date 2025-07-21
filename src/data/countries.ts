@@ -181,6 +181,139 @@ export const countries: Country[] = [
       { code: 'SK', name: 'Saskatchewan', coordinates: [52.9399, -106.4509], type: 'province' },
       { code: 'YT', name: 'Yukon', coordinates: [64.0685, -139.0725], type: 'territory' }
     ]
+  },
+  {
+    code: 'JP',
+    name: 'Japão',
+    coordinates: [36.2048, 138.2529],
+    zoom: 5,
+    regions: [
+      { code: 'TOK', name: 'Tóquio', coordinates: [35.6762, 139.6503], type: 'region' },
+      { code: 'OSA', name: 'Osaka', coordinates: [34.6937, 135.5023], type: 'region' },
+      { code: 'KAN', name: 'Kanagawa', coordinates: [35.4478, 139.6425], type: 'region' },
+      { code: 'AIC', name: 'Aichi', coordinates: [35.1802, 136.9066], type: 'region' },
+      { code: 'SAI', name: 'Saitama', coordinates: [35.8617, 139.6455], type: 'region' },
+      { code: 'CHI', name: 'Chiba', coordinates: [35.6074, 140.1065], type: 'region' },
+      { code: 'GUN', name: 'Gunma', coordinates: [36.3914, 139.0608], type: 'region' },
+      { code: 'IBA', name: 'Ibaraki', coordinates: [36.3418, 140.4468], type: 'region' }
+    ]
+  },
+  {
+    code: 'PT',
+    name: 'Portugal',
+    coordinates: [39.3999, -8.2245],
+    zoom: 6,
+    regions: [
+      { code: 'LIS', name: 'Lisboa', coordinates: [38.7223, -9.1393], type: 'region' },
+      { code: 'POR', name: 'Porto', coordinates: [41.1579, -8.6291], type: 'region' },
+      { code: 'SET', name: 'Setúbal', coordinates: [38.5244, -8.8882], type: 'region' },
+      { code: 'BRA', name: 'Braga', coordinates: [41.5518, -8.4229], type: 'region' },
+      { code: 'AVE', name: 'Aveiro', coordinates: [40.6443, -8.6455], type: 'region' },
+      { code: 'FAR', name: 'Faro', coordinates: [37.0194, -7.9322], type: 'region' },
+      { code: 'COI', name: 'Coimbra', coordinates: [40.2033, -8.4103], type: 'region' }
+    ]
+  },
+  {
+    code: 'ES',
+    name: 'Espanha',
+    coordinates: [40.4637, -3.7492],
+    zoom: 6,
+    regions: [
+      { code: 'MAD', name: 'Madrid', coordinates: [40.4168, -3.7038], type: 'region' },
+      { code: 'BCN', name: 'Barcelona', coordinates: [41.3851, 2.1734], type: 'region' },
+      { code: 'VAL', name: 'Valencia', coordinates: [39.4699, -0.3763], type: 'region' },
+      { code: 'SEV', name: 'Sevilla', coordinates: [37.3891, -5.9845], type: 'region' },
+      { code: 'BIL', name: 'Bilbao', coordinates: [43.2627, -2.9253], type: 'region' },
+      { code: 'MAL', name: 'Málaga', coordinates: [36.7213, -4.4214], type: 'region' },
+      { code: 'LAS', name: 'Las Palmas', coordinates: [28.1248, -15.4300], type: 'region' }
+    ]
+  },
+  {
+    code: 'IT',
+    name: 'Itália',
+    coordinates: [41.8719, 12.5674],
+    zoom: 6,
+    regions: [
+      { code: 'ROM', name: 'Roma', coordinates: [41.9028, 12.4964], type: 'region' },
+      { code: 'MIL', name: 'Milano', coordinates: [45.4642, 9.1900], type: 'region' },
+      { code: 'NAP', name: 'Napoli', coordinates: [40.8518, 14.2681], type: 'region' },
+      { code: 'FLO', name: 'Firenze', coordinates: [43.7696, 11.2558], type: 'region' },
+      { code: 'VEN', name: 'Venezia', coordinates: [45.4408, 12.3155], type: 'region' },
+      { code: 'TOR', name: 'Torino', coordinates: [45.0703, 7.6869], type: 'region' },
+      { code: 'BOL', name: 'Bologna', coordinates: [44.4949, 11.3426], type: 'region' }
+    ]
+  },
+  {
+    code: 'GB',
+    name: 'Reino Unido',
+    coordinates: [55.3781, -3.4360],
+    zoom: 6,
+    regions: [
+      { code: 'LON', name: 'Londres', coordinates: [51.5074, -0.1278], type: 'region' },
+      { code: 'MAN', name: 'Manchester', coordinates: [53.4808, -2.2426], type: 'region' },
+      { code: 'BIR', name: 'Birmingham', coordinates: [52.4862, -1.8904], type: 'region' },
+      { code: 'LIV', name: 'Liverpool', coordinates: [53.4084, -2.9916], type: 'region' },
+      { code: 'EDI', name: 'Edinburgh', coordinates: [55.9533, -3.1883], type: 'region' },
+      { code: 'GLA', name: 'Glasgow', coordinates: [55.8642, -4.2518], type: 'region' },
+      { code: 'BRI', name: 'Bristol', coordinates: [51.4545, -2.5879], type: 'region' }
+    ]
+  },
+  {
+    code: 'DE',
+    name: 'Alemanha',
+    coordinates: [51.1657, 10.4515],
+    zoom: 6,
+    regions: [
+      { code: 'BER', name: 'Berlin', coordinates: [52.5200, 13.4050], type: 'region' },
+      { code: 'MUN', name: 'München', coordinates: [48.1351, 11.5820], type: 'region' },
+      { code: 'HAM', name: 'Hamburg', coordinates: [53.5511, 9.9937], type: 'region' },
+      { code: 'FRA', name: 'Frankfurt', coordinates: [50.1109, 8.6821], type: 'region' },
+      { code: 'COL', name: 'Köln', coordinates: [50.9375, 6.9603], type: 'region' },
+      { code: 'STU', name: 'Stuttgart', coordinates: [48.7758, 9.1829], type: 'region' },
+      { code: 'DUS', name: 'Düsseldorf', coordinates: [51.2277, 6.7735], type: 'region' }
+    ]
+  },
+  {
+    code: 'AU',
+    name: 'Austrália',
+    coordinates: [-25.2744, 133.7751],
+    zoom: 4,
+    regions: [
+      { code: 'NSW', name: 'New South Wales', coordinates: [-33.8688, 151.2093], type: 'state' },
+      { code: 'VIC', name: 'Victoria', coordinates: [-37.8136, 144.9631], type: 'state' },
+      { code: 'QLD', name: 'Queensland', coordinates: [-27.4698, 153.0251], type: 'state' },
+      { code: 'WA', name: 'Western Australia', coordinates: [-31.9505, 115.8605], type: 'state' },
+      { code: 'SA', name: 'South Australia', coordinates: [-34.9285, 138.6007], type: 'state' },
+      { code: 'TAS', name: 'Tasmania', coordinates: [-42.8821, 147.3272], type: 'state' },
+      { code: 'ACT', name: 'Australian Capital Territory', coordinates: [-35.2809, 149.1300], type: 'territory' },
+      { code: 'NT', name: 'Northern Territory', coordinates: [-12.4634, 130.8456], type: 'territory' }
+    ]
+  },
+  {
+    code: 'PY',
+    name: 'Paraguai',
+    coordinates: [-23.4425, -58.4438],
+    zoom: 6,
+    regions: [
+      { code: 'ASU', name: 'Asunción', coordinates: [-25.2637, -57.5759], type: 'region' },
+      { code: 'CDE', name: 'Ciudad del Este', coordinates: [-25.5095, -54.6142], type: 'region' },
+      { code: 'PJC', name: 'Pedro Juan Caballero', coordinates: [-22.5486, -55.7364], type: 'region' },
+      { code: 'ENC', name: 'Encarnación', coordinates: [-27.3378, -55.8664], type: 'region' },
+      { code: 'COR', name: 'Coronel Oviedo', coordinates: [-25.4458, -56.4503], type: 'region' }
+    ]
+  },
+  {
+    code: 'UY',
+    name: 'Uruguai',
+    coordinates: [-32.5228, -55.7658],
+    zoom: 7,
+    regions: [
+      { code: 'MON', name: 'Montevideo', coordinates: [-34.9011, -56.1645], type: 'region' },
+      { code: 'CAN', name: 'Canelones', coordinates: [-34.5278, -56.2778], type: 'region' },
+      { code: 'MAL', name: 'Maldonado', coordinates: [-34.9000, -54.9500], type: 'region' },
+      { code: 'COL', name: 'Colonia', coordinates: [-34.4633, -57.8400], type: 'region' },
+      { code: 'SAL', name: 'Salto', coordinates: [-31.3833, -57.9667], type: 'region' }
+    ]
   }
 ];
 

@@ -2,6 +2,21 @@
 
 import { useState } from 'react'
 import Navigation from '@/components/ui/Navigation'
+import { 
+  EnvelopeIcon, 
+  ChatBubbleLeftRightIcon, 
+  DevicePhoneMobileIcon,
+  QuestionMarkCircleIcon,
+  BookOpenIcon,
+  GlobeAltIcon,
+  CalendarDaysIcon,
+  ShieldCheckIcon,
+  LockClosedIcon,
+  ScaleIcon,
+  HeartIcon,
+  DocumentTextIcon,
+  MagnifyingGlassIcon
+} from '@heroicons/react/24/outline'
 
 interface FAQItem {
   question: string
@@ -16,8 +31,13 @@ export default function FAQPage() {
   const faqs: FAQItem[] = [
     {
       category: 'platform',
+      question: 'Por que essa plataforma existe?',
+      answer: 'A população brasileira precisa de uma ferramenta para se organizar pacificamente e protestar de forma coordenada para transmitir suas mensagens. Hoje em dia, as informações estão muito dispersas em várias redes sociais e grupos diferentes. Nossa plataforma centraliza essas informações, criando um local único onde os cidadãos podem encontrar manifestações em sua região, se organizar democraticamente e exercer seus direitos constitucionais de forma pacífica e efetiva.'
+    },
+    {
+      category: 'platform',
       question: 'O que é essa plataforma?',
-      answer: 'Esta é uma plataforma digital neutra e apartidária que permite aos brasileiros organizar e participar de manifestações pacíficas. Nosso objetivo é facilitar o exercício democrático dos direitos constitucionais de reunião e expressão.'
+      answer: 'Esta é uma plataforma digital neutra e apartidária que permite aos brasileiros organizar e participar de manifestações pacíficas. Nosso objetivo é facilitar o exercício democrático dos direitos constitucionais de reunião e expressão, centralizando informações que antes ficavam espalhadas.'
     },
     {
       category: 'safety',
@@ -77,14 +97,14 @@ export default function FAQPage() {
   ]
 
   const categories = [
-    { id: 'all', name: 'Todas', icon: '📚' },
-    { id: 'platform', name: 'Plataforma', icon: '🌐' },
-    { id: 'events', name: 'Eventos', icon: '📅' },
-    { id: 'safety', name: 'Segurança', icon: '🛡️' },
-    { id: 'privacy', name: 'Privacidade', icon: '🔒' },
-    { id: 'moderation', name: 'Moderação', icon: '⚖️' },
-    { id: 'donation', name: 'Doações', icon: '💝' },
-    { id: 'legal', name: 'Legal', icon: '📜' }
+    { id: 'all', name: 'Todas', icon: BookOpenIcon },
+    { id: 'platform', name: 'Plataforma', icon: GlobeAltIcon },
+    { id: 'events', name: 'Eventos', icon: CalendarDaysIcon },
+    { id: 'safety', name: 'Segurança', icon: ShieldCheckIcon },
+    { id: 'privacy', name: 'Privacidade', icon: LockClosedIcon },
+    { id: 'moderation', name: 'Moderação', icon: ScaleIcon },
+    { id: 'donation', name: 'Doações', icon: HeartIcon },
+    { id: 'legal', name: 'Legal', icon: DocumentTextIcon }
   ]
 
   const filteredFAQs = activeCategory === 'all' 
@@ -119,22 +139,30 @@ export default function FAQPage() {
         {/* Category Filter */}
         <div className="bg-white rounded-xl shadow-lg border-2 border-green-200 mb-8">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">🔍 Filtrar por categoria</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <MagnifyingGlassIcon className="h-6 w-6 text-green-600" />
+              Filtrar por categoria
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
-                  className={`p-3 rounded-lg text-sm font-medium transition-colors ${
-                    activeCategory === category.id
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <div className="text-lg mb-1">{category.icon}</div>
-                  <div>{category.name}</div>
-                </button>
-              ))}
+              {categories.map((category) => {
+                const IconComponent = category.icon;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setActiveCategory(category.id)}
+                    className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                      activeCategory === category.id
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className="flex justify-center mb-1">
+                      <IconComponent className="h-6 w-6" />
+                    </div>
+                    <div>{category.name}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -183,36 +211,44 @@ export default function FAQPage() {
         {/* Contact Information */}
         <div className="mt-8 bg-blue-50 rounded-xl border border-blue-200 p-6">
           <div className="text-center">
-            <h2 className="text-xl font-bold text-blue-800 mb-4">
-              💬 Não encontrou sua resposta?
+            <h2 className="text-xl font-bold text-blue-800 mb-4 flex items-center justify-center gap-2">
+              <QuestionMarkCircleIcon className="h-6 w-6" />
+              Não encontrou sua resposta?
             </h2>
             <p className="text-blue-700 mb-4">
               Se você tem uma dúvida que não está listada aqui, entre em contato conosco:
             </p>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="bg-white rounded-lg p-4 border border-blue-200">
-                <div className="text-2xl mb-2">📧</div>
+                <div className="flex justify-center mb-2">
+                  <EnvelopeIcon className="h-8 w-8 text-blue-600" />
+                </div>
                 <div className="font-bold text-blue-800">Email</div>
-                <div className="text-sm text-blue-600">contato@mobilizacao.org</div>
+                <div className="text-sm text-blue-600">contato@marchabrasil.com</div>
               </div>
               <div className="bg-white rounded-lg p-4 border border-blue-200">
-                <div className="text-2xl mb-2">💬</div>
+                <div className="flex justify-center mb-2">
+                  <ChatBubbleLeftRightIcon className="h-8 w-8 text-blue-600" />
+                </div>
                 <div className="font-bold text-blue-800">Telegram</div>
                 <div className="text-sm text-blue-600">@MobilizacaoCivica</div>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-blue-200">
-                <div className="text-2xl mb-2">💻</div>
-                <div className="font-bold text-blue-800">GitHub</div>
-                <div className="text-sm text-blue-600">github.com/mobilizacao</div>
-              </div>
+              <a href="https://wa.me/13657671900" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-4 border border-blue-200 hover:bg-blue-50 transition-colors">
+                <div className="flex justify-center mb-2">
+                  <DevicePhoneMobileIcon className="h-8 w-8 text-blue-600" />
+                </div>
+                <div className="font-bold text-blue-800">WhatsApp</div>
+                <div className="text-sm text-blue-600">Entre em contato</div>
+              </a>
             </div>
           </div>
         </div>
 
         {/* Legal Notice */}
         <div className="mt-8 text-center text-sm text-gray-600">
-          <p>
-            📜 Esta plataforma opera em conformidade com a Constituição Federal Brasileira, 
+          <p className="flex items-center justify-center gap-2">
+            <DocumentTextIcon className="h-5 w-5 text-gray-500" />
+            Esta plataforma opera em conformidade com a Constituição Federal Brasileira, 
             especificamente o Art. 5º, XVI, que garante o direito de reunião pacífica.
           </p>
         </div>

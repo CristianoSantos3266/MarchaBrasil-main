@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
 import { signIn, signUp } from '@/lib/supabase'
+import { DocumentTextIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -25,7 +26,15 @@ export default function LoginPage() {
         if (error) throw error
         
         if (data.user) {
-          setMessage('Conta criada com sucesso! Verifique seu email para confirmar.')
+          if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+            setMessage('✅ Conta criada com sucesso! (Modo demonstração - login automático habilitado)')
+            // Auto redirect in demo mode after showing success
+            setTimeout(() => {
+              router.push('/')
+            }, 2000)
+          } else {
+            setMessage('Conta criada com sucesso! Verifique seu email para confirmar.')
+          }
         }
       } else {
         const { data, error } = await signIn(email, password)
@@ -36,7 +45,14 @@ export default function LoginPage() {
         }
       }
     } catch (error: any) {
-      setMessage(error.message || 'Erro ao fazer login')
+      console.error('Auth error:', error)
+      if (error.message === 'Supabase not configured') {
+        setMessage('Sistema de autenticação temporariamente indisponível. Tente novamente mais tarde.')
+      } else if (error.message === 'Failed to fetch') {
+        setMessage('Erro de conexão. Verifique sua internet e tente novamente.')
+      } else {
+        setMessage(error.message || 'Erro ao fazer login')
+      }
     } finally {
       setLoading(false)
     }
@@ -59,6 +75,13 @@ export default function LoginPage() {
                 : 'Acesse sua conta para organizar manifestações'
               }
             </p>
+            {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+              <div className="mt-3 p-2 bg-blue-100 rounded-lg border border-blue-300">
+                <p className="text-sm text-blue-700">
+                  🧪 <strong>Modo Demonstração</strong> - Todas as funcionalidades estão ativas para teste
+                </p>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -122,7 +145,10 @@ export default function LoginPage() {
 
           {isSignUp && (
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="font-bold text-blue-800 mb-2">📝 Próximos Passos</h3>
+              <h3 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
+                <DocumentTextIcon className="h-5 w-5" />
+                Próximos Passos
+              </h3>
               <p className="text-sm text-blue-700">
                 Após criar sua conta, você poderá <Link href="/criar-perfil" className="underline">criar um perfil de organizador</Link> para começar a organizar manifestações.
               </p>
@@ -130,8 +156,9 @@ export default function LoginPage() {
           )}
 
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-xs text-gray-500">
-              🛡️ Seus dados são protegidos e não são compartilhados publicamente
+            <p className="text-xs text-gray-500 flex items-center justify-center gap-2">
+              <ShieldCheckIcon className="h-4 w-4" />
+              Seus dados são protegidos e não são compartilhados publicamente
             </p>
           </div>
         </div>

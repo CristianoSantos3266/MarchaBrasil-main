@@ -1,5 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/types/database'
+
+// Simple type definition to avoid import issues
+type Database = {
+  public: {
+    Tables: any
+    Views: any
+    Functions: any
+    Enums: any
+  }
+}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -15,8 +24,29 @@ export const supabase = hasValidCredentials
   ? createClient<Database>(supabaseUrl, supabaseAnonKey)
   : null
 
+// Demo mode flag for launch
+const DEMO_MODE = !hasValidCredentials || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
+// Debug logging (disabled for production)
+// console.log('Supabase config:', { DEMO_MODE })
+
 // Auth helpers
 export const signUp = async (email: string, password: string) => {
+  if (DEMO_MODE) {
+    // Demo mode - simulate successful signup
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate network delay
+    return { 
+      data: { 
+        user: { 
+          id: 'demo-user-' + Date.now(), 
+          email,
+          email_confirmed_at: new Date().toISOString() // Auto-confirm in demo mode
+        }, 
+        session: { access_token: 'demo-token-' + Date.now() }
+      }, 
+      error: null 
+    }
+  }
   if (!supabase) {
     return { data: null, error: { message: 'Supabase not configured' } }
   }
@@ -28,6 +58,17 @@ export const signUp = async (email: string, password: string) => {
 }
 
 export const signIn = async (email: string, password: string) => {
+  if (DEMO_MODE) {
+    // Demo mode - simulate successful login
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate network delay
+    return { 
+      data: { 
+        user: { id: 'demo-user-' + Date.now(), email }, 
+        session: { access_token: 'demo-token' } 
+      }, 
+      error: null 
+    }
+  }
   if (!supabase) {
     return { data: null, error: { message: 'Supabase not configured' } }
   }

@@ -5,6 +5,21 @@ import { useRouter } from 'next/navigation'
 import Navigation from '@/components/ui/Navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { createEvent } from '@/lib/supabase'
+import { saveDemoEvent } from '@/lib/demo-events'
+import { 
+  DocumentTextIcon,
+  CalendarIcon,
+  PhoneIcon,
+  ExclamationTriangleIcon,
+  HandRaisedIcon,
+  MapPinIcon,
+  TruckIcon,
+  BuildingLibraryIcon,
+  RocketLaunchIcon,
+  PaperAirplaneIcon,
+  PhotoIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 
 export default function CreateEventPage() {
   const { user, userProfile } = useAuth()
@@ -15,7 +30,7 @@ export default function CreateEventPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'caminhada' as 'caminhada' | 'caminhoneiros' | 'carreata' | 'motociata' | 'vigilia',
+    type: 'manifestacao' as 'manifestacao' | 'marcha' | 'caminhoneiros' | 'carreata' | 'motociata' | 'tratorada' | 'assembleia',
     date: '',
     time: '',
     meeting_point: '',
@@ -23,15 +38,21 @@ export default function CreateEventPage() {
     city: '',
     state: '',
     expected_attendance: '',
-    whatsapp_contact: ''
+    whatsapp_contact: '',
+    isNational: false
   })
 
+  const [thumbnail, setThumbnail] = useState<string | null>(null)
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+
   const protestTypes = [
-    { value: 'caminhada', label: '🚶 Caminhada', icon: '🚶' },
-    { value: 'caminhoneiros', label: '🚛 Caminhoneiros', icon: '🚛' },
-    { value: 'carreata', label: '🚗 Carreata', icon: '🚗' },
-    { value: 'motociata', label: '🏍️ Motociata', icon: '🏍️' },
-    { value: 'vigilia', label: '🕯️ Vigília', icon: '🕯️' }
+    { value: 'manifestacao', label: 'Manifestação', icon: HandRaisedIcon },
+    { value: 'marcha', label: 'Marcha', icon: MapPinIcon },
+    { value: 'caminhoneiros', label: 'Caminhoneiros', icon: TruckIcon },
+    { value: 'carreata', label: 'Carreata', icon: TruckIcon },
+    { value: 'motociata', label: 'Motociata', icon: MapPinIcon },
+    { value: 'tratorada', label: 'Tratorada', icon: TruckIcon },
+    { value: 'assembleia', label: 'Assembleia', icon: BuildingLibraryIcon }
   ]
 
   const brazilianStates = [
@@ -39,7 +60,46 @@ export default function CreateEventPage() {
     'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ]
 
+  const brazilianCapitals = [
+    { state: 'AC', capital: 'Rio Branco' },
+    { state: 'AL', capital: 'Maceió' },
+    { state: 'AP', capital: 'Macapá' },
+    { state: 'AM', capital: 'Manaus' },
+    { state: 'BA', capital: 'Salvador' },
+    { state: 'CE', capital: 'Fortaleza' },
+    { state: 'DF', capital: 'Brasília' },
+    { state: 'ES', capital: 'Vitória' },
+    { state: 'GO', capital: 'Goiânia' },
+    { state: 'MA', capital: 'São Luís' },
+    { state: 'MT', capital: 'Cuiabá' },
+    { state: 'MS', capital: 'Campo Grande' },
+    { state: 'MG', capital: 'Belo Horizonte' },
+    { state: 'PA', capital: 'Belém' },
+    { state: 'PB', capital: 'João Pessoa' },
+    { state: 'PR', capital: 'Curitiba' },
+    { state: 'PE', capital: 'Recife' },
+    { state: 'PI', capital: 'Teresina' },
+    { state: 'RJ', capital: 'Rio de Janeiro' },
+    { state: 'RN', capital: 'Natal' },
+    { state: 'RS', capital: 'Porto Alegre' },
+    { state: 'RO', capital: 'Porto Velho' },
+    { state: 'RR', capital: 'Boa Vista' },
+    { state: 'SC', capital: 'Florianópolis' },
+    { state: 'SP', capital: 'São Paulo' },
+    { state: 'SE', capital: 'Aracaju' },
+    { state: 'TO', capital: 'Palmas' }
+  ]
+
+  // Check if we're in demo mode
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co'
+
   useEffect(() => {
+    // In demo mode, allow access without authentication
+    if (isDemoMode) {
+      setLoading(false)
+      return
+    }
+
     if (!user) {
       router.push('/login')
       return
@@ -54,21 +114,91 @@ export default function CreateEventPage() {
         return
       }
     }
-  }, [user, userProfile, router])
+  }, [user, userProfile, router, isDemoMode])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setMessage('Por favor, selecione apenas arquivos de imagem.')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setMessage('A imagem deve ter no máximo 5MB.')
+        return
+      }
+
+      setThumbnailFile(file)
+      
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setThumbnail(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeThumbnail = () => {
+    setThumbnail(null)
+    setThumbnailFile(null)
+    // Reset file input
+    const fileInput = document.getElementById('thumbnail') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
-
+    
     setLoading(true)
     setMessage('')
 
     try {
+      // In demo mode, save event to localStorage
+      if (isDemoMode) {
+        await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate network delay
+        
+        // Save the demo event(s) with thumbnail
+        const savedEvents = saveDemoEvent({ ...formData, thumbnail });
+        
+        if (formData.isNational) {
+          setMessage(`Eventos criados com sucesso! (Modo Demo - ${savedEvents.length} manifestações criadas em todas as capitais)`)
+        } else {
+          setMessage(`Evento criado com sucesso! (Modo Demo - ${savedEvents[0].title})`)
+        }
+        
+        // Reset form
+        setFormData({
+          title: '',
+          description: '',
+          type: 'manifestacao',
+          date: '',
+          time: '',
+          meeting_point: '',
+          final_destination: '',
+          city: '',
+          state: '',
+          expected_attendance: '',
+          whatsapp_contact: '',
+          isNational: false
+        })
+        setThumbnail(null)
+        setThumbnailFile(null)
+
+        // Don't auto-redirect in demo mode - let user see the success message
+        return
+      }
+
+      if (!user) return
+
       const eventData = {
         creator_id: user.id,
         ...formData,
@@ -81,13 +211,13 @@ export default function CreateEventPage() {
       const { data, error } = await createEvent(eventData)
       if (error) throw error
 
-      setMessage('🎉 Evento criado com sucesso! Aguarde aprovação dos moderadores.')
+      setMessage('Evento criado com sucesso! Aguarde aprovação dos moderadores.')
       
       // Reset form
       setFormData({
         title: '',
         description: '',
-        type: 'caminhada',
+        type: 'manifestacao',
         date: '',
         time: '',
         meeting_point: '',
@@ -95,8 +225,11 @@ export default function CreateEventPage() {
         city: '',
         state: '',
         expected_attendance: '',
-        whatsapp_contact: ''
+        whatsapp_contact: '',
+        isNational: false
       })
+      setThumbnail(null)
+      setThumbnailFile(null)
 
       // Redirect after 3 seconds
       setTimeout(() => {
@@ -110,11 +243,12 @@ export default function CreateEventPage() {
     }
   }
 
-  if (!user || !userProfile) {
+  // In demo mode, show loading until ready, then allow access
+  if (!isDemoMode && (!user || !userProfile)) {
     return <div>Carregando...</div>
   }
 
-  if (userProfile.role !== 'organizer') {
+  if (!isDemoMode && userProfile?.role !== 'organizer') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
         <Navigation />
@@ -149,21 +283,29 @@ export default function CreateEventPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-lg p-8 border-2 border-green-200">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              📢 Criar Nova Manifestação
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
+              <HandRaisedIcon className="h-8 w-8 text-green-600" />
+              Criar Nova Manifestação
             </h1>
             <p className="text-lg text-gray-600">
               Organize uma manifestação pacífica em defesa da democracia
             </p>
             <div className="mt-2 text-sm text-blue-600">
-              Organizador: <strong>{userProfile.public_name}</strong>
+              {isDemoMode ? (
+                <span><strong>Modo Demo</strong> - Teste a criação de eventos</span>
+              ) : (
+                <>Organizador: <strong>{userProfile?.public_name}</strong></>
+              )}
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">📋 Informações Básicas</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <DocumentTextIcon className="h-6 w-6 text-green-600" />
+                Informações Básicas
+              </h2>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -192,11 +334,14 @@ export default function CreateEventPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   >
-                    {protestTypes.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
+                    {protestTypes.map(type => {
+                      const IconComponent = type.icon;
+                      return (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
@@ -215,11 +360,60 @@ export default function CreateEventPage() {
                   required
                 />
               </div>
+
+              {/* Thumbnail Upload */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Imagem de Destaque (opcional)
+                </label>
+                
+                {!thumbnail ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                    <PhotoIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <label htmlFor="thumbnail" className="cursor-pointer">
+                      <span className="text-sm text-gray-600">
+                        Clique para adicionar uma imagem ou arraste aqui
+                      </span>
+                      <input
+                        id="thumbnail"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleThumbnailChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-xs text-gray-500 mt-2">
+                      PNG, JPG ou GIF até 5MB
+                    </p>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={thumbnail}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-lg border border-gray-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeThumbnail}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                    <div className="mt-2 text-sm text-gray-600">
+                      {thumbnailFile?.name} ({((thumbnailFile?.size || 0) / 1024 / 1024).toFixed(1)}MB)
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Date and Location */}
             <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">📅 Data e Local</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <CalendarIcon className="h-6 w-6 text-blue-600" />
+                Data e Local
+              </h2>
               
               <div className="grid md:grid-cols-3 gap-6">
                 <div>
@@ -252,42 +446,78 @@ export default function CreateEventPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Estado *
+                    Localização *
                   </label>
-                  <select
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Selecione o estado</option>
-                    {brazilianStates.map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
+                  
+                  {/* National Event Toggle */}
+                  <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-lg">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isNational}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          isNational: e.target.checked,
+                          state: e.target.checked ? '' : prev.state,
+                          city: e.target.checked ? '' : prev.city
+                        }))}
+                        className="h-4 w-4 text-green-600 border-green-300 rounded focus:ring-green-500"
+                      />
+                      <span className="text-sm font-medium text-green-800">
+                        🇧🇷 Evento Nacional - Todas as Capitais Brasileiras
+                      </span>
+                    </label>
+                    {formData.isNational && (
+                      <p className="text-xs text-green-700 mt-2">
+                        Criará automaticamente 27 eventos simultâneos (uma manifestação em cada capital)
+                      </p>
+                    )}
+                  </div>
+
+                  {!formData.isNational && (
+                    <select
+                      name="state"
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Selecione o estado</option>
+                      {brazilianStates.map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                  )}
+
+                  {formData.isNational && (
+                    <div className="w-full px-3 py-2 bg-green-50 border border-green-300 rounded-md text-green-800 font-medium">
+                      Todas as 27 capitais brasileiras
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6 mt-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cidade *
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ex: São Paulo"
-                    required
-                  />
-                </div>
+                {!formData.isNational && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cidade *
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ex: São Paulo"
+                      required={!formData.isNational}
+                    />
+                  </div>
+                )}
 
-                <div>
+                <div className={formData.isNational ? "md:col-span-2" : ""}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ponto de Encontro *
+                    {formData.isNational ? 'Ponto de Encontro Base (opcional)' : 'Ponto de Encontro *'}
                   </label>
                   <input
                     type="text"
@@ -295,9 +525,17 @@ export default function CreateEventPage() {
                     value={formData.meeting_point}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ex: Avenida Paulista, em frente ao MASP"
-                    required
+                    placeholder={formData.isNational 
+                      ? "Ex: Centro da cidade (será aplicado a todas as capitais)" 
+                      : "Ex: Avenida Paulista, em frente ao MASP"
+                    }
+                    required={!formData.isNational}
                   />
+                  {formData.isNational && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Se não especificado, será usado "Centro de [Capital]" para cada cidade
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -318,7 +556,10 @@ export default function CreateEventPage() {
 
             {/* Contact and Details */}
             <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">📞 Contato e Detalhes</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <PhoneIcon className="h-6 w-6 text-yellow-600" />
+                Contato e Detalhes
+              </h2>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -355,7 +596,10 @@ export default function CreateEventPage() {
 
             {/* Guidelines */}
             <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-              <h3 className="text-lg font-bold text-red-800 mb-3">⚠️ Diretrizes Importantes</h3>
+              <h3 className="text-lg font-bold text-red-800 mb-3 flex items-center gap-2">
+                <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+                Diretrizes Importantes
+              </h3>
               <div className="text-sm text-red-700 space-y-2">
                 <p>• <strong>Manifestação Pacífica:</strong> Todos os eventos devem ser pacíficos e ordenados</p>
                 <p>• <strong>Respeito às Leis:</strong> Cumpra todas as normas de trânsito e regulamentações locais</p>
@@ -380,9 +624,19 @@ export default function CreateEventPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-lg font-bold text-lg hover:from-green-700 hover:to-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-lg font-bold text-lg hover:from-green-700 hover:to-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
               >
-                {loading ? '📤 Enviando...' : '🚀 Criar Manifestação'}
+                {loading ? (
+                  <>
+                    <PaperAirplaneIcon className="h-6 w-6" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <RocketLaunchIcon className="h-6 w-6" />
+                    Criar Manifestação
+                  </>
+                )}
               </button>
               <p className="text-sm text-gray-600 mt-3">
                 Seu evento será revisado pelos moderadores antes da publicação

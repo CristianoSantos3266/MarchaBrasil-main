@@ -3,7 +3,17 @@
 import { useState, useEffect } from 'react';
 import { globalProtests } from '@/data/globalProtests';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
+import { getDemoEvents, isDemoMode, onDemoEventsUpdate } from '@/lib/demo-events';
 import { Protest } from '@/types';
+import { 
+  FireIcon,
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  ArrowRightIcon,
+  EyeIcon,
+  HandRaisedIcon
+} from '@heroicons/react/24/outline';
 
 interface EventAnalytics {
   protestId: string;
@@ -17,20 +27,27 @@ export default function TrendingEvents() {
   const [trending, setTrending] = useState<Protest[]>([]);
   const [analytics, setAnalytics] = useState<EventAnalytics[]>([]);
 
-  useEffect(() => {
-    // Simulate analytics data
-    const mockAnalytics: EventAnalytics[] = globalProtests.map(protest => ({
+  const loadTrendingData = () => {
+    // Combine static protests with demo events
+    let allProtests = [...globalProtests];
+    if (isDemoMode()) {
+      const demoEvents = getDemoEvents();
+      allProtests = [...globalProtests, ...demoEvents];
+    }
+
+    // Simulate analytics data for all protests
+    const mockAnalytics: EventAnalytics[] = allProtests.map(protest => ({
       protestId: protest.id,
       views: Math.floor(Math.random() * 5000) + 100,
       rsvps: Object.values(protest.rsvps).reduce((sum, count) => sum + count, 0),
-      growth: Math.floor(Math.random() * 200) - 50, // -50 to +150
+      growth: Math.floor(Math.random() * 200) - 50,
       trend: Math.random() > 0.3 ? 'up' : Math.random() > 0.5 ? 'stable' : 'down'
     }));
 
     setAnalytics(mockAnalytics);
 
     // Sort by trending score (views + rsvps + growth)
-    const sortedProtests = globalProtests
+    const sortedProtests = allProtests
       .map(protest => {
         const analytics = mockAnalytics.find(a => a.protestId === protest.id);
         return {
@@ -42,13 +59,26 @@ export default function TrendingEvents() {
       .slice(0, 5);
 
     setTrending(sortedProtests);
+  };
+
+  useEffect(() => {
+    // Load initial data
+    loadTrendingData();
+
+    // Listen for demo events updates
+    let cleanup: (() => void) | undefined;
+    if (isDemoMode()) {
+      cleanup = onDemoEventsUpdate(loadTrendingData);
+    }
+
+    return cleanup;
   }, []);
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case 'up': return '📈';
-      case 'down': return '📉';
-      case 'stable': return '➡️';
+      case 'up': return <ArrowTrendingUpIcon className="h-5 w-5 text-green-600" />;
+      case 'down': return <ArrowTrendingDownIcon className="h-5 w-5 text-red-600" />;
+      case 'stable': return <ArrowRightIcon className="h-5 w-5 text-gray-600" />;
     }
   };
 
@@ -60,8 +90,9 @@ export default function TrendingEvents() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
-        🔥 Trending Events
+      <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <FireIcon className="h-6 w-6 text-orange-600" />
+        Trending Events
       </h2>
 
       <div className="space-y-4">
@@ -95,9 +126,7 @@ export default function TrendingEvents() {
 
               <div className="text-right">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">
-                    {getTrendIcon(protestAnalytics?.trend || 'stable')}
-                  </span>
+                  {getTrendIcon(protestAnalytics?.trend || 'stable')}
                   <span className={`text-sm font-medium ${getGrowthColor(protestAnalytics?.growth || 0)}`}>
                     {protestAnalytics?.growth && protestAnalytics.growth > 0 ? '+' : ''}
                     {protestAnalytics?.growth || 0}%
@@ -105,8 +134,14 @@ export default function TrendingEvents() {
                 </div>
                 
                 <div className="text-xs text-gray-500 space-y-1">
-                  <div>👁️ {(protestAnalytics?.views || 0).toLocaleString()} views</div>
-                  <div>✋ {(protestAnalytics?.rsvps || 0).toLocaleString()} RSVPs</div>
+                  <div className="flex items-center gap-1">
+                    <EyeIcon className="h-4 w-4" />
+                    {(protestAnalytics?.views || 0).toLocaleString()} views
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <HandRaisedIcon className="h-4 w-4" />
+                    {(protestAnalytics?.rsvps || 0).toLocaleString()} RSVPs
+                  </div>
                 </div>
               </div>
             </div>

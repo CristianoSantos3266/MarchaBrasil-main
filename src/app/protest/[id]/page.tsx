@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { globalProtests } from '@/data/globalProtests';
+import { getDemoEvents, isDemoMode } from '@/lib/demo-events';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
 import RSVPModal from '@/components/protest/RSVPModal';
 import ProtestResults from '@/components/results/ProtestResults';
@@ -58,7 +59,14 @@ export default function ProtestDetailPage() {
     isConvoy: false
   });
 
-  const protest = globalProtests.find(p => p.id === protestId);
+  // Find protest in static data or demo events
+  let protest = globalProtests.find(p => p.id === protestId);
+  
+  // If not found in static data and in demo mode, check demo events
+  if (!protest && isDemoMode()) {
+    const demoEvents = getDemoEvents();
+    protest = demoEvents.find(p => p.id === protestId);
+  }
 
   if (!protest) {
     return (

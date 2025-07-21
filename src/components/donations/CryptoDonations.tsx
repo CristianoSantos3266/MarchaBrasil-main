@@ -42,11 +42,11 @@ export default function CryptoDonations() {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
-        💰 Crypto Donations
+        💰 Doações Crypto
       </h3>
       
       <p className="text-gray-600 text-center mb-6 text-sm">
-        Support censorship-resistant infrastructure with cryptocurrency
+        Apoie infraestrutura resistente à censura com criptomoedas
       </p>
 
       {/* Crypto selector */}
@@ -89,7 +89,7 @@ export default function CryptoDonations() {
 
         {/* Address */}
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
-          <p className="text-xs text-gray-600 mb-1">Send to this address:</p>
+          <p className="text-xs text-gray-600 mb-1">Envie para este endereço:</p>
           <p className="text-sm font-mono text-gray-900 break-all">
             {selectedCrypto.address}
           </p>
@@ -104,28 +104,28 @@ export default function CryptoDonations() {
               : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
         >
-          {copied ? '✓ Copied!' : '📋 Copy Address'}
+          {copied ? '✓ Copiado!' : '📋 Copiar Endereço'}
         </button>
       </div>
 
       {/* Important notes */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h5 className="font-semibold text-yellow-800 text-sm mb-2">⚠️ Important Notes:</h5>
+        <h5 className="font-semibold text-yellow-800 text-sm mb-2">⚠️ Notas Importantes:</h5>
         <ul className="text-xs text-yellow-700 space-y-1">
-          <li>• Only send {selectedCrypto.name} to this address</li>
+          <li>• Envie apenas {selectedCrypto.name} para este endereço</li>
           {selectedCrypto.network && (
-            <li>• Ensure you're using the {selectedCrypto.network} network</li>
+            <li>• Certifique-se de usar a rede {selectedCrypto.network}</li>
           )}
-          <li>• Donations are anonymous and non-refundable</li>
-          <li>• We cannot provide tax receipts for crypto donations</li>
-          <li>• Double-check the address before sending</li>
+          <li>• Doações são anônimas e não reembolsáveis</li>
+          <li>• Não podemos fornecer recibos fiscais para doações crypto</li>
+          <li>• Verifique duas vezes o endereço antes de enviar</li>
         </ul>
       </div>
 
       {/* Privacy note */}
       <div className="mt-4 text-center">
         <p className="text-xs text-gray-500">
-          🔒 Your donation is completely anonymous. We only track total amounts, not individual transactions.
+          🔒 Sua doação é completamente anônima. Rastreamos apenas valores totais, não transações individuais.
         </p>
       </div>
     </div>

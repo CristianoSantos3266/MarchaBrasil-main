@@ -6,6 +6,8 @@ export interface DonationTier {
   description: string;
   icon: string;
   benefits: string[];
+  badge?: string;
+  monthlyBenefits?: string[];
 }
 
 export interface DonationStats {
@@ -25,45 +27,66 @@ export interface CryptoAddress {
 
 export const DONATION_TIERS: DonationTier[] = [
   {
-    id: 'supporter',
-    name: 'Base Supporter',
-    amount: 10,
-    currency: 'USD',
-    description: 'Help maintain the platform infrastructure',
+    id: 'apoiador-base',
+    name: 'Apoiador Base',
+    amount: 5,
+    currency: 'BRL',
+    description: 'Ajude a manter a infraestrutura da plataforma',
     icon: '🛡️',
+    badge: 'Protetor',
     benefits: [
-      'Support censorship-resistant infrastructure',
-      'Enable secure communication tools',
-      'Maintain global server network'
+      'Apoiar infraestrutura resistente à censura',
+      'Habilitar ferramentas de comunicação segura',
+      'Manter rede global de servidores'
+    ],
+    monthlyBenefits: [
+      'Badge "Protetor" no perfil',
+      'Acesso prioritário a atualizações',
+      'Relatórios mensais de transparência'
     ]
   },
   {
-    id: 'builder',
-    name: 'Builder',
-    amount: 50,
-    currency: 'USD',
-    description: 'Fund platform development and new features',
+    id: 'construtor',
+    name: 'Construtor',
+    amount: 15,
+    currency: 'BRL',
+    description: 'Financie o desenvolvimento da plataforma e novas funcionalidades',
     icon: '🔧',
+    badge: 'Sustentador',
     benefits: [
-      'All Base Supporter benefits',
-      'Support feature development',
-      'Enhanced security measures',
-      'Mobile app development'
+      'Todos os benefícios do Apoiador Base',
+      'Apoiar desenvolvimento de funcionalidades',
+      'Medidas de segurança aprimoradas',
+      'Desenvolvimento de aplicativo móvel'
+    ],
+    monthlyBenefits: [
+      'Badge "Sustentador" no perfil',
+      'Voto em prioridades de desenvolvimento',
+      'Acesso beta a novas funcionalidades',
+      'Chat direto com desenvolvedores'
     ]
   },
   {
-    id: 'defender',
-    name: 'Defender',
-    amount: 200,
-    currency: 'USD',
-    description: 'Champion of digital rights and freedom',
+    id: 'defensor',
+    name: 'Defensor',
+    amount: 30,
+    currency: 'BRL',
+    description: 'Campeão dos direitos digitais e liberdade',
     icon: '⚔️',
+    badge: 'Guardião da Liberdade',
     benefits: [
-      'All Builder benefits',
-      'Priority feature requests',
-      'Advanced security features',
-      'Multiple mirror domains',
-      'Tor network integration'
+      'Todos os benefícios do Construtor',
+      'Solicitações de funcionalidades prioritárias',
+      'Recursos de segurança avançados',
+      'Múltiplos domínios espelho',
+      'Integração com rede Tor'
+    ],
+    monthlyBenefits: [
+      'Badge "Guardião da Liberdade" no perfil',
+      'Influência direta no roadmap',
+      'Acesso a ferramentas avançadas',
+      'Reconhecimento público (opcional)',
+      'Linha direta de suporte'
     ]
   }
 ];

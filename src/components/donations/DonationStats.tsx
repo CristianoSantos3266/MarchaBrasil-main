@@ -2,17 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { DonationStats } from '@/types/donations';
+import { ShieldCheckIcon, HeartIcon } from '@heroicons/react/24/outline';
 
 export default function DonationStatsDisplay() {
   const [stats, setStats] = useState<DonationStats>({
     totalRaised: 12847,
     totalDonors: 156,
-    currency: 'USD',
+    currency: 'BRL',
     lastUpdated: new Date().toISOString()
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: stats.currency,
       minimumFractionDigits: 0,
@@ -21,7 +22,7 @@ export default function DonationStatsDisplay() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('pt-BR', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -32,9 +33,12 @@ export default function DonationStatsDisplay() {
   return (
     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg p-6 mb-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">🛡️ Civic Infrastructure Support</h2>
+        <h2 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
+          <ShieldCheckIcon className="h-8 w-8 text-white" />
+          Apoio à Infraestrutura Cívica
+        </h2>
         <p className="text-blue-100 text-sm">
-          Supporting censorship-resistant platforms for peaceful civic coordination
+          Apoiando plataformas resistentes à censura para coordenação cívica pacífica
         </p>
       </div>
 
@@ -43,26 +47,26 @@ export default function DonationStatsDisplay() {
           <div className="text-3xl font-bold mb-1">
             {formatCurrency(stats.totalRaised)}
           </div>
-          <div className="text-blue-200 text-sm">Total Raised</div>
+          <div className="text-blue-200 text-sm">Total Arrecadado</div>
         </div>
         
         <div className="text-center">
           <div className="text-3xl font-bold mb-1">
             {stats.totalDonors.toLocaleString()}
           </div>
-          <div className="text-blue-200 text-sm">Patriots Supporting</div>
+          <div className="text-blue-200 text-sm">Patriotas Apoiando</div>
         </div>
       </div>
 
       <div className="text-center text-blue-200 text-xs">
-        Last updated: {formatDate(stats.lastUpdated)}
+        Última atualização: {formatDate(stats.lastUpdated)}
       </div>
 
       {/* Progress indicators */}
       <div className="mt-6 space-y-4">
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span>Server Infrastructure</span>
+            <span>Infraestrutura de Servidores</span>
             <span>78%</span>
           </div>
           <div className="w-full bg-blue-800 rounded-full h-2">
@@ -72,7 +76,7 @@ export default function DonationStatsDisplay() {
         
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span>Security & Encryption</span>
+            <span>Segurança & Criptografia</span>
             <span>92%</span>
           </div>
           <div className="w-full bg-blue-800 rounded-full h-2">
@@ -82,7 +86,7 @@ export default function DonationStatsDisplay() {
         
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span>Mirror Domains</span>
+            <span>Domínios Espelho</span>
             <span>65%</span>
           </div>
           <div className="w-full bg-blue-800 rounded-full h-2">
@@ -92,8 +96,9 @@ export default function DonationStatsDisplay() {
       </div>
 
       <div className="mt-6 text-center">
-        <p className="text-blue-100 text-xs">
-          💝 Thank you for supporting digital freedom and peaceful civic coordination
+        <p className="text-blue-100 text-xs flex items-center justify-center gap-2">
+          <HeartIcon className="h-4 w-4 text-blue-100" />
+          Obrigado por apoiar a liberdade digital e coordenação cívica pacífica
         </p>
       </div>
     </div>
