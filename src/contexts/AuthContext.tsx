@@ -15,12 +15,73 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Demo mode detection
+const isDemoMode = !supabase || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [userProfile, setUserProfile] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const loadDemoUser = () => {
+    if (typeof window !== 'undefined') {
+      const demoUser = localStorage.getItem('demo-user')
+      console.log('Demo mode: checking localStorage for demo-user:', demoUser)
+      if (demoUser) {
+        try {
+          const userData = JSON.parse(demoUser)
+          console.log('Demo mode: parsed user data:', userData)
+          setUser(userData)
+          setUserProfile({
+            id: userData.id,
+            email: userData.email,
+            public_name: userData.email.split('@')[0],
+            name: userData.email.split('@')[0],
+            role: 'user',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+        } catch (error) {
+          console.error('Error parsing demo user data:', error)
+        }
+      } else {
+        setUser(null)
+        setUserProfile(null)
+      }
+    }
+  }
+
   useEffect(() => {
+    if (isDemoMode) {
+      // In demo mode, check localStorage for demo user
+      loadDemoUser()
+      
+      // Listen for localStorage changes (e.g., from login page)
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'demo-user') {
+          console.log('Demo user localStorage changed, reloading user data')
+          loadDemoUser()
+        }
+      }
+      
+      window.addEventListener('storage', handleStorageChange)
+      
+      // Also listen for custom events (for same-page updates)
+      const handleCustomStorageChange = () => {
+        console.log('Demo user custom event triggered, reloading user data')
+        loadDemoUser()
+      }
+      
+      window.addEventListener('demo-user-updated', handleCustomStorageChange)
+      
+      setLoading(false)
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange)
+        window.removeEventListener('demo-user-updated', handleCustomStorageChange)
+      }
+    }
+
     if (!supabase) {
       setLoading(false)
       return
@@ -61,6 +122,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signOut = async () => {
+    if (isDemoMode) {
+      // In demo mode, just clear localStorage and state
+      localStorage.removeItem('demo-user')
+      setUser(null)
+      setUserProfile(null)
+      
+      // Trigger custom event and reload page
+      window.dispatchEvent(new CustomEvent('demo-user-updated'))
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 100)
+      return
+    }
+    
     if (!supabase) return
     const { error } = await supabase.auth.signOut()
     if (!error) {
@@ -70,7 +145,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const refreshProfile = async () => {
-    if (user) {
+    if (isDemoMode && user) {
+      // In demo mode, reload from localStorage
+      const demoUser = localStorage.getItem('demo-user')
+      if (demoUser) {
+        try {
+          const userData = JSON.parse(demoUser)
+          setUserProfile({
+            id: userData.id,
+            email: userData.email,
+            public_name: userData.public_name || userData.email.split('@')[0],
+            name: userData.name || userData.email.split('@')[0],
+            phone: userData.phone || null,
+            city: userData.city || null,
+            state: userData.state || null,
+            whatsapp: userData.whatsapp || null,
+            bio: userData.bio || null,
+            motivation: userData.motivation || null,
+            social_link: userData.social_link || null,
+            role: userData.role || 'user',
+            created_at: userData.created_at || new Date().toISOString(),
+            updated_at: userData.updated_at || new Date().toISOString()
+          })
+        } catch (error) {
+          console.error('Error refreshing demo profile:', error)
+        }
+      }
+    } else if (user) {
       const { data: profile } = await getUserProfile(user.id)
       setUserProfile(profile)
     }

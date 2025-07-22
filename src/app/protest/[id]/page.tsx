@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { globalProtests } from '@/data/globalProtests';
-import { getDemoEvents, isDemoMode } from '@/lib/demo-events';
+import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
 import RSVPModal from '@/components/protest/RSVPModal';
 import ProtestResults from '@/components/results/ProtestResults';
@@ -58,8 +58,10 @@ export default function ProtestDetailPage() {
     protestTitle: '',
     isConvoy: false
   });
+  
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
-  // Find protest in static data or demo events
+  // Find protest in static data or demo events (refresh when refreshCounter changes)
   let protest = globalProtests.find(p => p.id === protestId);
   
   // If not found in static data and in demo mode, check demo events
@@ -98,8 +100,39 @@ export default function ProtestDetailPage() {
     });
   };
 
-  const handleRSVPSubmit = (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation) => {
-    alert(`RSVP confirmado para o protesto ${protest.id} como ${participantType}${joinLocation ? ` (${joinLocation})` : ''}`);
+  const handleRSVPSubmit = (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation, verification?: { email?: string; phone?: string }) => {
+    // Handle demo events
+    if (protestId.startsWith('demo-') && isDemoMode()) {
+      const success = addDemoEventRSVP(protestId, participantType, verification);
+      
+      if (success) {
+        const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
+        const joinText = joinLocation ? ` (${joinLocation})` : '';
+        
+        // Create a more user-friendly participant type label
+        const participantLabels: Record<string, string> = {
+          'caminhoneiro': 'Caminhoneiro',
+          'motociclista': 'Motociclista',
+          'carro': 'Carro Particular',
+          'produtor_rural': 'Produtor Rural',
+          'comerciante': 'Comerciante',
+          'populacao_geral': 'População Geral'
+        };
+        
+        alert(`✅ RSVP confirmado${verificationText}!\n\nEvento: ${protest.title}\nParticipando como: ${participantLabels[participantType] || participantType}${joinText}\n\n🎉 Sua presença foi registrada com sucesso!`);
+        
+        // Force refresh the page data by updating the counter
+        setRefreshCounter(prev => prev + 1);
+      } else {
+        alert('❌ Erro ao confirmar RSVP. Tente novamente.');
+      }
+    } else {
+      // Handle regular events (future implementation)
+      const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
+      const joinText = joinLocation ? ` (${joinLocation})` : '';
+      alert(`✅ RSVP confirmado${verificationText} para "${protest.title}"${joinText}!`);
+    }
+    setRsvpModal(prev => ({ ...prev, isOpen: false }));
   };
 
   const handleResultsUpdate = (protestId: string, updates: Record<string, unknown>) => {

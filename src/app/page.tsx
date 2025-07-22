@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
 import { getProtestsByCountryAndRegion } from '@/data/globalProtests';
-import { getDemoEvents, isDemoMode } from '@/lib/demo-events';
+import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
 import { Country, Region, getCountryByCode, getRegionByCode } from '@/data/countries';
 import ProtestCard from '@/components/protest/ProtestCard';
 import RSVPModal from '@/components/protest/RSVPModal';
@@ -90,8 +90,29 @@ export default function Home() {
     }
   };
 
-  const handleRSVPSubmit = (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation) => {
-    alert(`RSVP confirmado para o protesto ${rsvpModal.protestId} como ${participantType}${joinLocation ? ` (${joinLocation})` : ''}`);
+  const handleRSVPSubmit = (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation, verification?: { email?: string; phone?: string }) => {
+    // Handle demo events
+    if (rsvpModal.protestId.startsWith('demo-') && isDemoMode()) {
+      const success = addDemoEventRSVP(rsvpModal.protestId, participantType, verification);
+      
+      if (success) {
+        const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
+        const joinText = joinLocation ? ` (${joinLocation})` : '';
+        alert(`✅ RSVP confirmado${verificationText} para "${rsvpModal.protestTitle}" como ${participantType}${joinText}!\n\nSua participação foi registrada com sucesso!`);
+        
+        // Refresh the protests list to show updated RSVP counts
+        if (selectedCountry && selectedRegion) {
+          handleRegionSelect(selectedCountry, selectedRegion);
+        }
+      } else {
+        alert('❌ Erro ao confirmar RSVP. Tente novamente.');
+      }
+    } else {
+      // Handle regular events (future implementation)
+      const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
+      const joinText = joinLocation ? ` (${joinLocation})` : '';
+      alert(`✅ RSVP confirmado${verificationText} para "${rsvpModal.protestTitle}" como ${participantType}${joinText}!`);
+    }
   };
 
   const handleViewDetails = (protestId: string) => {

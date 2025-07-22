@@ -2,16 +2,39 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { CalendarIcon, MapPinIcon, UsersIcon, ClockIcon } from '@heroicons/react/24/outline';
-import { Protest } from '@/types';
+import { CalendarIcon, MapPinIcon, UsersIcon, ClockIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
+import RSVPModal from './RSVPModal';
 import { globalProtests } from '@/data/globalProtests';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
-import { getDemoEvents, isDemoMode, onDemoEventsUpdate } from '@/lib/demo-events';
+import { getDemoEvents, isDemoMode, onDemoEventsUpdate, getThumbnail, deleteDemoEvent, addDemoEventRSVP } from '@/lib/demo-events';
 
 interface UpcomingProtestsFeedProps {
   onProtestSelect?: (protestId: string) => void;
   countryFilter?: 'BR' | 'INTERNATIONAL' | 'ALL';
   hideTitle?: boolean;
+}
+
+function formatDateToISO(date: string): string {
+  if (!date) return '';
+  if (date.includes('-') && date.length === 10) {
+    const parts = date.split('-');
+    if (parts.length === 3 && parts[2].length === 4) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+  }
+  return date;
+}
+
+function formatDateToBrazilian(date: string): string {
+  if (!date) return '';
+  if (date.includes('-') && date.length === 10) {
+    const parts = date.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+  }
+  return date;
 }
 
 export default function UpcomingProtestsFeed({ 
@@ -20,6 +43,12 @@ export default function UpcomingProtestsFeed({
   hideTitle = false 
 }: UpcomingProtestsFeedProps) {
   const [upcomingProtests, setUpcomingProtests] = useState<Protest[]>([]);
+  const [rsvpModal, setRsvpModal] = useState<{ isOpen: boolean; protestId: string; protestTitle: string; isConvoy: boolean }>({
+    isOpen: false,
+    protestId: '',
+    protestTitle: '',
+    isConvoy: false
+  });
 
   const loadUpcomingProtests = () => {
     // Combine static protests with demo events
@@ -52,6 +81,69 @@ export default function UpcomingProtestsFeed({
       .slice(0, 50); // Show top 50 upcoming
 
     setUpcomingProtests(upcoming);
+  };
+
+  const handleEdit = (protestId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.location.href = `/edit-event/${protestId}`;
+  };
+
+  const handleDelete = (protestId: string, protestTitle: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`Tem certeza que deseja excluir o evento "${protestTitle}"?`)) {
+      const success = deleteDemoEvent(protestId);
+      if (success) {
+        loadUpcomingProtests(); // Refresh the list
+        alert('Evento excluído com sucesso!');
+      } else {
+        alert('Erro ao excluir evento. Tente novamente.');
+      }
+    }
+  };
+
+  const handleRSVP = (protestId: string, protestTitle: string, isConvoy: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRsvpModal({
+      isOpen: true,
+      protestId,
+      protestTitle,
+      isConvoy
+    });
+  };
+
+  const handleRSVPSubmit = (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation, verification?: { email?: string; phone?: string }) => {
+    // Handle demo events
+    if (rsvpModal.protestId.startsWith('demo-') && isDemoMode()) {
+      const success = addDemoEventRSVP(rsvpModal.protestId, participantType, verification);
+      
+      if (success) {
+        const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
+        const joinText = joinLocation ? ` (${joinLocation})` : '';
+        
+        // Create a more user-friendly participant type label
+        const participantLabels: Record<string, string> = {
+          'caminhoneiro': 'Caminhoneiro',
+          'motociclista': 'Motociclista',
+          'carro': 'Carro Particular',
+          'produtor_rural': 'Produtor Rural',
+          'comerciante': 'Comerciante',
+          'populacao_geral': 'População Geral'
+        };
+        
+        alert(`✅ RSVP confirmado${verificationText}!\n\nEvento: ${rsvpModal.protestTitle}\nParticipando como: ${participantLabels[participantType] || participantType}${joinText}\n\n🎉 Sua presença foi registrada com sucesso!`);
+        
+        // Refresh the protests list to show updated RSVP counts
+        loadUpcomingProtests();
+      } else {
+        alert('❌ Erro ao confirmar RSVP. Tente novamente.');
+      }
+    } else {
+      // Handle regular events (future implementation)
+      const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
+      const joinText = joinLocation ? ` (${joinLocation})` : '';
+      alert(`✅ RSVP confirmado${verificationText} para "${rsvpModal.protestTitle}"${joinText}!`);
+    }
+    setRsvpModal(prev => ({ ...prev, isOpen: false }));
   };
 
   useEffect(() => {
@@ -148,6 +240,9 @@ export default function UpcomingProtestsFeed({
             const region = getRegionByCode(protest.country, protest.region);
             const thumbnail = getProtestThumbnail(protest.id);
             const totalParticipants = getTotalParticipants(protest.rsvps);
+            
+            // Get demo thumbnail if it's a demo event
+            const demoThumbnail = protest.id.startsWith('demo-') ? getThumbnail(protest.id) : null;
 
             return (
               <div
@@ -157,9 +252,9 @@ export default function UpcomingProtestsFeed({
               >
                 {/* Thumbnail */}
                 <div className="rounded-lg h-32 mb-4 relative overflow-hidden">
-                  {protest.thumbnail ? (
+                  {(protest.thumbnail || demoThumbnail) ? (
                     <img 
-                      src={protest.thumbnail} 
+                      src={protest.thumbnail || demoThumbnail} 
                       alt={protest.title}
                       className="w-full h-full object-cover"
                     />
@@ -192,7 +287,7 @@ export default function UpcomingProtestsFeed({
                   </div>
                   
                   {/* Date overlay for custom thumbnails */}
-                  {protest.thumbnail && (
+                  {(protest.thumbnail || demoThumbnail) && (
                     <div className="absolute bottom-2 left-2 z-10">
                       <span className="bg-black/60 text-white text-xs px-2 py-1 rounded-full font-medium">
                         {formatDate(protest.date, protest.time)}
@@ -228,11 +323,46 @@ export default function UpcomingProtestsFeed({
                     </div>
                   </div>
 
-                  {/* Action button */}
-                  <button className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    Ver Detalhes
-                  </button>
+                  {/* Action buttons */}
+                  <div className="mt-4 space-y-2">
+                    {protest.id.startsWith('demo-') ? (
+                      <button 
+                        onClick={(e) => handleRSVP(protest.id, protest.title, !!protest.convoy, e)}
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <UsersIcon className="h-4 w-4" />
+                        Confirmar Presença
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => onProtestSelect?.(protest.id)}
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <CalendarIcon className="h-4 w-4" />
+                        Ver Detalhes
+                      </button>
+                    )}
+                    
+                    {/* Edit/Delete buttons for demo events */}
+                    {protest.id.startsWith('demo-') && (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={(e) => handleEdit(protest.id, e)}
+                          className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          Editar
+                        </button>
+                        <button 
+                          onClick={(e) => handleDelete(protest.id, protest.title, e)}
+                          className="flex-1 bg-red-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                          Excluir
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -248,6 +378,14 @@ export default function UpcomingProtestsFeed({
           <span>→</span>
         </div>
       </div>
+
+      <RSVPModal
+        isOpen={rsvpModal.isOpen}
+        onClose={() => setRsvpModal(prev => ({ ...prev, isOpen: false }))}
+        onSubmit={handleRSVPSubmit}
+        protestTitle={rsvpModal.protestTitle}
+        isConvoy={rsvpModal.isConvoy}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
 import { 
   EnvelopeIcon, 
@@ -88,6 +89,11 @@ export default function FAQPage() {
       category: 'privacy',
       question: 'Meus dados pessoais ficam seguros?',
       answer: 'Sim! Não exibimos dados pessoais publicamente. Informações como WhatsApp e email ficam visíveis apenas para moderadores. Você pode participar de eventos de forma completamente anônima.'
+    },
+    {
+      category: 'privacy',
+      question: 'Minhas informações estão seguras?',
+      answer: 'Sim. Nenhum dado é exigido dos usuários comuns, e a plataforma é hospedada fora do Brasil. Leia mais sobre nossa política de privacidade e soberania digital.'
     },
     {
       category: 'legal',
@@ -192,7 +198,21 @@ export default function FAQPage() {
                   
                   {openItems.has(index) && (
                     <div className="p-4 pt-0 border-t border-gray-200">
-                      <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+                      <div className="text-gray-700 leading-relaxed">
+                        {faq.answer.includes('política de privacidade e soberania digital') ? (
+                          <>
+                            Sim. Nenhum dado é exigido dos usuários comuns, e a plataforma é hospedada fora do Brasil.{' '}
+                            <Link 
+                              href="/privacidade" 
+                              className="text-blue-600 hover:text-blue-800 underline font-medium"
+                            >
+                              🔗 Leia mais sobre nossa política de privacidade e soberania digital
+                            </Link>
+                          </>
+                        ) : (
+                          faq.answer
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

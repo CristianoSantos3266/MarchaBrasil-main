@@ -26,11 +26,21 @@ export default function LoginPage() {
         if (error) throw error
         
         if (data.user) {
-          if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+          // Store demo user in localStorage for demo mode
+          const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                           process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co' || 
+                           process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+          
+          if (isDemoMode) {
+            localStorage.setItem('demo-user', JSON.stringify(data.user))
             setMessage('✅ Conta criada com sucesso! (Modo demonstração - login automático habilitado)')
+            
+            // Trigger custom event to notify AuthContext
+            window.dispatchEvent(new CustomEvent('demo-user-updated'))
+            
             // Auto redirect in demo mode after showing success
             setTimeout(() => {
-              router.push('/')
+              window.location.href = '/'
             }, 2000)
           } else {
             setMessage('Conta criada com sucesso! Verifique seu email para confirmar.')
@@ -41,7 +51,26 @@ export default function LoginPage() {
         if (error) throw error
         
         if (data.user) {
-          router.push('/')
+          // Store demo user in localStorage for demo mode
+          const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                           process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co' || 
+                           process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+          
+          if (isDemoMode) {
+            console.log('Login successful in demo mode, storing user:', data.user)
+            localStorage.setItem('demo-user', JSON.stringify(data.user))
+            console.log('Stored in localStorage:', localStorage.getItem('demo-user'))
+            
+            // Trigger custom event to notify AuthContext
+            window.dispatchEvent(new CustomEvent('demo-user-updated'))
+            
+            // Force page reload to ensure auth state updates
+            setTimeout(() => {
+              window.location.href = '/'
+            }, 100)
+          } else {
+            router.push('/')
+          }
         }
       }
     } catch (error: any) {
@@ -75,7 +104,9 @@ export default function LoginPage() {
                 : 'Acesse sua conta para organizar manifestações'
               }
             </p>
-            {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+            {(!process.env.NEXT_PUBLIC_SUPABASE_URL || 
+              process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co' || 
+              process.env.NEXT_PUBLIC_DEMO_MODE === 'true') && (
               <div className="mt-3 p-2 bg-blue-100 rounded-lg border border-blue-300">
                 <p className="text-sm text-blue-700">
                   🧪 <strong>Modo Demonstração</strong> - Todas as funcionalidades estão ativas para teste

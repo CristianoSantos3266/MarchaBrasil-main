@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createDonation } from '@/lib/supabase';
 
 // Initialize Stripe with secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -64,6 +65,29 @@ export async function POST(req: NextRequest) {
     }
 
     const checkoutSession = await stripe.checkout.sessions.create(params);
+
+    // Record the donation in database
+    if (checkoutSession.id) {
+      try {
+        await createDonation({
+          stripe_session_id: checkoutSession.id,
+          amount: amount,
+          payment_method: 'stripe',
+          is_monthly: isMonthly,
+          donation_tier: donationTier || 'custom',
+          tier_name: donationTier || 'Valor Personalizado',
+          metadata: {
+            stripe_session_id: checkoutSession.id,
+            amount: amount,
+            currency: currency,
+            is_monthly: isMonthly
+          }
+        });
+      } catch (dbError) {
+        console.error('Failed to record donation in database:', dbError);
+        // Don't fail the checkout if database recording fails
+      }
+    }
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (err: any) {

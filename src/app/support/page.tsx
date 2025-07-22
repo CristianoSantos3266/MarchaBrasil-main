@@ -77,7 +77,7 @@ export default function SupportPage() {
           </div>
           <div className="text-center mt-4">
             <h1 className="text-3xl font-bold text-gray-900">
-              Apoie a Infraestrutura Cívica
+              Apoie Marcha Brasil
             </h1>
             <p className="mt-2 text-lg text-gray-600">
               Ajude a manter ferramentas resistentes à censura para coordenação cívica pacífica

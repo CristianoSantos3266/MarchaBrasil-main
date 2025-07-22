@@ -2,6 +2,18 @@
 
 import { useState } from 'react'
 import Navigation from '@/components/ui/Navigation'
+import { 
+  HeartIcon,
+  FlagIcon,
+  CurrencyDollarIcon,
+  ShieldCheckIcon,
+  LockClosedIcon,
+  ExclamationTriangleIcon,
+  GlobeAltIcon,
+  SpeakerWaveIcon,
+  ComputerDesktopIcon,
+  CreditCardIcon
+} from '@heroicons/react/24/outline'
 
 export default function DonatePage() {
   const [amount, setAmount] = useState('')
@@ -34,7 +46,9 @@ export default function DonatePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-lg border-2 border-green-200">
           <div className="text-center p-8 border-b border-gray-200">
-            <div className="text-4xl mb-4">💝</div>
+            <div className="flex justify-center mb-4">
+              <HeartIcon className="h-16 w-16 text-green-600" />
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               Apoiar a Causa
             </h1>
@@ -47,7 +61,10 @@ export default function DonatePage() {
           <div className="p-8">
             {/* Current Status */}
             <div className="bg-blue-50 rounded-lg p-6 border border-blue-200 mb-8">
-              <h2 className="text-xl font-bold text-blue-800 mb-4">🎯 Nossa Meta</h2>
+              <h2 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
+                <FlagIcon className="h-6 w-6" />
+                Nossa Meta
+              </h2>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm text-blue-700 mb-2">
@@ -78,7 +95,10 @@ export default function DonatePage() {
             {/* Donation Options */}
             <div className="grid lg:grid-cols-2 gap-8">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-6">💰 Escolha o Valor</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <CurrencyDollarIcon className="h-6 w-6" />
+                  Escolha o Valor
+                </h2>
                 
                 {/* Predefined amounts */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
@@ -113,9 +133,19 @@ export default function DonatePage() {
                   <button
                     onClick={() => amount && handleDonate(parseFloat(amount))}
                     disabled={!amount || isProcessing}
-                    className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg font-bold hover:from-green-700 hover:to-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200"
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg font-bold hover:from-green-700 hover:to-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
                   >
-                    {isProcessing ? '💳 Processando...' : '💝 Doar Agora'}
+                    {isProcessing ? (
+                      <>
+                        <CreditCardIcon className="h-5 w-5" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <HeartIcon className="h-5 w-5" />
+                        Doar Agora
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -123,7 +153,10 @@ export default function DonatePage() {
               {/* Information */}
               <div className="space-y-6">
                 <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
-                  <h3 className="text-lg font-bold text-yellow-800 mb-3">🛡️ Para que serve sua doação?</h3>
+                  <h3 className="text-lg font-bold text-yellow-800 mb-3 flex items-center gap-2">
+                    <ShieldCheckIcon className="h-5 w-5" />
+                    Para que serve sua doação?
+                  </h3>
                   <ul className="text-sm text-yellow-700 space-y-2">
                     <li>• <strong>Hospedagem internacional:</strong> Servidores fora do Brasil para resistir à censura</li>
                     <li>• <strong>Segurança:</strong> Certificados SSL, proteção DDoS e backup dos dados</li>
@@ -133,7 +166,10 @@ export default function DonatePage() {
                 </div>
 
                 <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-                  <h3 className="text-lg font-bold text-green-800 mb-3">🔒 Transparência e Segurança</h3>
+                  <h3 className="text-lg font-bold text-green-800 mb-3 flex items-center gap-2">
+                    <LockClosedIcon className="h-5 w-5" />
+                    Transparência e Segurança
+                  </h3>
                   <ul className="text-sm text-green-700 space-y-2">
                     <li>• <strong>Pagamentos seguros:</strong> Processados via Stripe internacional</li>
                     <li>• <strong>Sem armazenamento:</strong> Não guardamos dados de cartão</li>
@@ -143,7 +179,10 @@ export default function DonatePage() {
                 </div>
 
                 <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-                  <h3 className="text-lg font-bold text-red-800 mb-3">🚨 Importante</h3>
+                  <h3 className="text-lg font-bold text-red-800 mb-3 flex items-center gap-2">
+                    <ExclamationTriangleIcon className="h-5 w-5" />
+                    Importante
+                  </h3>
                   <p className="text-sm text-red-700">
                     Esta plataforma é <strong>apartidária</strong> e <strong>neutra</strong>. 
                     Apoiamos apenas manifestações pacíficas e dentro da legalidade. 
@@ -155,11 +194,16 @@ export default function DonatePage() {
 
             {/* Alternative Methods */}
             <div className="mt-8 pt-8 border-t border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">🌎 Outras Formas de Apoiar</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center gap-2">
+                <GlobeAltIcon className="h-6 w-6" />
+                Outras Formas de Apoiar
+              </h2>
               
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="text-2xl mb-2">₿</div>
+                  <div className="flex justify-center mb-2">
+                    <CurrencyDollarIcon className="h-8 w-8 text-orange-600" />
+                  </div>
                   <h3 className="font-bold text-gray-900 mb-2">Bitcoin</h3>
                   <p className="text-sm text-gray-600 mb-3">Para máxima privacidade</p>
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
@@ -168,7 +212,9 @@ export default function DonatePage() {
                 </div>
 
                 <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="text-2xl mb-2">📢</div>
+                  <div className="flex justify-center mb-2">
+                    <SpeakerWaveIcon className="h-8 w-8 text-blue-600" />
+                  </div>
                   <h3 className="font-bold text-gray-900 mb-2">Divulgação</h3>
                   <p className="text-sm text-gray-600 mb-3">Compartilhe com amigos</p>
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
@@ -177,7 +223,9 @@ export default function DonatePage() {
                 </div>
 
                 <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="text-2xl mb-2">💻</div>
+                  <div className="flex justify-center mb-2">
+                    <ComputerDesktopIcon className="h-8 w-8 text-green-600" />
+                  </div>
                   <h3 className="font-bold text-gray-900 mb-2">Contribuir</h3>
                   <p className="text-sm text-gray-600 mb-3">Ajude no desenvolvimento</p>
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">

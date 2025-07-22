@@ -3,6 +3,7 @@
 import { Protest } from '@/types';
 
 const DEMO_EVENTS_KEY = 'marcha-brasil-demo-events';
+const DEMO_THUMBNAILS_KEY = 'marcha-brasil-demo-thumbnails';
 
 // Brazilian state capitals for national events with coordinates [lat, lng]
 const brazilianCapitals = [
@@ -104,6 +105,32 @@ function notifyListeners() {
   listeners.forEach(callback => callback());
 }
 
+// Helper function to compress and store thumbnail separately
+function storeThumbnail(eventId: string, thumbnailData: string | null): void {
+  if (!thumbnailData || typeof window === 'undefined') return;
+  
+  try {
+    const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+    thumbnails[eventId] = thumbnailData;
+    localStorage.setItem(DEMO_THUMBNAILS_KEY, JSON.stringify(thumbnails));
+  } catch (error) {
+    console.warn(`Failed to store thumbnail for ${eventId}:`, error);
+  }
+}
+
+// Helper function to get thumbnail for an event
+export function getThumbnail(eventId: string): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  
+  try {
+    const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+    return thumbnails[eventId];
+  } catch (error) {
+    console.warn(`Failed to get thumbnail for ${eventId}:`, error);
+    return undefined;
+  }
+}
+
 // Save demo event to localStorage
 export function saveDemoEvent(eventData: any): Protest[] {
   const timestamp = Date.now();
@@ -124,7 +151,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
         location: eventData.meeting_point || `Centro de ${capitalInfo.capital}`,
         type: eventData.type,
         coordinates: capitalInfo.coordinates as [number, number],
-        thumbnail: eventData.thumbnail || undefined,
+        thumbnail: undefined, // Thumbnails stored separately
         rsvps: {
           caminhoneiros: 0,
           motociclistas: 0,
@@ -138,6 +165,11 @@ export function saveDemoEvent(eventData: any): Protest[] {
         updatedAt: new Date().toISOString()
       };
       newEvents.push(newEvent);
+      
+      // Store thumbnail separately for national events
+      if (eventData.thumbnail) {
+        storeThumbnail(newEvent.id, eventData.thumbnail);
+      }
     });
   } else {
     // Single city event - find coordinates from capital list
@@ -158,7 +190,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
       location: eventData.meeting_point,
       type: eventData.type,
       coordinates: coordinates,
-      thumbnail: eventData.thumbnail || undefined,
+      thumbnail: undefined, // Thumbnails stored separately
       rsvps: {
         caminhoneiros: 0,
         motociclistas: 0,
@@ -172,6 +204,11 @@ export function saveDemoEvent(eventData: any): Protest[] {
       updatedAt: new Date().toISOString()
     };
     newEvents.push(newEvent);
+    
+    // Store thumbnail separately for single events
+    if (eventData.thumbnail) {
+      storeThumbnail(newEvent.id, eventData.thumbnail);
+    }
   }
 
   // Get existing demo events
@@ -229,6 +266,186 @@ export function forceRegenerateCoordinates(): void {
   } catch (error) {
     console.error('Error force regenerating coordinates:', error);
   }
+}
+
+// Update existing demo event
+export function updateDemoEvent(eventId: string, eventData: any): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    const existingEvents = getDemoEvents();
+    const eventIndex = existingEvents.findIndex(event => event.id === eventId);
+    
+    if (eventIndex === -1) {
+      console.error('Event not found for editing:', eventId);
+      return false;
+    }
+    
+    // Update the event data while preserving the ID and timestamps
+    const updatedEvent = {
+      ...existingEvents[eventIndex],
+      title: eventData.title,
+      description: eventData.description,
+      type: eventData.type,
+      date: eventData.date,
+      time: eventData.time,
+      location: eventData.meeting_point || eventData.location,
+      city: eventData.city || existingEvents[eventIndex].city,
+      region: eventData.state || existingEvents[eventIndex].region,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Update the event in the array
+    existingEvents[eventIndex] = updatedEvent;
+    
+    // Save back to localStorage
+    localStorage.setItem(DEMO_EVENTS_KEY, JSON.stringify(existingEvents));
+    
+    // Update thumbnail if provided
+    if (eventData.thumbnail) {
+      storeThumbnail(eventId, eventData.thumbnail);
+    }
+    
+    // Notify listeners
+    notifyListeners();
+    
+    console.log('Successfully updated demo event:', eventId);
+    return true;
+  } catch (error) {
+    console.error('Error updating demo event:', error);
+    return false;
+  }
+}
+
+// Delete demo event
+export function deleteDemoEvent(eventId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    const existingEvents = getDemoEvents();
+    const filteredEvents = existingEvents.filter(event => event.id !== eventId);
+    
+    if (filteredEvents.length === existingEvents.length) {
+      console.error('Event not found for deletion:', eventId);
+      return false;
+    }
+    
+    // Save updated events
+    localStorage.setItem(DEMO_EVENTS_KEY, JSON.stringify(filteredEvents));
+    
+    // Remove thumbnail
+    try {
+      const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+      delete thumbnails[eventId];
+      localStorage.setItem(DEMO_THUMBNAILS_KEY, JSON.stringify(thumbnails));
+    } catch (e) {
+      console.warn('Failed to remove thumbnail:', e);
+    }
+    
+    // Notify listeners
+    notifyListeners();
+    
+    console.log('Successfully deleted demo event:', eventId);
+    return true;
+  } catch (error) {
+    console.error('Error deleting demo event:', error);
+    return false;
+  }
+}
+
+// Get single demo event by ID
+export function getDemoEventById(eventId: string): Protest | null {
+  if (typeof window === 'undefined') return null;
+  
+  const events = getDemoEvents();
+  return events.find(event => event.id === eventId) || null;
+}
+
+// Add RSVP to demo event
+export function addDemoEventRSVP(eventId: string, participantType: string, verification?: { email?: string; phone?: string }): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    const existingEvents = getDemoEvents();
+    const eventIndex = existingEvents.findIndex(event => event.id === eventId);
+    
+    if (eventIndex === -1) {
+      console.error('Event not found for RSVP:', eventId);
+      return false;
+    }
+    
+    const event = existingEvents[eventIndex];
+    
+    // Map participant types to RSVP keys
+    const rsvpKeyMap: Record<string, string> = {
+      'caminhoneiro': 'caminhoneiros',
+      'motociclista': 'motociclistas', 
+      'carro': 'carros',
+      'produtor_rural': 'produtoresRurais',
+      'comerciante': 'comerciantes',
+      'populacao_geral': 'populacaoGeral'
+    };
+    
+    const rsvpKey = rsvpKeyMap[participantType];
+    
+    if (!rsvpKey) {
+      console.error('Invalid participant type:', participantType);
+      return false;
+    }
+    
+    // Increment the RSVP count
+    event.rsvps = event.rsvps || {
+      caminhoneiros: 0,
+      motociclistas: 0,
+      carros: 0,
+      tratores: 0,
+      produtoresRurais: 0,
+      comerciantes: 0,
+      populacaoGeral: 0
+    };
+    
+    const oldCount = event.rsvps[rsvpKey] || 0;
+    event.rsvps[rsvpKey] = oldCount + 1;
+    event.updatedAt = new Date().toISOString();
+    
+    // Update the event in the array
+    existingEvents[eventIndex] = event;
+    
+    // Save back to localStorage
+    localStorage.setItem(DEMO_EVENTS_KEY, JSON.stringify(existingEvents));
+    
+    // Store verification data if provided (optional future feature)
+    if (verification && (verification.email || verification.phone)) {
+      try {
+        const verificationKey = `marcha-brasil-rsvp-verification-${eventId}`;
+        const existing = JSON.parse(localStorage.getItem(verificationKey) || '[]');
+        existing.push({
+          participantType,
+          verification,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem(verificationKey, JSON.stringify(existing));
+      } catch (e) {
+        console.warn('Failed to store verification data:', e);
+      }
+    }
+    
+    // Notify listeners
+    notifyListeners();
+    
+    return true;
+  } catch (error) {
+    console.error('Error adding RSVP:', error);
+    return false;
+  }
+}
+
+// Get RSVP stats for demo event
+export function getDemoEventRSVPs(eventId: string): Record<string, number> | null {
+  if (typeof window === 'undefined') return null;
+  
+  const event = getDemoEventById(eventId);
+  return event?.rsvps || null;
 }
 
 // Check if we're in demo mode

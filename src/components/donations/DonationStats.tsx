@@ -3,14 +3,43 @@
 import { useState, useEffect } from 'react';
 import { DonationStats } from '@/types/donations';
 import { ShieldCheckIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { getDonationStats } from '@/lib/supabase';
 
 export default function DonationStatsDisplay() {
   const [stats, setStats] = useState<DonationStats>({
-    totalRaised: 12847,
-    totalDonors: 156,
+    totalRaised: 867,
+    totalDonors: 23,
     currency: 'BRL',
     lastUpdated: new Date().toISOString()
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data, error } = await getDonationStats();
+        if (data && !error) {
+          setStats({
+            totalRaised: data.total_raised,
+            totalDonors: data.total_donors,
+            currency: data.currency || 'BRL',
+            lastUpdated: data.last_updated || new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch donation stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+    
+    // Refresh stats every 30 seconds
+    const interval = setInterval(fetchStats, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -35,7 +64,7 @@ export default function DonationStatsDisplay() {
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
           <ShieldCheckIcon className="h-8 w-8 text-white" />
-          Apoio à Infraestrutura Cívica
+          Apoio Marcha Brasil
         </h2>
         <p className="text-blue-100 text-sm">
           Apoiando plataformas resistentes à censura para coordenação cívica pacífica

@@ -109,6 +109,18 @@ export const getUserProfile = async (userId: string) => {
 }
 
 export const updateUserProfile = async (userId: string, updates: any) => {
+  if (DEMO_MODE) {
+    // Demo mode - simulate successful update
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return { 
+      data: { 
+        id: userId, 
+        ...updates,
+        updated_at: new Date().toISOString()
+      }, 
+      error: null 
+    }
+  }
   if (!supabase) {
     return { data: null, error: { message: 'Supabase not configured' } }
   }
@@ -234,6 +246,82 @@ export const rejectEvent = async (eventId: string, reason: string) => {
       rejection_reason: reason 
     })
     .eq('id', eventId)
+    .select()
+    .single()
+  
+  return { data, error }
+}
+
+// Donation helpers
+export const getDonationStats = async () => {
+  if (!supabase) {
+    // Return demo data when Supabase is not configured
+    return { 
+      data: {
+        total_raised: 867,
+        total_donors: 23,
+        currency: 'BRL',
+        last_updated: new Date().toISOString()
+      }, 
+      error: null 
+    }
+  }
+  const { data, error } = await supabase
+    .from('donation_stats')
+    .select('*')
+    .single()
+  
+  return { data, error }
+}
+
+export const createDonation = async (donationData: {
+  stripe_session_id: string;
+  amount: number;
+  payment_method: string;
+  is_monthly: boolean;
+  donation_tier?: string;
+  tier_name?: string;
+  donor_email?: string;
+  metadata?: any;
+}) => {
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+  const { data, error } = await supabase
+    .from('donations')
+    .insert(donationData)
+    .select()
+    .single()
+  
+  return { data, error }
+}
+
+export const updateDonationStatus = async (
+  stripeSessionId: string, 
+  status: string, 
+  paymentIntentId?: string,
+  completedAt?: string
+) => {
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+  const updateData: any = { 
+    payment_status: status,
+    updated_at: new Date().toISOString()
+  }
+  
+  if (paymentIntentId) {
+    updateData.stripe_payment_intent_id = paymentIntentId
+  }
+  
+  if (completedAt) {
+    updateData.completed_at = completedAt
+  }
+  
+  const { data, error } = await supabase
+    .from('donations')
+    .update(updateData)
+    .eq('stripe_session_id', stripeSessionId)
     .select()
     .single()
   

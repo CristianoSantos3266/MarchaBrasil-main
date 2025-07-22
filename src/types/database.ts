@@ -7,9 +7,11 @@ export interface Database {
           email: string
           name: string | null
           public_name: string | null
+          phone: string | null
           state: string | null
           city: string | null
           whatsapp: string | null
+          bio: string | null
           motivation: string | null
           social_link: string | null
           role: 'user' | 'organizer-pending' | 'organizer' | 'admin'
@@ -21,9 +23,11 @@ export interface Database {
           email: string
           name?: string | null
           public_name?: string | null
+          phone?: string | null
           state?: string | null
           city?: string | null
           whatsapp?: string | null
+          bio?: string | null
           motivation?: string | null
           social_link?: string | null
           role?: 'user' | 'organizer-pending' | 'organizer' | 'admin'
@@ -35,9 +39,11 @@ export interface Database {
           email?: string
           name?: string | null
           public_name?: string | null
+          phone?: string | null
           state?: string | null
           city?: string | null
           whatsapp?: string | null
+          bio?: string | null
           motivation?: string | null
           social_link?: string | null
           role?: 'user' | 'organizer-pending' | 'organizer' | 'admin'

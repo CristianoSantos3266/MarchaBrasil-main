@@ -6,6 +6,11 @@ import Navigation from '@/components/ui/Navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { createEvent } from '@/lib/supabase'
 import { saveDemoEvent } from '@/lib/demo-events'
+
+// Set Portuguese locale for the entire document
+if (typeof window !== 'undefined') {
+  document.documentElement.lang = 'pt-BR'
+}
 import { 
   DocumentTextIcon,
   CalendarIcon,
@@ -42,8 +47,20 @@ export default function CreateEventPage() {
     isNational: false
   })
 
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+
+  const monthNames = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ]
+
+  const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+
   const [thumbnail, setThumbnail] = useState<string | null>(null)
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   const protestTypes = [
     { value: 'manifestacao', label: 'Manifestação', icon: HandRaisedIcon },
@@ -94,6 +111,20 @@ export default function CreateEventPage() {
   const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co'
 
   useEffect(() => {
+    // Set Brazilian Portuguese locale for date/time inputs
+    if (typeof window !== 'undefined') {
+      document.documentElement.lang = 'pt-BR'
+      // Set locale for date/time formatting
+      try {
+        const meta = document.createElement('meta')
+        meta.httpEquiv = 'Content-Language'
+        meta.content = 'pt-BR'
+        document.head.appendChild(meta)
+      } catch (e) {
+        console.log('Locale meta already set')
+      }
+    }
+
     // In demo mode, allow access without authentication
     if (isDemoMode) {
       setLoading(false)
@@ -116,34 +147,160 @@ export default function CreateEventPage() {
     }
   }, [user, userProfile, router, isDemoMode])
 
+  useEffect(() => {
+    // Close calendar when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      const calendar = document.querySelector('.calendar-container')
+      if (calendar && !calendar.contains(event.target as Node)) {
+        setShowCalendar(false)
+      }
+    }
+
+    if (showCalendar) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showCalendar])
+
+  const formatDateToBrazilian = (date: string) => {
+    // Convert from YYYY-MM-DD to DD-MM-YYYY
+    if (!date) return ''
+    if (date.includes('-') && date.length === 10) {
+      const parts = date.split('-')
+      if (parts.length === 3 && parts[0].length === 4) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`
+      }
+    }
+    return date
+  }
+
+  const formatDateToISO = (date: string) => {
+    // Convert from DD-MM-YYYY to YYYY-MM-DD for backend/input
+    if (!date) return ''
+    if (date.includes('-') && date.length === 10) {
+      const parts = date.split('-')
+      if (parts.length === 3 && parts[2].length === 4) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`
+      }
+    }
+    return date
+  }
+
+  const generateCalendar = () => {
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay()
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+    const days = []
+
+    // Empty cells for days before month starts
+    for (let i = 0; i < firstDay; i++) {
+      days.push(null)
+    }
+
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day)
+    }
+
+    return days
+  }
+
+  const handleDateSelect = (day: number) => {
+    const selectedDate = `${day.toString().padStart(2, '0')}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentYear}`
+    setFormData(prev => ({ ...prev, date: selectedDate }))
+    setShowCalendar(false)
+  }
+
+  const navigateMonth = (direction: number) => {
+    if (direction === 1) {
+      if (currentMonth === 11) {
+        setCurrentMonth(0)
+        setCurrentYear(currentYear + 1)
+      } else {
+        setCurrentMonth(currentMonth + 1)
+      }
+    } else {
+      if (currentMonth === 0) {
+        setCurrentMonth(11)
+        setCurrentYear(currentYear - 1)
+      } else {
+        setCurrentMonth(currentMonth - 1)
+      }
+    }
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const processFile = (file: File) => {
+    console.log('File selected:', file.name, file.type, file.size)
+    
+    // Clear any previous error messages
+    setMessage('')
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage('❌ Por favor, selecione apenas arquivos de imagem (JPG, PNG, GIF).')
+      return
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage('❌ A imagem deve ter no máximo 5MB.')
+      return
+    }
+
+    setThumbnailFile(file)
+    
+    // Create preview URL
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setThumbnail(event.target.result as string)
+        setMessage('✅ Imagem carregada com sucesso!')
+        // Clear success message after 3 seconds
+        setTimeout(() => setMessage(''), 3000)
+      }
+    }
+    reader.onerror = () => {
+      setMessage('❌ Erro ao ler a imagem. Tente novamente.')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      processFile(files[0])
+    }
+  }
+
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setMessage('Por favor, selecione apenas arquivos de imagem.')
-        return
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setMessage('A imagem deve ter no máximo 5MB.')
-        return
-      }
-
-      setThumbnailFile(file)
-      
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setThumbnail(event.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+      processFile(file)
     }
   }
 
@@ -155,19 +312,54 @@ export default function CreateEventPage() {
     if (fileInput) fileInput.value = ''
   }
 
+  const validateDate = (dateStr: string) => {
+    if (!dateStr) return false
+    
+    // For Brazilian format DD-MM-YYYY
+    if (dateStr.length === 10 && dateStr.includes('-')) {
+      const parts = dateStr.split('-')
+      if (parts.length === 3) {
+        const day = parseInt(parts[0])
+        const month = parseInt(parts[1])
+        const year = parseInt(parts[2])
+        
+        if (day < 1 || day > 31 || month < 1 || month > 12 || year < new Date().getFullYear()) {
+          return false
+        }
+        
+        // Check if date is valid
+        const date = new Date(year, month - 1, day)
+        return date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year
+      }
+    }
+    
+    return true // Let the browser handle validation for date input
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     setLoading(true)
     setMessage('')
 
+    // Validate date format
+    if (!validateDate(formData.date)) {
+      setMessage('❌ Data inválida. Use o formato dd-mm-aaaa (ex: 25-12-2024)')
+      setLoading(false)
+      return
+    }
+
     try {
       // In demo mode, save event to localStorage
       if (isDemoMode) {
         await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate network delay
         
-        // Save the demo event(s) with thumbnail
-        const savedEvents = saveDemoEvent({ ...formData, thumbnail });
+        // Save the demo event(s) with thumbnail (convert date to ISO for consistency)
+        const savedEvents = saveDemoEvent({ 
+          ...formData, 
+          date: formatDateToISO(formData.date),
+          thumbnail 
+        });
         
         if (formData.isNational) {
           setMessage(`Eventos criados com sucesso! (Modo Demo - ${savedEvents.length} manifestações criadas em todas as capitais)`)
@@ -202,6 +394,7 @@ export default function CreateEventPage() {
       const eventData = {
         creator_id: user.id,
         ...formData,
+        date: formatDateToISO(formData.date), // Convert to ISO format for backend
         expected_attendance: formData.expected_attendance ? parseInt(formData.expected_attendance) : null,
         status: 'pending' as const,
         is_international: false,
@@ -277,7 +470,7 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50" lang="pt-BR">
       <Navigation />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -368,12 +561,32 @@ export default function CreateEventPage() {
                 </label>
                 
                 {!thumbnail ? (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <PhotoIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <label htmlFor="thumbnail" className="cursor-pointer">
-                      <span className="text-sm text-gray-600">
-                        Clique para adicionar uma imagem ou arraste aqui
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                      isDragging 
+                        ? 'border-green-500 bg-green-100' 
+                        : 'border-gray-300 hover:border-green-400 hover:bg-green-50'
+                    }`}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  >
+                    <label htmlFor="thumbnail" className="cursor-pointer block">
+                      <PhotoIcon className={`h-16 w-16 mx-auto mb-4 ${
+                        isDragging ? 'text-green-500' : 'text-gray-400'
+                      }`} />
+                      <span className={`text-lg font-medium block mb-2 ${
+                        isDragging ? 'text-green-700' : 'text-gray-700'
+                      }`}>
+                        {isDragging ? 'Solte a imagem aqui' : 'Clique para adicionar uma imagem'}
                       </span>
+                      <span className="text-sm text-gray-500 block mb-4">
+                        ou arraste e solte aqui
+                      </span>
+                      <div className="bg-green-600 text-white px-4 py-2 rounded-lg inline-block hover:bg-green-700 transition-colors">
+                        Escolher Arquivo
+                      </div>
                       <input
                         id="thumbnail"
                         type="file"
@@ -382,8 +595,8 @@ export default function CreateEventPage() {
                         className="hidden"
                       />
                     </label>
-                    <p className="text-xs text-gray-500 mt-2">
-                      PNG, JPG ou GIF até 5MB
+                    <p className="text-xs text-gray-500 mt-4">
+                      Formatos aceitos: PNG, JPG, JPEG, GIF | Tamanho máximo: 5MB
                     </p>
                   </div>
                 ) : (
@@ -420,28 +633,124 @@ export default function CreateEventPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Data *
                   </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      placeholder="dd-mm-aaaa"
+                      readOnly
+                      required
+                    />
+                    <CalendarIcon 
+                      className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 cursor-pointer" 
+                      onClick={() => setShowCalendar(!showCalendar)}
+                    />
+                    
+                    {showCalendar && (
+                      <div className="calendar-container absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4 w-80">
+                        <div className="flex justify-between items-center mb-4">
+                          <button 
+                            type="button"
+                            onClick={() => navigateMonth(-1)} 
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            ←
+                          </button>
+                          <span className="font-semibold text-lg">
+                            {monthNames[currentMonth]} {currentYear}
+                          </span>
+                          <button 
+                            type="button"
+                            onClick={() => navigateMonth(1)} 
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            →
+                          </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-7 gap-1 mb-2">
+                          {dayNames.map(day => (
+                            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                              {day}
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="grid grid-cols-7 gap-1">
+                          {generateCalendar().map((day, index) => {
+                            if (day === null) {
+                              return <div key={index} className="h-8"></div>
+                            }
+                            
+                            const today = new Date()
+                            const isToday = day === today.getDate() && 
+                                          currentMonth === today.getMonth() && 
+                                          currentYear === today.getFullYear()
+                            const isPast = new Date(currentYear, currentMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate())
+                            
+                            return (
+                              <button
+                                key={day}
+                                type="button"
+                                onClick={() => !isPast && handleDateSelect(day)}
+                                className={`h-8 w-8 text-sm rounded hover:bg-blue-100 flex items-center justify-center ${
+                                  isPast 
+                                    ? 'text-gray-300 cursor-not-allowed'
+                                    : 'text-gray-700 hover:text-blue-600 cursor-pointer'
+                                } ${
+                                  isToday ? 'bg-blue-500 text-white hover:bg-blue-600' : ''
+                                }`}
+                                disabled={isPast}
+                              >
+                                {day}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setShowCalendar(false)}
+                            className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                          >
+                            Fechar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Horário *
+                    Horário * (Formato 24h)
                   </label>
-                  <input
-                    type="time"
+                  <select
                     name="time"
                     value={formData.time}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
-                  />
+                  >
+                    <option value="">Selecione o horário</option>
+                    {Array.from({ length: 24 }, (_, hour) =>
+                      Array.from({ length: 4 }, (_, quarter) => {
+                        const h = hour.toString().padStart(2, '0')
+                        const m = (quarter * 15).toString().padStart(2, '0')
+                        const timeValue = `${h}:${m}`
+                        return (
+                          <option key={timeValue} value={timeValue}>
+                            {timeValue}
+                          </option>
+                        )
+                      })
+                    ).flat()}
+                  </select>
                 </div>
 
                 <div>
