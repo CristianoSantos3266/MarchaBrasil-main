@@ -18,6 +18,7 @@ import {
 import { 
   CheckBadgeIcon 
 } from '@heroicons/react/24/solid';
+import RegionalImpactMeter from '@/components/gamification/RegionalImpactMeter';
 import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
 import { getProtestsByCountryAndRegion } from '@/data/globalProtests';
 import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
@@ -206,6 +207,11 @@ export default function Home() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Regional Impact Meter */}
+        <section className="mb-8">
+          <RegionalImpactMeter showTopStates={5} />
+        </section>
+
         {/* National Events Feed */}
         <section className="mb-8">
           <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg shadow-md p-6 border border-green-200">

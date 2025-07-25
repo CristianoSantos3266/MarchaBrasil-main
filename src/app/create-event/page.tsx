@@ -125,14 +125,14 @@ export default function CreateEventPage() {
       }
     }
 
-    // In demo mode, allow access without authentication
-    if (isDemoMode) {
-      setLoading(false)
+    // Always require authentication, even in demo mode
+    if (!user) {
+      router.push('/login')
       return
     }
 
-    if (!user) {
-      router.push('/login')
+    if (isDemoMode) {
+      setLoading(false)
       return
     }
 

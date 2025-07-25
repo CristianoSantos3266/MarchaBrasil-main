@@ -55,9 +55,9 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <span className="text-2xl">🇧🇷</span>
-            <span className="text-xl font-bold text-gray-900">
+          <Link href="/" className="flex items-center gap-3 group">
+            <span className="text-6xl">🇧🇷</span>
+            <span className="text-2xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">
               Marcha Brasil
             </span>
           </Link>
@@ -69,7 +69,7 @@ export default function Navigation() {
               className="text-gray-700 hover:text-green-600 font-medium transition-colors flex items-center gap-2"
             >
               <MapPinIcon className="h-5 w-5" />
-              Criar Manifestação
+              Criar
             </Link>
             
             <Link 
@@ -85,7 +85,7 @@ export default function Navigation() {
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center gap-2"
             >
               <CalendarIcon className="h-5 w-5" />
-              Manifestações Confirmadas
+              Manifestações
             </Link>
             
             <Link 
@@ -93,7 +93,7 @@ export default function Navigation() {
               className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-2"
             >
               <CurrencyDollarIcon className="h-5 w-5" />
-              Apoie a Causa
+              Apoie
             </Link>
             
             <Link 
@@ -109,7 +109,7 @@ export default function Navigation() {
               className="text-gray-700 hover:text-green-600 font-medium transition-colors flex items-center gap-2"
             >
               <HandRaisedIcon className="h-5 w-5" />
-              Como Agir
+              Ação
             </Link>
             
             {user && userProfile?.role === 'admin' && (
@@ -239,7 +239,7 @@ export default function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <MapPinIcon className="h-5 w-5" />
-                Criar Manifestação
+                Criar
               </Link>
               
               <Link 
@@ -257,7 +257,7 @@ export default function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <CalendarIcon className="h-5 w-5" />
-                Manifestações Confirmadas
+                Manifestações
               </Link>
               
               <Link 
@@ -266,7 +266,7 @@ export default function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <CurrencyDollarIcon className="h-5 w-5" />
-                Apoie a Causa
+                Apoie
               </Link>
               
               <Link 
@@ -284,7 +284,7 @@ export default function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <HandRaisedIcon className="h-5 w-5" />
-                Como Agir
+                Ação
               </Link>
               
               {user && userProfile?.role === 'admin' && (

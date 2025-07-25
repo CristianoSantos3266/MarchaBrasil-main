@@ -14,6 +14,7 @@ import {
   TrendingUpIcon,
   EyeIcon
 } from '@heroicons/react/24/outline'
+import OrganizerLeaderboard from '@/components/admin/OrganizerLeaderboard'
 
 interface DashboardStats {
   totalEvents: number
@@ -269,6 +270,11 @@ export default function AdminDashboard() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Organizer Leaderboard */}
+      <div className="mt-8">
+        <OrganizerLeaderboard showTop={10} timeframe="month" />
       </div>
     </div>
   )

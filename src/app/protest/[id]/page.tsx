@@ -4,11 +4,14 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { globalProtests } from '@/data/globalProtests';
-import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
+import { getDemoEvents, isDemoMode, addDemoEventRSVP, getThumbnail } from '@/lib/demo-events';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
 import RSVPModal from '@/components/protest/RSVPModal';
 import ProtestResults from '@/components/results/ProtestResults';
 import { getFilteredRSVPCounts } from '@/lib/event-participants';
+import { updateUserParticipation, updateChamaDoPovoData, getMilestoneNotification } from '@/lib/gamification';
+import { useMilestoneNotification } from '@/components/gamification/MilestoneNotification';
+import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -61,6 +64,7 @@ export default function ProtestDetailPage() {
   });
   
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const { showNotification, NotificationComponent } = useMilestoneNotification();
 
   // Find protest in static data or demo events (refresh when refreshCounter changes)
   let protest = globalProtests.find(p => p.id === protestId);
@@ -85,6 +89,9 @@ export default function ProtestDetailPage() {
   const filteredRSVPs = getFilteredRSVPCounts(protest.type, protest.rsvps);
   const totalRSVPs = Object.values(filteredRSVPs).reduce((sum, count) => sum + count, 0);
 
+  // Get event thumbnail
+  const eventThumbnail = getThumbnail(protestId);
+
   const formatDate = (dateString: string) => {
     try {
       return format(new Date(dateString), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
@@ -108,6 +115,23 @@ export default function ProtestDetailPage() {
       const success = addDemoEventRSVP(protestId, participantType, verification);
       
       if (success) {
+        // Gamification: Update user participation and check for badges
+        const userId = 'demo-user-' + Date.now(); // In real app, get from auth context
+        const { newBadges } = updateUserParticipation(userId, 'attend', protest.city, protest.state);
+        
+        // Update Chama do Povo data
+        const previousTotal = Object.values(protest.rsvps || {}).reduce((sum, count) => sum + count, 0);
+        const updatedChama = updateChamaDoPovoData(protestId, 'confirm');
+        const currentTotal = previousTotal + 1;
+        
+        // Check for milestone notifications
+        const milestoneMessage = getMilestoneNotification(protestId, currentTotal, previousTotal);
+        
+        // Show gamification notifications
+        if (newBadges.length > 0 || milestoneMessage) {
+          showNotification(milestoneMessage, newBadges);
+        }
+        
         const verificationText = verification && (verification.email || verification.phone) ? ' como Patriota Verificado' : ' anonimamente';
         const joinText = joinLocation ? ` (${joinLocation})` : '';
         
@@ -121,7 +145,9 @@ export default function ProtestDetailPage() {
           'populacao_geral': 'População Geral'
         };
         
-        alert(`✅ RSVP confirmado${verificationText}!\n\nEvento: ${protest.title}\nParticipando como: ${participantLabels[participantType] || participantType}${joinText}\n\n🎉 Sua presença foi registrada com sucesso!`);
+        if (!newBadges.length && !milestoneMessage) {
+          alert(`✅ RSVP confirmado${verificationText}!\n\nEvento: ${protest.title}\nParticipando como: ${participantLabels[participantType] || participantType}${joinText}\n\n🎉 Sua presença foi registrada com sucesso!`);
+        }
         
         // Force refresh the page data by updating the counter
         setRefreshCounter(prev => prev + 1);
@@ -165,33 +191,108 @@ export default function ProtestDetailPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main protest info */}
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{protest.title}</h1>
+        <div className="bg-white rounded-lg shadow-md p-8 mb-8 border-l-4 border-green-500">
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                <span className="text-4xl">🇧🇷</span>
+                {protest.title}
+              </h1>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                  {protestTypeLabels[protest.type]}
+                </span>
+                <span>•</span>
+                <span>{protest.city}, {protest.state}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="text-2xl font-bold text-blue-600">{totalRSVPs.toLocaleString('pt-BR')}</div>
+                <div className="text-xs text-blue-600 font-medium">Confirmados</div>
+              </div>
+              
+              <ChamaDoPovoIndicator 
+                eventId={protestId}
+                size="medium"
+                onShare={() => {
+                  // Handle sharing logic
+                  if (navigator.share) {
+                    navigator.share({
+                      title: protest.title,
+                      text: `Participe da ${protest.title} em ${protest.city}! 🇧🇷`,
+                      url: window.location.href
+                    });
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Event Image */}
+          {eventThumbnail && (
+            <div className="mb-6">
+              <img
+                src={eventThumbnail}
+                alt={protest.title}
+                className="w-full h-64 md:h-80 object-cover rounded-lg shadow-md"
+              />
+            </div>
+          )}
           
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Informações do Evento</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Data:</strong> {formatDate(protest.date)}</p>
-                <p><strong>Horário:</strong> {protest.time}</p>
-                <p><strong>Local:</strong> {protest.location}</p>
-                <p><strong>Cidade:</strong> {protest.city}, {protest.state}</p>
-                <p><strong>Tipo:</strong> {protestTypeLabels[protest.type]}</p>
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="text-xl">📅</span>
+                Informações do Evento
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">📅</span>
+                  <div>
+                    <strong className="text-gray-900">Data:</strong>
+                    <span className="text-gray-700 ml-2">{formatDate(protest.date)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">🕐</span>
+                  <div>
+                    <strong className="text-gray-900">Horário:</strong>
+                    <span className="text-gray-700 ml-2">{protest.time}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">📍</span>
+                  <div>
+                    <strong className="text-gray-900">Local:</strong>
+                    <span className="text-gray-700 ml-2">{protest.location}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">🏙️</span>
+                  <div>
+                    <strong className="text-gray-900">Cidade:</strong>
+                    <span className="text-gray-700 ml-2">{protest.city}, {protest.state}</span>
+                  </div>
+                </div>
               </div>
             </div>
             
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="text-xl">👥</span>
                 Confirmações ({totalRSVPs.toLocaleString('pt-BR')})
               </h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-3">
                 {Object.entries(filteredRSVPs).map(([type, count]) => (
-                  <div key={type} className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <span>{participantIcons[type as keyof typeof participantIcons]}</span>
-                      <span>{participantLabels[type as keyof typeof participantLabels]}</span>
+                  <div key={type} className="flex items-center justify-between bg-white rounded-lg p-3">
+                    <span className="flex items-center gap-3">
+                      <span className="text-xl">{participantIcons[type as keyof typeof participantIcons]}</span>
+                      <span className="text-gray-900 font-medium">{participantLabels[type as keyof typeof participantLabels]}</span>
                     </span>
-                    <span className="font-medium">{count.toLocaleString('pt-BR')}</span>
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
+                      {count.toLocaleString('pt-BR')}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -200,17 +301,60 @@ export default function ProtestDetailPage() {
 
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Descrição</h3>
-            <p className="text-gray-700">{protest.description}</p>
+            <div className="prose prose-gray max-w-none">
+              {protest.description.split('\n').map((paragraph, index) => {
+                if (paragraph.trim() === '') return null;
+                
+                // Check if it's a title/header (starts with certain words or emojis)
+                if (paragraph.includes('🇧🇷') || paragraph.includes('REAJA BRASIL') || paragraph.includes('Brasil')) {
+                  return (
+                    <h4 key={index} className="text-xl font-bold text-green-700 mb-3 mt-4 flex items-center gap-2">
+                      {paragraph.includes('🇧🇷') && <span className="text-2xl">🇧🇷</span>}
+                      {paragraph.replace('🇧🇷', '').trim()}
+                    </h4>
+                  );
+                }
+                
+                // Check if it's a question or important line
+                if (paragraph.includes('?') || paragraph.includes('Quando?') || paragraph.includes('Como?')) {
+                  return (
+                    <p key={index} className="text-lg font-semibold text-blue-800 mb-2 mt-3">
+                      {paragraph}
+                    </p>
+                  );
+                }
+                
+                // Check if it's an event info line
+                if (paragraph.includes('Evento Nacional') || paragraph.includes('Simultâneo')) {
+                  return (
+                    <div key={index} className="bg-green-100 border-l-4 border-green-500 p-4 mb-4 rounded-r-lg">
+                      <p className="text-green-800 font-medium flex items-center gap-2">
+                        <span className="text-xl">🌟</span>
+                        {paragraph}
+                      </p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <p key={index} className="text-gray-700 mb-3 leading-relaxed">
+                    {paragraph}
+                  </p>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
             <button
               onClick={handleRSVP}
-              className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+              className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium text-lg shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
             >
+              <span className="text-xl">✋</span>
               Confirmar Presença
             </button>
-            <button className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium">
+            <button className="flex-1 px-6 py-4 border-2 border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors font-medium text-lg flex items-center justify-center gap-2">
+              <span className="text-xl">📢</span>
               Compartilhar
             </button>
           </div>
@@ -281,6 +425,9 @@ export default function ProtestDetailPage() {
         protestType={protest.type}
         isConvoy={rsvpModal.isConvoy}
       />
+
+      {/* Milestone Notifications */}
+      {NotificationComponent}
     </div>
   );
 }
