@@ -2,12 +2,14 @@ import { Protest, ParticipantType, RSVPCountsDetailed } from '@/types';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { BellIcon } from '@heroicons/react/24/outline';
 import RSVPDisplay from './RSVPDisplay';
 
 interface ProtestCardProps {
   protest: Protest;
   onRSVP: (protestId: string, participantType: ParticipantType) => void;
   onViewDetails: (protestId: string) => void;
+  onEmailAlert?: (protestId: string, protestTitle: string) => void;
 }
 
 const participantIcons = {
@@ -52,7 +54,7 @@ const protestTypeIcons = {
   outro: '📢'
 };
 
-export default function ProtestCard({ protest, onRSVP, onViewDetails }: ProtestCardProps) {
+export default function ProtestCard({ protest, onRSVP, onViewDetails, onEmailAlert }: ProtestCardProps) {
   // Create detailed RSVP structure or use legacy
   const rsvpsDetailed: RSVPCountsDetailed = protest.rsvpsDetailed || {
     anonymous: protest.rsvps,
@@ -118,7 +120,7 @@ export default function ProtestCard({ protest, onRSVP, onViewDetails }: ProtestC
 
       <RSVPDisplay rsvps={rsvpsDetailed} className="mb-4" />
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <button
           onClick={() => onViewDetails(protest.id)}
           className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-bold shadow-md hover:shadow-lg transform hover:scale-105"
@@ -131,6 +133,15 @@ export default function ProtestCard({ protest, onRSVP, onViewDetails }: ProtestC
         >
           ✊ Participar
         </button>
+        {onEmailAlert && (
+          <button
+            onClick={() => onEmailAlert(protest.id, protest.title)}
+            className="px-3 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+            title="Receber alertas por email"
+          >
+            <BellIcon className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );

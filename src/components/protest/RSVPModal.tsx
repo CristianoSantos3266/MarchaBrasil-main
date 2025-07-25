@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
+import { getRelevantParticipantTypes, PARTICIPANT_TYPE_LABELS, PARTICIPANT_TYPE_ICONS, RSVP_TO_PARTICIPANT_TYPE } from '@/lib/event-participants';
 import { ShieldCheckIcon, EyeSlashIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 interface RSVPModalProps {
@@ -9,17 +10,11 @@ interface RSVPModalProps {
   onClose: () => void;
   onSubmit: (participantType: ParticipantType, joinLocation?: ConvoyJoinLocation, verification?: { email?: string; phone?: string }) => void;
   protestTitle: string;
+  protestType?: string;
   isConvoy?: boolean;
 }
 
-const participantOptions = [
-  { value: 'caminhoneiro', label: '🚛 Caminhoneiro', description: 'Motorista de caminhão' },
-  { value: 'motociclista', label: '🏍️ Motociclista', description: 'Piloto de motocicleta' },
-  { value: 'carro', label: '🚗 Carro Particular', description: 'Motorista de veículo particular' },
-  { value: 'produtor_rural', label: '🌾 Produtor Rural', description: 'Agricultor ou pecuarista' },
-  { value: 'comerciante', label: '🛍️ Comerciante', description: 'Empresário ou comerciante' },
-  { value: 'populacao_geral', label: '👥 População Geral', description: 'Cidadão comum' }
-];
+// Participant options will be generated dynamically based on event type
 
 const joinLocationOptions = [
   { value: 'inicio', label: 'Desde o início', description: 'Participar desde o ponto de partida' },
@@ -27,8 +22,25 @@ const joinLocationOptions = [
   { value: 'destino', label: 'Apenas no destino', description: 'Aguardar no ponto final' }
 ];
 
-export default function RSVPModal({ isOpen, onClose, onSubmit, protestTitle, isConvoy = false }: RSVPModalProps) {
-  const [selectedType, setSelectedType] = useState<ParticipantType>('populacao_geral');
+export default function RSVPModal({ isOpen, onClose, onSubmit, protestTitle, protestType = 'manifestacao', isConvoy = false }: RSVPModalProps) {
+  // Get relevant participant types for this protest type
+  const relevantParticipantTypes = getRelevantParticipantTypes(protestType);
+  
+  // Generate participant options based on relevant types (convert RSVP keys to ParticipantType)
+  const participantOptions = relevantParticipantTypes.map(rsvpKey => {
+    const participantType = RSVP_TO_PARTICIPANT_TYPE[rsvpKey];
+    return {
+      value: participantType,
+      label: `${PARTICIPANT_TYPE_ICONS[rsvpKey]} ${PARTICIPANT_TYPE_LABELS[rsvpKey]}`,
+      description: PARTICIPANT_TYPE_LABELS[rsvpKey]
+    };
+  });
+  
+  const [selectedType, setSelectedType] = useState<ParticipantType>(
+    relevantParticipantTypes.length > 0 
+      ? RSVP_TO_PARTICIPANT_TYPE[relevantParticipantTypes[0]] as ParticipantType 
+      : 'populacao_geral'
+  );
   const [selectedJoinLocation, setSelectedJoinLocation] = useState<ConvoyJoinLocation>('inicio');
   const [wantsVerification, setWantsVerification] = useState(false);
   const [email, setEmail] = useState('');

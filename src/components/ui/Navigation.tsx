@@ -12,7 +12,8 @@ import {
   LockClosedIcon,
   UserCircleIcon,
   ChevronDownIcon,
-  HandRaisedIcon
+  HandRaisedIcon,
+  FilmIcon
 } from '@heroicons/react/24/outline'
 
 export default function Navigation() {
@@ -69,6 +70,14 @@ export default function Navigation() {
             >
               <MapPinIcon className="h-5 w-5" />
               Criar Manifestação
+            </Link>
+            
+            <Link 
+              href="/videos" 
+              className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-2"
+            >
+              <FilmIcon className="h-5 w-5" />
+              Vídeos
             </Link>
             
             <Link 
@@ -231,6 +240,15 @@ export default function Navigation() {
               >
                 <MapPinIcon className="h-5 w-5" />
                 Criar Manifestação
+              </Link>
+              
+              <Link 
+                href="/videos" 
+                className="text-gray-700 hover:text-purple-600 font-medium py-2 transition-colors flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <FilmIcon className="h-5 w-5" />
+                Vídeos
               </Link>
               
               <Link 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import Link from 'next/link';
 import { 
   HeartIcon, 
   MapPinIcon, 
@@ -10,7 +11,9 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
   HandRaisedIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  FilmIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import { 
   CheckBadgeIcon 
@@ -21,13 +24,13 @@ import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
 import { Country, Region, getCountryByCode, getRegionByCode } from '@/data/countries';
 import ProtestCard from '@/components/protest/ProtestCard';
 import RSVPModal from '@/components/protest/RSVPModal';
-import EmailSubscriptionForm from '@/components/email/EmailSubscriptionForm';
 import CensorshipAlert from '@/components/ui/CensorshipAlert';
 import AntiCensorshipWidget from '@/components/ui/AntiCensorshipWidget';
 import TrendingEvents from '@/components/analytics/TrendingEvents';
 import PlatformStats from '@/components/analytics/PlatformStats';
 import Navigation from '@/components/ui/Navigation';
 import UpcomingProtestsFeed from '@/components/protest/UpcomingProtestsFeed';
+import VideoFeed from '@/components/video/VideoFeed';
 
 const GlobalMap = dynamic(() => import('@/components/map/GlobalMap'), {
   ssr: false,
@@ -119,10 +122,16 @@ export default function Home() {
     window.location.href = `/protest/${protestId}`;
   };
 
-  const handleEmailSubscription = async (email: string, selectedStates: string[], selectedTypes: string[]) => {
-    console.log('Email subscription:', { email, selectedStates, selectedTypes });
-    return Promise.resolve();
+  const handleEmailAlert = (protestId: string, protestTitle: string) => {
+    const email = prompt('Digite seu email para receber alertas sobre este evento:');
+    if (email && email.includes('@')) {
+      // In a real app, this would subscribe the user to email alerts
+      alert(`✅ Alerta configurado!\n\nVocê receberá notificações por email sobre:\n"${protestTitle}"\n\nEmail: ${email}`);
+    } else if (email) {
+      alert('Por favor, digite um email válido.');
+    }
   };
+
 
   return (
     <>
@@ -296,15 +305,91 @@ export default function Home() {
                   protest={protest}
                   onRSVP={handleRSVP}
                   onViewDetails={handleViewDetails}
+                  onEmailAlert={handleEmailAlert}
                 />
               ))}
             </div>
           </section>
         )}
 
-        {/* Email subscription section */}
+        {/* Search Bar */}
         <section className="mb-8">
-          <EmailSubscriptionForm onSubmit={handleEmailSubscription} />
+          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Buscar Manifestações
+              </h2>
+              <p className="text-gray-600">
+                Encontre eventos por título, cidade, estado ou tipo de manifestação
+              </p>
+            </div>
+            <div className="max-w-2xl mx-auto">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Digite sua busca..."
+                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                />
+                <svg
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-4 justify-center">
+                <span className="text-sm text-gray-500">Buscas populares:</span>
+                <button className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full hover:bg-blue-200 transition-colors">
+                  São Paulo
+                </button>
+                <button className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full hover:bg-green-200 transition-colors">
+                  Manifestação
+                </button>
+                <button className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full hover:bg-purple-200 transition-colors">
+                  Caminhoneiros
+                </button>
+                <button className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm rounded-full hover:bg-yellow-200 transition-colors">
+                  Rio de Janeiro
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Video Feed Section */}
+        <section className="mb-12">
+          <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg shadow-md p-6 border border-purple-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <FilmIcon className="h-7 w-7 text-purple-600" />
+                Vídeos
+              </h2>
+              <Link 
+                href="/videos/upload" 
+                className="text-purple-600 hover:text-purple-700 font-medium text-sm flex items-center gap-2 transition-colors"
+              >
+                Enviar Vídeo
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
+            <VideoFeed showSearchFilters={false} maxVideos={6} />
+            <div className="mt-4 text-center">
+              <Link 
+                href="/videos" 
+                className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors"
+              >
+                Ver todos os vídeos
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </section>
 
         {/* Analytics when no region selected */}

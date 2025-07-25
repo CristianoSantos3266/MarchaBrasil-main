@@ -1,270 +1,272 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Navigation from '@/components/ui/Navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import { getPendingUsers, getPendingEvents, approveUser, approveEvent, rejectEvent } from '@/lib/supabase'
-import { User, Event } from '@/types/database'
+import {
+  CalendarIcon,
+  UsersIcon,
+  UserGroupIcon,
+  CurrencyDollarIcon,
+  ExclamationTriangleIcon,
+  CheckBadgeIcon,
+  ClockIcon,
+  XCircleIcon,
+  MapPinIcon,
+  TrendingUpIcon,
+  EyeIcon
+} from '@heroicons/react/24/outline'
 
-export default function AdminPage() {
-  const { user, userProfile } = useAuth()
-  const router = useRouter()
-  const [pendingUsers, setPendingUsers] = useState<User[]>([])
-  const [pendingEvents, setPendingEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'users' | 'events'>('users')
+interface DashboardStats {
+  totalEvents: number
+  pendingEvents: number
+  approvedEvents: number
+  rejectedEvents: number
+  totalParticipants: number
+  verifiedOrganizers: number
+  totalDonations: number
+  flaggedItems: number
+}
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalEvents: 0,
+    pendingEvents: 0,
+    approvedEvents: 0,
+    rejectedEvents: 0,
+    totalParticipants: 0,
+    verifiedOrganizers: 0,
+    totalDonations: 0,
+    flaggedItems: 0
+  })
+
+  const [recentEvents, setRecentEvents] = useState<any[]>([])
+  const [recentVideos, setRecentVideos] = useState<any[]>([])
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
-      return
+    // Load demo data and calculate stats
+    // Temporary static data to avoid hydration issues
+    setStats({
+      totalEvents: 47,
+      pendingEvents: 8,
+      approvedEvents: 35,
+      rejectedEvents: 4,
+      totalParticipants: 23567,
+      verifiedOrganizers: 12,
+      totalDonations: 15847.50,
+      flaggedItems: 3
+    })
+
+    // Mock recent events
+    setRecentEvents([
+      { id: '1', title: 'Manifestação pela Democracia - SP', city: 'São Paulo', region: 'SP', date: '2024-07-25', status: 'approved' },
+      { id: '2', title: 'Carreata Patriótica - RJ', city: 'Rio de Janeiro', region: 'RJ', date: '2024-07-24', status: 'pending' },
+      { id: '3', title: 'Assembleia Cidadã - MG', city: 'Belo Horizonte', region: 'MG', date: '2024-07-23', status: 'approved' }
+    ])
+
+    // Mock recent videos  
+    setRecentVideos([
+      { id: '1', title: 'Hino da Independência - 7 de Setembro 2024', category: 'hino', views: 1250, likes: 89, status: 'approved' },
+      { id: '2', title: 'ANISTIA JÁ', category: 'manifestacao', views: 1567, likes: 128, status: 'approved' },
+      { id: '3', title: 'Manifestação Patriótica - Brasil', category: 'manifestacao', views: 892, likes: 67, status: 'approved' }
+    ])
+  }, [])
+
+  const statCards = [
+    {
+      title: 'Eventos Confirmados',
+      value: stats.approvedEvents,
+      icon: CheckBadgeIcon,
+      color: 'green',
+      change: '+12%'
+    },
+    {
+      title: 'Eventos Pendentes',
+      value: stats.pendingEvents,
+      icon: ClockIcon,
+      color: 'yellow',
+      change: '+3'
+    },
+    {
+      title: 'Participantes Confirmados',
+      value: stats.totalParticipants.toLocaleString('pt-BR'),
+      icon: UserGroupIcon,
+      color: 'blue',
+      change: '+8.5%'
+    },
+    {
+      title: 'Organizadores Verificados',
+      value: stats.verifiedOrganizers,
+      icon: UsersIcon,
+      color: 'purple',
+      change: '+2'
+    },
+    {
+      title: 'Doações (R$)',
+      value: `R$ ${stats.totalDonations.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      icon: CurrencyDollarIcon,
+      color: 'green',
+      change: '+22%'
+    },
+    {
+      title: 'Itens Sinalizados',
+      value: stats.flaggedItems,
+      icon: ExclamationTriangleIcon,
+      color: 'red',
+      change: '-1'
     }
+  ]
 
-    if (!userProfile || userProfile.role !== 'admin') {
-      router.push('/')
-      return
+  const getColorClasses = (color: string) => {
+    const colors = {
+      green: 'bg-green-50 text-green-700 border-green-200',
+      yellow: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+      blue: 'bg-blue-50 text-blue-700 border-blue-200',
+      purple: 'bg-purple-50 text-purple-700 border-purple-200',
+      red: 'bg-red-50 text-red-700 border-red-200'
     }
-
-    loadData()
-  }, [user, userProfile, router])
-
-  const loadData = async () => {
-    setLoading(true)
-    try {
-      const [usersResponse, eventsResponse] = await Promise.all([
-        getPendingUsers(),
-        getPendingEvents()
-      ])
-
-      if (usersResponse.data) setPendingUsers(usersResponse.data)
-      if (eventsResponse.data) setPendingEvents(eventsResponse.data)
-    } catch (error) {
-      console.error('Error loading admin data:', error)
-    } finally {
-      setLoading(false)
-    }
+    return colors[color as keyof typeof colors] || colors.blue
   }
 
-  const handleApproveUser = async (userId: string) => {
-    try {
-      const { error } = await approveUser(userId)
-      if (error) throw error
-
-      setPendingUsers(prev => prev.filter(u => u.id !== userId))
-      alert('Organizador aprovado com sucesso!')
-    } catch (error) {
-      console.error('Error approving user:', error)
-      alert('Erro ao aprovar organizador')
+  const getStatusBadge = (status: string) => {
+    const badges = {
+      approved: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      rejected: 'bg-red-100 text-red-800'
     }
-  }
-
-  const handleApproveEvent = async (eventId: string) => {
-    try {
-      const { error } = await approveEvent(eventId)
-      if (error) throw error
-
-      setPendingEvents(prev => prev.filter(e => e.id !== eventId))
-      alert('Evento aprovado com sucesso!')
-    } catch (error) {
-      console.error('Error approving event:', error)
-      alert('Erro ao aprovar evento')
+    const labels = {
+      approved: 'Aprovado',
+      pending: 'Pendente',
+      rejected: 'Rejeitado'
     }
-  }
-
-  const handleRejectEvent = async (eventId: string) => {
-    const reason = prompt('Motivo da rejeição:')
-    if (!reason) return
-
-    try {
-      const { error } = await rejectEvent(eventId, reason)
-      if (error) throw error
-
-      setPendingEvents(prev => prev.filter(e => e.id !== eventId))
-      alert('Evento rejeitado')
-    } catch (error) {
-      console.error('Error rejecting event:', error)
-      alert('Erro ao rejeitar evento')
-    }
-  }
-
-  if (!user || !userProfile || userProfile.role !== 'admin') {
-    return <div>Acesso negado</div>
-  }
-
-  if (loading) {
+    
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
-        <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="text-xl">Carregando...</div>
-        </div>
-      </div>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${badges[status as keyof typeof badges]}`}>
+        {labels[status as keyof typeof labels]}
+      </span>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
-      <Navigation />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-lg border-2 border-green-200">
-          <div className="border-b border-gray-200 p-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              🛠️ Painel Administrativo
-            </h1>
-            <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'users'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Organizadores Pendentes ({pendingUsers.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('events')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'events'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Eventos Pendentes ({pendingEvents.length})
-              </button>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="border-b border-gray-200 pb-4">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>
+        <p className="text-gray-600 mt-2">Visão geral da plataforma Marcha Brasil</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {statCards.map((card, index) => {
+          const Icon = card.icon
+          return (
+            <div key={index} className={`p-6 rounded-lg border-2 ${getColorClasses(card.color)}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium opacity-75">{card.title}</p>
+                  <p className="text-2xl font-bold mt-1">{card.value}</p>
+                  <p className="text-sm mt-1 opacity-75">
+                    <span className="font-medium">{card.change}</span> vs. mês anterior
+                  </p>
+                </div>
+                <Icon className="h-10 w-10 opacity-75" />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Recent Activity Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Events */}
+        <div className="bg-white rounded-lg shadow border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Eventos Recentes</h2>
+              <CalendarIcon className="h-5 w-5 text-gray-400" />
             </div>
           </div>
-
           <div className="p-6">
-            {activeTab === 'users' && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-6">
-                  👤 Organizadores Aguardando Aprovação
-                </h2>
-                
-                {pendingUsers.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <div className="text-4xl mb-4">✅</div>
-                    <p>Nenhum organizador pendente de aprovação</p>
+            <div className="space-y-4">
+              {recentEvents.map((event) => (
+                <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900 text-sm">{event.title}</h3>
+                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <MapPinIcon className="h-3 w-3" />
+                        {event.city}, {event.region}
+                      </span>
+                      <span>{new Date(event.date).toLocaleDateString('pt-BR')}</span>
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-6">
-                    {pendingUsers.map((user) => (
-                      <div key={user.id} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                        <div className="grid md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <h3 className="font-bold text-lg text-gray-900">{user.public_name}</h3>
-                            <p className="text-gray-600">Nome: {user.name}</p>
-                            <p className="text-gray-600">Email: {user.email}</p>
-                            <p className="text-gray-600">Localização: {user.city}, {user.state}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">WhatsApp: {user.whatsapp}</p>
-                            {user.social_link && (
-                              <p className="text-gray-600">
-                                Rede Social: <a href={user.social_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Ver perfil</a>
-                              </p>
-                            )}
-                            <p className="text-gray-600">Solicitado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-4">
-                          <h4 className="font-semibold text-gray-900 mb-2">Motivação:</h4>
-                          <p className="text-gray-700 bg-white p-3 rounded border">{user.motivation}</p>
-                        </div>
-                        
-                        <div className="flex gap-4">
-                          <button
-                            onClick={() => handleApproveUser(user.id)}
-                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                          >
-                            ✅ Aprovar Organizador
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm('Tem certeza que deseja rejeitar este organizador?')) {
-                                // TODO: Implement reject user functionality
-                              }
-                            }}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                          >
-                            ❌ Rejeitar
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(event.status || 'pending')}
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-            {activeTab === 'events' && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-6">
-                  📅 Eventos Aguardando Aprovação
-                </h2>
-                
-                {pendingEvents.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <div className="text-4xl mb-4">✅</div>
-                    <p>Nenhum evento pendente de aprovação</p>
+        {/* Recent Videos */}
+        <div className="bg-white rounded-lg shadow border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Vídeos Recentes</h2>
+              <EyeIcon className="h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {recentVideos.map((video) => (
+                <div key={video.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900 text-sm">{video.title}</h3>
+                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-600">
+                      <span className="capitalize">{video.category}</span>
+                      <span>{video.views} visualizações</span>
+                      <span>{video.likes} curtidas</span>
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-6">
-                    {pendingEvents.map((event: any) => (
-                      <div key={event.id} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                        <div className="grid md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <h3 className="font-bold text-lg text-gray-900">{event.title}</h3>
-                            <p className="text-gray-600">Tipo: {event.type}</p>
-                            <p className="text-gray-600">Data: {new Date(event.date).toLocaleDateString('pt-BR')} às {event.time}</p>
-                            <p className="text-gray-600">Local: {event.meeting_point}</p>
-                            <p className="text-gray-600">Cidade: {event.city}, {event.state}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Organizador: {event.users?.public_name}</p>
-                            <p className="text-gray-600">Email: {event.users?.email}</p>
-                            <p className="text-gray-600">WhatsApp: {event.users?.whatsapp}</p>
-                            <p className="text-gray-600">Estimativa: {event.expected_attendance || 'Não informado'} pessoas</p>
-                            <p className="text-gray-600">Criado em: {new Date(event.created_at).toLocaleDateString('pt-BR')}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-4">
-                          <h4 className="font-semibold text-gray-900 mb-2">Descrição:</h4>
-                          <p className="text-gray-700 bg-white p-3 rounded border">{event.description}</p>
-                        </div>
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(video.status)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
-                        {event.final_destination && (
-                          <div className="mb-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">Destino Final:</h4>
-                            <p className="text-gray-700 bg-white p-3 rounded border">{event.final_destination}</p>
-                          </div>
-                        )}
-                        
-                        <div className="flex gap-4">
-                          <button
-                            onClick={() => handleApproveEvent(event.id)}
-                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                          >
-                            ✅ Aprovar Evento
-                          </button>
-                          <button
-                            onClick={() => handleRejectEvent(event.id)}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                          >
-                            ❌ Rejeitar
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+      {/* Quick Actions */}
+      <div className="bg-white rounded-lg shadow border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Ações Rápidas</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button className="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors">
+              <CheckBadgeIcon className="h-6 w-6 text-green-600" />
+              <div className="text-left">
+                <div className="font-medium text-green-900">Aprovar Eventos</div>
+                <div className="text-sm text-green-600">{stats.pendingEvents} pendentes</div>
               </div>
-            )}
+            </button>
+            
+            <button className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors">
+              <UsersIcon className="h-6 w-6 text-blue-600" />
+              <div className="text-left">
+                <div className="font-medium text-blue-900">Verificar Organizadores</div>
+                <div className="text-sm text-blue-600">3 aguardando</div>
+              </div>
+            </button>
+            
+            <button className="flex items-center gap-3 p-4 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+              <div className="text-left">
+                <div className="font-medium text-red-900">Revisar Sinalizações</div>
+                <div className="text-sm text-red-600">{stats.flaggedItems} itens</div>
+              </div>
+            </button>
           </div>
         </div>
       </div>

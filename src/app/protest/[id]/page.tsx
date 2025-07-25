@@ -8,6 +8,7 @@ import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
 import RSVPModal from '@/components/protest/RSVPModal';
 import ProtestResults from '@/components/results/ProtestResults';
+import { getFilteredRSVPCounts } from '@/lib/event-participants';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -81,7 +82,8 @@ export default function ProtestDetailPage() {
     );
   }
 
-  const totalRSVPs = Object.values(protest.rsvps).reduce((sum, count) => sum + count, 0);
+  const filteredRSVPs = getFilteredRSVPCounts(protest.type, protest.rsvps);
+  const totalRSVPs = Object.values(filteredRSVPs).reduce((sum, count) => sum + count, 0);
 
   const formatDate = (dateString: string) => {
     try {
@@ -183,7 +185,7 @@ export default function ProtestDetailPage() {
                 Confirmações ({totalRSVPs.toLocaleString('pt-BR')})
               </h3>
               <div className="space-y-2 text-sm">
-                {Object.entries(protest.rsvps).map(([type, count]) => (
+                {Object.entries(filteredRSVPs).map(([type, count]) => (
                   <div key={type} className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <span>{participantIcons[type as keyof typeof participantIcons]}</span>
@@ -276,6 +278,7 @@ export default function ProtestDetailPage() {
         onClose={() => setRsvpModal(prev => ({ ...prev, isOpen: false }))}
         onSubmit={handleRSVPSubmit}
         protestTitle={rsvpModal.protestTitle}
+        protestType={protest.type}
         isConvoy={rsvpModal.isConvoy}
       />
     </div>

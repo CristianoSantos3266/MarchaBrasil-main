@@ -131,6 +131,28 @@ export function getThumbnail(eventId: string): string | undefined {
   }
 }
 
+// Helper function to create event-specific RSVPs based on event type
+function createEventSpecificRSVPs(eventType: string): Record<string, number> {
+  const relevantTypes: Record<string, string[]> = {
+    'manifestacao': ['populacaoGeral'],
+    'marcha': ['populacaoGeral'],
+    'caminhoneiros': ['caminhoneiros', 'populacaoGeral'],
+    'carreata': ['carros', 'populacaoGeral'],
+    'motociata': ['motociclistas', 'carros', 'populacaoGeral'],
+    'tratorada': ['tratores', 'carros', 'populacaoGeral'],
+    'assembleia': ['populacaoGeral', 'comerciantes', 'produtoresRurais']
+  };
+  
+  const rsvps: Record<string, number> = {};
+  const types = relevantTypes[eventType] || ['populacaoGeral'];
+  
+  types.forEach(type => {
+    rsvps[type] = 0;
+  });
+  
+  return rsvps;
+}
+
 // Save demo event to localStorage
 export function saveDemoEvent(eventData: any): Protest[] {
   const timestamp = Date.now();
@@ -152,15 +174,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
         type: eventData.type,
         coordinates: capitalInfo.coordinates as [number, number],
         thumbnail: undefined, // Thumbnails stored separately
-        rsvps: {
-          caminhoneiros: 0,
-          motociclistas: 0,
-          carros: 0,
-          tratores: 0,
-          produtoresRurais: 0,
-          comerciantes: 0,
-          populacaoGeral: 0
-        },
+        rsvps: createEventSpecificRSVPs(eventData.type),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -191,15 +205,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
       type: eventData.type,
       coordinates: coordinates,
       thumbnail: undefined, // Thumbnails stored separately
-      rsvps: {
-        caminhoneiros: 0,
-        motociclistas: 0,
-        carros: 0,
-        tratores: 0,
-        produtoresRurais: 0,
-        comerciantes: 0,
-        populacaoGeral: 0
-      },
+      rsvps: createEventSpecificRSVPs(eventData.type),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
