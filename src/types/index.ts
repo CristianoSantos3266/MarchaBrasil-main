@@ -15,6 +15,7 @@ export interface Protest {
   rsvps: RSVPCounts; // Legacy for existing data
   rsvpsDetailed?: RSVPCountsDetailed; // New structure
   results?: ProtestResults;
+  createdBy?: string; // User ID who created the event
   createdAt: string;
   updatedAt: string;
 }

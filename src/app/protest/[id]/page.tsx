@@ -14,6 +14,7 @@ import { useMilestoneNotification } from '@/components/gamification/MilestoneNot
 import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
 
 const ConvoyRouteMap = dynamic(() => import('@/components/map/ConvoyRouteMap'), {
   ssr: false,
@@ -243,33 +244,33 @@ export default function ProtestDetailPage() {
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-xl">📅</span>
+                <CalendarDaysIcon className="h-5 w-5 text-gray-600" />
                 Informações do Evento
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">📅</span>
+                  <CalendarDaysIcon className="h-5 w-5 text-gray-600" />
                   <div>
                     <strong className="text-gray-900">Data:</strong>
                     <span className="text-gray-700 ml-2">{formatDate(protest.date)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">🕐</span>
+                  <ClockIcon className="h-5 w-5 text-gray-600" />
                   <div>
                     <strong className="text-gray-900">Horário:</strong>
                     <span className="text-gray-700 ml-2">{protest.time}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">📍</span>
+                  <MapPinIcon className="h-5 w-5 text-gray-600" />
                   <div>
                     <strong className="text-gray-900">Local:</strong>
                     <span className="text-gray-700 ml-2">{protest.location}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">🏙️</span>
+                  <BuildingOffice2Icon className="h-5 w-5 text-gray-600" />
                   <div>
                     <strong className="text-gray-900">Cidade:</strong>
                     <span className="text-gray-700 ml-2">{protest.city}, {protest.state}</span>
@@ -350,11 +351,11 @@ export default function ProtestDetailPage() {
               onClick={handleRSVP}
               className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium text-lg shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
             >
-              <span className="text-xl">✋</span>
+              <HandRaisedIcon className="h-5 w-5" />
               Confirmar Presença
             </button>
             <button className="flex-1 px-6 py-4 border-2 border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors font-medium text-lg flex items-center justify-center gap-2">
-              <span className="text-xl">📢</span>
+              <SpeakerWaveIcon className="h-5 w-5" />
               Compartilhar
             </button>
           </div>

@@ -8,6 +8,7 @@ import RSVPModal from './RSVPModal';
 import { globalProtests } from '@/data/globalProtests';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
 import { getDemoEvents, isDemoMode, onDemoEventsUpdate, getThumbnail, deleteDemoEvent, addDemoEventRSVP } from '@/lib/demo-events';
+import { canUserEditEvent } from '@/lib/auth';
 
 interface UpcomingProtestsFeedProps {
   onProtestSelect?: (protestId: string) => void;
@@ -343,8 +344,8 @@ export default function UpcomingProtestsFeed({
                       </button>
                     )}
                     
-                    {/* Edit/Delete buttons for demo events */}
-                    {protest.id.startsWith('demo-') && (
+                    {/* Edit/Delete buttons - only shown to event creators */}
+                    {protest.id.startsWith('demo-') && canUserEditEvent(protest) && (
                       <div className="flex gap-2">
                         <button 
                           onClick={(e) => handleEdit(protest.id, e)}

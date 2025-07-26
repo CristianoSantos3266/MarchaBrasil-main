@@ -1,6 +1,7 @@
 'use client';
 
 import { Protest } from '@/types';
+import { getOrCreateUserSession } from './auth';
 
 const DEMO_EVENTS_KEY = 'marcha-brasil-demo-events';
 const DEMO_THUMBNAILS_KEY = 'marcha-brasil-demo-thumbnails';
@@ -161,6 +162,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
   // If it's a national event, create events for all capitals
   if (eventData.isNational) {
     brazilianCapitals.forEach((capitalInfo, index) => {
+      const currentUser = getOrCreateUserSession();
       const newEvent: Protest = {
         id: `demo-${timestamp}-${capitalInfo.state}`,
         title: `${eventData.title} - ${capitalInfo.capital}`,
@@ -175,6 +177,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
         coordinates: capitalInfo.coordinates as [number, number],
         thumbnail: undefined, // Thumbnails stored separately
         rsvps: createEventSpecificRSVPs(eventData.type),
+        createdBy: currentUser.id,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -192,6 +195,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
       ? stateCapital.coordinates as [number, number]
       : [-23.5505, -46.6333]; // Default to São Paulo [lat, lng]
       
+    const currentUser = getOrCreateUserSession();
     const newEvent: Protest = {
       id: `demo-${timestamp}`,
       title: eventData.title,
@@ -206,6 +210,7 @@ export function saveDemoEvent(eventData: any): Protest[] {
       coordinates: coordinates,
       thumbnail: undefined, // Thumbnails stored separately
       rsvps: createEventSpecificRSVPs(eventData.type),
+      createdBy: currentUser.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
