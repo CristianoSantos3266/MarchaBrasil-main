@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getChamaDoPovoData, updateChamaDoPovoData, ChamaDoPovoData } from '@/lib/gamification';
+import { getChamaDoPovoData, updateChamaDoPovoData, simulateHighEngagement, ChamaDoPovoData } from '@/lib/gamification';
 
 interface ChamaDoPovoIndicatorProps {
   eventId: string;
@@ -83,28 +83,29 @@ export default function ChamaDoPovoIndicator({
   const currentSize = sizeClasses[size];
 
   return (
-    <div className={`flex flex-col items-center gap-3 ${className}`}>
+    <div className={`flex flex-col items-center gap-3 ${className}`} style={{ background: 'none !important' }}>
       {/* Circular Fire Indicator */}
-      <div className={`relative ${currentSize.container} flex items-center justify-center`}>
-        {/* Background circle */}
-        <div className="absolute inset-0 rounded-full bg-gray-200"></div>
-        
+      <div 
+        className={`relative ${currentSize.container} flex items-center justify-center`} 
+        style={{ 
+          background: 'none !important', 
+          backgroundColor: 'transparent !important',
+          boxShadow: 'none !important',
+          border: 'none !important',
+          backgroundImage: 'none !important',
+          backgroundClip: 'initial !important'
+        }}
+      >
         {/* Progress ring */}
         <svg 
           className="absolute inset-0 w-full h-full transform -rotate-90" 
           viewBox="0 0 36 36"
+          style={{ 
+            background: 'none !important', 
+            backgroundColor: 'transparent !important'
+          }}
         >
-          {/* Background ring */}
-          <path
-            className="text-gray-200"
-            stroke="currentColor"
-            strokeWidth="3"
-            fill="none"
-            d="M18 2.0845
-               a 15.9155 15.9155 0 0 1 0 31.831
-               a 15.9155 15.9155 0 0 1 0 -31.831"
-          />
-          {/* Progress ring */}
+          {/* Progress ring only - no background */}
           <path
             stroke={getIntensityColor(chamaData.intensity)}
             strokeWidth="3"
@@ -122,18 +123,20 @@ export default function ChamaDoPovoIndicator({
         </svg>
         
         {/* Activity icon in center */}
-        <div className={`relative z-10 ${currentSize.fireSize} flex items-center justify-center`}>
+        <div className={`relative z-10 ${currentSize.fireSize} flex items-center justify-center`} style={{ background: 'none' }}>
           <svg 
-            className={`${size === 'small' ? 'w-5 h-5' : size === 'medium' ? 'w-6 h-6' : 'w-7 h-7'} text-gray-600`} 
+            className={`${size === 'small' ? 'w-5 h-5' : size === 'medium' ? 'w-6 h-6' : 'w-7 h-7'}`} 
             fill="currentColor" 
             viewBox="0 0 20 20"
+            style={{ color: getIntensityColor(chamaData.intensity), background: 'none' }}
           >
             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/>
           </svg>
         </div>
         
         {/* Intensity percentage */}
-        <div className={`absolute -bottom-1 -right-1 bg-white border-2 border-gray-100 rounded-full px-1.5 py-0.5 ${currentSize.text} font-bold text-gray-700 shadow-sm`}>
+        <div className={`absolute -bottom-1 -right-1 px-1.5 py-0.5 ${currentSize.text} font-bold`}
+             style={{ color: getIntensityColor(chamaData.intensity), background: 'none', backgroundColor: 'transparent', boxShadow: 'none' }}>
           {chamaData.intensity}%
         </div>
       </div>
@@ -155,7 +158,7 @@ export default function ChamaDoPovoIndicator({
 
       {/* Engagement stats (for medium and large sizes) */}
       {size !== 'small' && (
-        <div className="flex gap-6 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-full border">
+        <div className="flex gap-6 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
@@ -175,6 +178,46 @@ export default function ChamaDoPovoIndicator({
             </svg>
             {chamaData.confirmations}
           </span>
+        </div>
+      )}
+
+      {/* Demo buttons for testing - only in development and when specifically needed */}
+      {process.env.NODE_ENV === 'development' && window.location.search.includes('debug=true') && (
+        <div className="flex flex-wrap gap-2 text-xs">
+          <button
+            onClick={() => {
+              const demoData = simulateHighEngagement(eventId, 1000000);
+              setChamaData(demoData);
+            }}
+            className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-1 rounded-full hover:from-red-600 hover:to-orange-600 transition-colors font-bold shadow-lg"
+          >
+            🔥 1M
+          </button>
+          <button
+            onClick={() => {
+              const demoData = simulateHighEngagement(eventId, 100);
+              setChamaData(demoData);
+            }}
+            className="bg-orange-100 text-orange-700 px-2 py-1 rounded-full hover:bg-orange-200 transition-colors font-medium"
+          >
+            100
+          </button>
+          <button
+            onClick={() => {
+              const testData = {
+                eventId,
+                confirmations: 0,
+                shares: 0,
+                views: 0,
+                intensity: 0,
+                lastUpdated: new Date().toISOString()
+              };
+              setChamaData(testData);
+            }}
+            className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium"
+          >
+            Reset
+          </button>
         </div>
       )}
 

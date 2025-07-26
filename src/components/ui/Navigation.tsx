@@ -88,6 +88,7 @@ export default function Navigation() {
               Manifestações
             </Link>
             
+            
             <Link 
               href="/doar" 
               className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-2"
@@ -259,6 +260,7 @@ export default function Navigation() {
                 <CalendarIcon className="h-5 w-5" />
                 Manifestações
               </Link>
+              
               
               <Link 
                 href="/doar" 

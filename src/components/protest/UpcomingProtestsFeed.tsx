@@ -10,6 +10,8 @@ import { getCountryByCode, getRegionByCode } from '@/data/countries';
 import { getDemoEvents, isDemoMode, onDemoEventsUpdate, getThumbnail, deleteDemoEvent, addDemoEventRSVP } from '@/lib/demo-events';
 import { canUserEditEvent } from '@/lib/auth';
 import { SkeletonCard } from '@/components/ui/LoadingSpinner';
+import MutualConnections from '@/components/social/MutualConnections';
+import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator';
 
 interface UpcomingProtestsFeedProps {
   onProtestSelect?: (protestId: string) => void;
@@ -352,6 +354,28 @@ export default function UpcomingProtestsFeed({
                       <span>
                         {totalParticipants.toLocaleString()} participantes confirmados
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Social Proof Indicators */}
+                  <div className="border-t border-gray-100 pt-3 mt-4">
+                    <MutualConnections 
+                      eventId={protest.id}
+                      maxDisplay={2}
+                      className="mb-2"
+                    />
+                    <div className="flex items-center justify-between">
+                      <ChamaDoPovoIndicator 
+                        eventId={protest.id}
+                        size="small"
+                      />
+                      <div className="text-xs text-gray-500">
+                        {totalParticipants > 100 && (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                            🔥 Tendência
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 

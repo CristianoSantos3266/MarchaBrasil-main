@@ -12,6 +12,8 @@ import { getFilteredRSVPCounts } from '@/lib/event-participants';
 import { updateUserParticipation, updateChamaDoPovoData, getMilestoneNotification } from '@/lib/gamification';
 import { useMilestoneNotification } from '@/components/gamification/MilestoneNotification';
 import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator';
+import MutualConnections from '@/components/social/MutualConnections';
+import SocialShare from '@/components/social/SocialShare';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
@@ -214,20 +216,21 @@ export default function ProtestDetailPage() {
                 <div className="text-xs text-blue-600 font-medium">Confirmados</div>
               </div>
               
-              <ChamaDoPovoIndicator 
-                eventId={protestId}
-                size="medium"
-                onShare={() => {
-                  // Handle sharing logic
-                  if (navigator.share) {
-                    navigator.share({
-                      title: protest.title,
-                      text: `Participe da ${protest.title} em ${protest.city}! 🇧🇷`,
-                      url: window.location.href
-                    });
-                  }
-                }}
-              />
+              <div className="flex flex-col gap-3">
+                <ChamaDoPovoIndicator 
+                  eventId={protestId}
+                  size="medium"
+                />
+                <SocialShare
+                  eventId={protestId}
+                  eventTitle={protest.title}
+                  eventDescription={protest.description}
+                  eventDate={formatDate(protest.date)}
+                  eventLocation={`${protest.city}, ${protest.state}`}
+                  participantCount={totalRSVPs}
+                  imageUrl={eventThumbnail}
+                />
+              </div>
             </div>
           </div>
 
@@ -347,17 +350,21 @@ export default function ProtestDetailPage() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
+          {/* Social Proof Section */}
+          <div className="border-t border-gray-200 pt-6">
+            <MutualConnections 
+              eventId={protestId}
+              className="mb-4"
+            />
+          </div>
+
+          <div className="flex justify-center pt-4 border-t border-gray-200">
             <button
               onClick={handleRSVP}
-              className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium text-lg shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium text-lg shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
             >
               <HandRaisedIcon className="h-5 w-5" />
               Confirmar Presença
-            </button>
-            <button className="flex-1 px-6 py-4 border-2 border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors font-medium text-lg flex items-center justify-center gap-2">
-              <SpeakerWaveIcon className="h-5 w-5" />
-              Compartilhar
             </button>
           </div>
         </div>

@@ -19,6 +19,7 @@ import {
   CheckBadgeIcon 
 } from '@heroicons/react/24/solid';
 import RegionalImpactMeter from '@/components/gamification/RegionalImpactMeter';
+import { LeaderboardWidget } from '@/components/social/Leaderboards';
 import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
 import { getProtestsByCountryAndRegion } from '@/data/globalProtests';
 import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
@@ -491,12 +492,42 @@ export default function Home() {
               </div>
             </div>
             
+            {/* Legal Links */}
             <div className="border-t border-white/20 pt-6">
-              <p className="text-sm text-white/70">
+              <div className="flex flex-wrap justify-center gap-6 mb-4">
+                <a 
+                  href="/termos" 
+                  className="text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  Termos de Uso
+                </a>
+                <a 
+                  href="/politica-privacidade" 
+                  className="text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  Política de Privacidade (LGPD)
+                </a>
+                <a 
+                  href="/privacidade" 
+                  className="text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  Segurança & Anti-Censura
+                </a>
+              </div>
+              
+              <p className="text-sm text-white/70 mb-4">
                 "A soberania popular se exerce pelo sufrágio universal e pelo voto direto e secreto, 
                 e pelos direitos de petição, plebiscito, referendo e iniciativa popular." - CF/88
               </p>
-              <p className="text-xs text-white/60 mt-3">
+              
+              {/* Peace Disclaimer */}
+              <div className="bg-white/10 border border-white/20 rounded-lg p-3 mb-4">
+                <p className="text-sm text-white font-medium">
+                  ✌️ A Marcha Brasil apoia EXCLUSIVAMENTE manifestações pacíficas e democráticas
+                </p>
+              </div>
+              
+              <p className="text-xs text-white/60">
                 Plataforma independente • Apartidarária • Pró-democracia
               </p>
             </div>

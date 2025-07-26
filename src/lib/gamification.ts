@@ -265,37 +265,48 @@ export function updateChamaDoPovoData(
   }
 
   // Calculate intensity (0-100) based on engagement
-  // Dynamic calculation based on event momentum and participation
+  // More responsive algorithm - shows progress with fewer interactions
   const viewWeight = 1;
-  const shareWeight = 8;
-  const confirmWeight = 15;
+  const shareWeight = 5;
+  const confirmWeight = 10;
   
   const totalEngagement = 
     (chamaData.views * viewWeight) +
     (chamaData.shares * shareWeight) +
     (chamaData.confirmations * confirmWeight);
   
-  // Dynamic scaling based on engagement velocity and thresholds
-  // 100% = Event reaches "viral" status with strong participation
+  // More responsive scaling that handles massive numbers properly
   let intensity = 0;
   
   if (totalEngagement === 0) {
     intensity = 0;
+  } else if (totalEngagement >= 100000) {
+    // Massive viral level: 100K+ engagement points = 95-100%
+    intensity = Math.min(100, 95 + Math.round((totalEngagement - 100000) / 200000 * 5));
+  } else if (totalEngagement >= 10000) {
+    // Super viral level: 10K-99K engagement points = 90-94%
+    intensity = 90 + Math.round(((totalEngagement - 10000) / 90000) * 4);
   } else if (totalEngagement >= 5000) {
-    // Viral level: 5000+ engagement points = 80-100%
-    intensity = Math.min(100, 80 + Math.round((totalEngagement - 5000) / 250));
-  } else if (totalEngagement >= 2000) {
-    // High momentum: 2000-4999 points = 60-79%
-    intensity = 60 + Math.round(((totalEngagement - 2000) / 3000) * 19);
+    // High viral level: 5K-9.9K engagement points = 85-89%
+    intensity = 85 + Math.round(((totalEngagement - 5000) / 5000) * 4);
+  } else if (totalEngagement >= 1000) {
+    // Viral level: 1K-4.9K engagement points = 75-84%
+    intensity = 75 + Math.round(((totalEngagement - 1000) / 4000) * 9);
   } else if (totalEngagement >= 500) {
-    // Growing: 500-1999 points = 40-59%
-    intensity = 40 + Math.round(((totalEngagement - 500) / 1500) * 19);
-  } else if (totalEngagement >= 100) {
-    // Starting: 100-499 points = 20-39%
-    intensity = 20 + Math.round(((totalEngagement - 100) / 400) * 19);
+    // High momentum: 500-999 points = 65-74%
+    intensity = 65 + Math.round(((totalEngagement - 500) / 500) * 9);
+  } else if (totalEngagement >= 200) {
+    // Growing momentum: 200-499 points = 50-64%
+    intensity = 50 + Math.round(((totalEngagement - 200) / 300) * 14);
+  } else if (totalEngagement >= 75) {
+    // Growing: 75-199 points = 35-49%
+    intensity = 35 + Math.round(((totalEngagement - 75) / 125) * 14);
+  } else if (totalEngagement >= 25) {
+    // Starting: 25-74 points = 20-34%
+    intensity = 20 + Math.round(((totalEngagement - 25) / 50) * 14);
   } else {
-    // Beginning: 1-99 points = 1-19%
-    intensity = Math.max(1, Math.round((totalEngagement / 100) * 19));
+    // Beginning: 1-24 points = 5-19%
+    intensity = Math.max(5, Math.round((totalEngagement / 25) * 14) + 5);
   }
   
   chamaData.intensity = intensity;
@@ -399,4 +410,76 @@ export function getMilestoneNotification(
   }
   
   return null;
+}
+
+// Demo function to simulate high engagement
+export function simulateHighEngagement(eventId: string, confirmations: number = 1000): ChamaDoPovoData {
+  // Create fresh data instead of modifying existing
+  const chamaData: ChamaDoPovoData = {
+    eventId,
+    confirmations: confirmations,
+    shares: Math.floor(confirmations * 0.15), // 15% share rate
+    views: Math.floor(confirmations * 3), // 3x view rate
+    intensity: 0,
+    lastUpdated: new Date().toISOString()
+  };
+  
+  // Recalculate intensity with new values
+  const viewWeight = 1;
+  const shareWeight = 5;
+  const confirmWeight = 10;
+  
+  const totalEngagement = 
+    (chamaData.views * viewWeight) +
+    (chamaData.shares * shareWeight) +
+    (chamaData.confirmations * confirmWeight);
+  
+  console.log(`Engagement calculation for ${confirmations} confirmations:`, {
+    views: chamaData.views,
+    shares: chamaData.shares,
+    confirmations: chamaData.confirmations,
+    totalEngagement
+  });
+  
+  let intensity = 0;
+  
+  if (totalEngagement === 0) {
+    intensity = 0;
+  } else if (totalEngagement >= 100000) {
+    intensity = Math.min(100, 95 + Math.round((totalEngagement - 100000) / 200000 * 5));
+  } else if (totalEngagement >= 10000) {
+    intensity = 90 + Math.round(((totalEngagement - 10000) / 90000) * 4);
+  } else if (totalEngagement >= 5000) {
+    intensity = 85 + Math.round(((totalEngagement - 5000) / 5000) * 4);
+  } else if (totalEngagement >= 1000) {
+    intensity = 75 + Math.round(((totalEngagement - 1000) / 4000) * 9);
+  } else if (totalEngagement >= 500) {
+    intensity = 65 + Math.round(((totalEngagement - 500) / 500) * 9);
+  } else if (totalEngagement >= 200) {
+    intensity = 50 + Math.round(((totalEngagement - 200) / 300) * 14);
+  } else if (totalEngagement >= 75) {
+    intensity = 35 + Math.round(((totalEngagement - 75) / 125) * 14);
+  } else if (totalEngagement >= 25) {
+    intensity = 20 + Math.round(((totalEngagement - 25) / 50) * 14);
+  } else {
+    intensity = Math.max(5, Math.round((totalEngagement / 25) * 14) + 5);
+  }
+  
+  chamaData.intensity = intensity;
+  
+  console.log(`Final intensity: ${intensity}%`);
+  
+  // Save the demo data
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(CHAMA_POVO_KEY);
+      const allChama: Record<string, ChamaDoPovoData> = stored ? JSON.parse(stored) : {};
+      allChama[eventId] = chamaData;
+      localStorage.setItem(CHAMA_POVO_KEY, JSON.stringify(allChama));
+    } catch (error) {
+      console.warn('Error saving demo Chama do Povo data:', error);
+    }
+  }
+  
+  return chamaData;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { HeartIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 
 export default function Footer() {
@@ -26,8 +27,37 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* Disclaimer */}
-        <div className="mt-4 pt-4 border-t border-gray-800">
+        {/* Legal Links */}
+        <div className="mt-6 pt-4 border-t border-gray-800">
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
+            <Link 
+              href="/termos" 
+              className="text-xs text-gray-400 hover:text-white transition-colors"
+            >
+              Termos de Uso
+            </Link>
+            <Link 
+              href="/politica-privacidade" 
+              className="text-xs text-gray-400 hover:text-white transition-colors"
+            >
+              Política de Privacidade (LGPD)
+            </Link>
+            <Link 
+              href="/privacidade" 
+              className="text-xs text-gray-400 hover:text-white transition-colors"
+            >
+              Segurança & Anti-Censura
+            </Link>
+          </div>
+          
+          {/* Peace Disclaimer */}
+          <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-3 mb-4">
+            <p className="text-xs text-green-300 text-center font-medium">
+              ✌️ A Marcha Brasil apoia EXCLUSIVAMENTE manifestações pacíficas e democráticas
+            </p>
+          </div>
+          
+          {/* Disclaimer */}
           <p className="text-xs text-gray-500 text-center">
             Plataforma apartidária dedicada à organização pacífica de manifestações cívicas. 
             Todos os direitos reservados.
