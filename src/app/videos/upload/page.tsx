@@ -6,6 +6,7 @@ import Navigation from '@/components/ui/Navigation';
 import VideoUpload from '@/components/video/VideoUpload';
 import { VideoUploadData } from '@/types/video';
 import { CloudArrowUpIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function VideoUploadPage() {
   const router = useRouter();
@@ -130,14 +131,25 @@ export default function VideoUploadPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Upload Status */}
         {uploadStatus === 'uploading' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <div>
-                <h3 className="font-semibold text-blue-800">Enviando seu vídeo...</h3>
-                <p className="text-blue-700 text-sm">
-                  Por favor, não feche esta página. O upload pode levar alguns minutos.
-                </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-8">
+            <div className="text-center">
+              <LoadingSpinner 
+                size="lg" 
+                color="blue" 
+                text="Enviando seu vídeo..." 
+                variant="wave"
+              />
+              <p className="text-blue-700 text-sm mt-4 max-w-md mx-auto">
+                Por favor, não feche esta página. O upload pode levar alguns minutos dependendo do tamanho do arquivo.
+              </p>
+              <div className="mt-4 bg-blue-100 rounded-lg p-3">
+                <div className="flex items-center justify-between text-xs text-blue-600">
+                  <span>Progresso</span>
+                  <span>Processando...</span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                </div>
               </div>
             </div>
           </div>

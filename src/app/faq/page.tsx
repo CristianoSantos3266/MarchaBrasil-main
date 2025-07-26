@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
+import Footer from '@/components/ui/Footer'
 import { 
   EnvelopeIcon, 
   ChatBubbleLeftRightIcon, 
@@ -273,6 +274,7 @@ export default function FAQPage() {
           </p>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

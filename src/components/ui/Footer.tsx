@@ -1,0 +1,39 @@
+'use client';
+
+import { HeartIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+
+export default function Footer() {
+  const currentYear = new Date().getFullYear();
+  
+  return (
+    <footer className="bg-gray-900 text-white py-8 mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between">
+          {/* Copyright */}
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <GlobeAltIcon className="h-5 w-5 text-green-400" />
+            <span className="text-sm text-gray-300">
+              © {currentYear} <span className="font-semibold text-white">Marcha Brasil</span>
+              {' '}• Desenvolvido por{' '}
+              <span className="font-semibold text-blue-400">AlphaFlare</span>
+            </span>
+          </div>
+          
+          {/* Mission Statement */}
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <HeartIcon className="h-4 w-4 text-red-400" />
+            <span>Fortalecendo a democracia brasileira</span>
+          </div>
+        </div>
+        
+        {/* Disclaimer */}
+        <div className="mt-4 pt-4 border-t border-gray-800">
+          <p className="text-xs text-gray-500 text-center">
+            Plataforma apartidária dedicada à organização pacífica de manifestações cívicas. 
+            Todos os direitos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/ui/Navigation'
+import Footer from '@/components/ui/Footer'
 import { useAuth } from '@/contexts/AuthContext'
 import { createEvent } from '@/lib/supabase'
 import { saveDemoEvent } from '@/lib/demo-events'
@@ -954,6 +955,7 @@ export default function CreateEventPage() {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { globalProtests } from '@/data/globalProtests';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
 import { getDemoEvents, isDemoMode, onDemoEventsUpdate, getThumbnail, deleteDemoEvent, addDemoEventRSVP } from '@/lib/demo-events';
 import { canUserEditEvent } from '@/lib/auth';
+import { SkeletonCard } from '@/components/ui/LoadingSpinner';
 
 interface UpcomingProtestsFeedProps {
   onProtestSelect?: (protestId: string) => void;
@@ -44,6 +45,7 @@ export default function UpcomingProtestsFeed({
   hideTitle = false 
 }: UpcomingProtestsFeedProps) {
   const [upcomingProtests, setUpcomingProtests] = useState<Protest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [rsvpModal, setRsvpModal] = useState<{ isOpen: boolean; protestId: string; protestTitle: string; isConvoy: boolean }>({
     isOpen: false,
     protestId: '',
@@ -52,36 +54,42 @@ export default function UpcomingProtestsFeed({
   });
 
   const loadUpcomingProtests = () => {
-    // Combine static protests with demo events
-    let allProtests = [...globalProtests];
-    if (isDemoMode()) {
-      const demoEvents = getDemoEvents();
-      allProtests = [...globalProtests, ...demoEvents];
-    }
+    setIsLoading(true);
+    
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+      // Combine static protests with demo events
+      let allProtests = [...globalProtests];
+      if (isDemoMode()) {
+        const demoEvents = getDemoEvents();
+        allProtests = [...globalProtests, ...demoEvents];
+      }
 
-    // Filter and sort protests by date (upcoming first)
-    const now = new Date();
-    let upcoming = allProtests
-      .filter(protest => {
-        const protestDate = new Date(`${protest.date} ${protest.time}`);
-        const isUpcoming = protestDate > now;
-        
-        // Apply country filter
-        if (countryFilter === 'BR') {
-          return isUpcoming && protest.country === 'BR';
-        } else if (countryFilter === 'INTERNATIONAL') {
-          return isUpcoming && protest.country !== 'BR';
-        }
-        return isUpcoming; // ALL
-      })
-      .sort((a, b) => {
-        const dateA = new Date(`${a.date} ${a.time}`);
-        const dateB = new Date(`${b.date} ${b.time}`);
-        return dateA.getTime() - dateB.getTime();
-      })
-      .slice(0, 50); // Show top 50 upcoming
+      // Filter and sort protests by date (upcoming first)
+      const now = new Date();
+      let upcoming = allProtests
+        .filter(protest => {
+          const protestDate = new Date(`${protest.date} ${protest.time}`);
+          const isUpcoming = protestDate > now;
+          
+          // Apply country filter
+          if (countryFilter === 'BR') {
+            return isUpcoming && protest.country === 'BR';
+          } else if (countryFilter === 'INTERNATIONAL') {
+            return isUpcoming && protest.country !== 'BR';
+          }
+          return isUpcoming; // ALL
+        })
+        .sort((a, b) => {
+          const dateA = new Date(`${a.date} ${a.time}`);
+          const dateB = new Date(`${b.date} ${b.time}`);
+          return dateA.getTime() - dateB.getTime();
+        })
+        .slice(0, 50); // Show top 50 upcoming
 
-    setUpcomingProtests(upcoming);
+      setUpcomingProtests(upcoming);
+      setIsLoading(false);
+    }, 500);
   };
 
   const handleEdit = (protestId: string, e: React.MouseEvent) => {
@@ -193,6 +201,29 @@ export default function UpcomingProtestsFeed({
       icon: icons[iconIndex]
     };
   };
+
+  // Show loading skeletons
+  if (isLoading) {
+    return (
+      <div className={hideTitle ? "" : "bg-white rounded-lg shadow-md p-6"}>
+        {!hideTitle && (
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <CalendarIcon className="h-6 w-6 text-blue-600" />
+            Próximas Manifestações
+          </h2>
+        )}
+        <div className="overflow-x-auto pb-4">
+          <div className="flex gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex-shrink-0 w-80">
+                <SkeletonCard />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (upcomingProtests.length === 0) {
     return (

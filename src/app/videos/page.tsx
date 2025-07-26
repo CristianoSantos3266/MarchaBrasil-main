@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Navigation from '@/components/ui/Navigation';
+import Footer from '@/components/ui/Footer';
 import VideoFeed from '@/components/video/VideoFeed';
-import { FilmIcon, ArrowRightIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { FilmIcon, ArrowRightIcon, PlayIcon, TrophyIcon, EyeIcon, HeartIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 export default function VideosPage() {
@@ -81,8 +82,9 @@ export default function VideosPage() {
                 </div>
               </div>
               <div className="md:w-1/2 p-8 text-white">
-                <div className="inline-block bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold mb-4">
-                  🏆 DESTAQUE DA SEMANA
+                <div className="inline-block bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold mb-4 flex items-center gap-2">
+                  <TrophyIcon className="h-4 w-4" />
+                  DESTAQUE DA SEMANA
                 </div>
                 <h2 className="text-2xl font-bold mb-4">
                   Grande Manifestação em Brasília Reúne 50 Mil Pessoas
@@ -94,9 +96,18 @@ export default function VideosPage() {
                 <div className="flex items-center justify-between">
                   <div className="text-sm">
                     <div className="flex items-center gap-4 text-purple-200">
-                      <span>👁️ 2.3M visualizações</span>
-                      <span>❤️ 45K curtidas</span>
-                      <span>📅 Há 2 dias</span>
+                      <span className="flex items-center gap-1">
+                        <EyeIcon className="h-4 w-4" />
+                        2.3M visualizações
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <HeartIcon className="h-4 w-4" />
+                        45K curtidas
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <CalendarDaysIcon className="h-4 w-4" />
+                        Há 2 dias
+                      </span>
                     </div>
                   </div>
                   <button className="flex items-center gap-2 bg-white text-purple-600 px-4 py-2 rounded-lg font-medium hover:bg-purple-50 transition-colors">
@@ -183,6 +194,7 @@ export default function VideosPage() {
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   );
 }

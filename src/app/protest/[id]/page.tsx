@@ -15,6 +15,7 @@ import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
+import Footer from '@/components/ui/Footer';
 
 const ConvoyRouteMap = dynamic(() => import('@/components/map/ConvoyRouteMap'), {
   ssr: false,
@@ -429,6 +430,8 @@ export default function ProtestDetailPage() {
 
       {/* Milestone Notifications */}
       {NotificationComponent}
+      
+      <Footer />
     </div>
   );
 }

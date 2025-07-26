@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Navigation from '@/components/ui/Navigation'
+import Footer from '@/components/ui/Footer'
 import { 
   HeartIcon,
   FlagIcon,
@@ -25,11 +26,48 @@ export default function DonatePage() {
     setIsProcessing(true)
     
     try {
-      // TODO: Implement Stripe integration
-      alert(`Funcionalidade em desenvolvimento! Valor: R$ ${donationAmount}`)
+      const { loadStripe } = await import('@stripe/stripe-js')
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
       
-      // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      if (!stripe) {
+        throw new Error('Stripe failed to load')
+      }
+
+      console.log('Making donation request for amount:', donationAmount);
+      
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: donationAmount,
+          currency: 'BRL',
+          isMonthly: false,
+          donationTier: 'custom',
+          country: 'BR'
+        }),
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      const session = await response.json()
+      
+      if (!response.ok) {
+        console.error('Stripe API Error:', session)
+        throw new Error(session.error || `HTTP ${response.status}: Failed to create checkout session`)
+      }
+      
+      if (!session.url) {
+        throw new Error('No checkout URL received from Stripe')
+      }
+
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
       
     } catch (error) {
       console.error('Donation error:', error)
@@ -206,7 +244,10 @@ export default function DonatePage() {
                   </div>
                   <h3 className="font-bold text-gray-900 mb-2">Bitcoin</h3>
                   <p className="text-sm text-gray-600 mb-3">Para máxima privacidade</p>
-                  <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  <button 
+                    onClick={() => alert('Funcionalidade em desenvolvimento!\n\nEndereço BTC em breve.')}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
                     Ver endereço BTC
                   </button>
                 </div>
@@ -217,19 +258,28 @@ export default function DonatePage() {
                   </div>
                   <h3 className="font-bold text-gray-900 mb-2">Divulgação</h3>
                   <p className="text-sm text-gray-600 mb-3">Compartilhe com amigos</p>
-                  <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.origin);
+                      alert('Link copiado para a área de transferência!');
+                    }}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
                     Copiar link
                   </button>
                 </div>
 
                 <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex justify-center mb-2">
-                    <ComputerDesktopIcon className="h-8 w-8 text-green-600" />
+                    <CreditCardIcon className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-2">Contribuir</h3>
-                  <p className="text-sm text-gray-600 mb-3">Ajude no desenvolvimento</p>
-                  <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                    Ver GitHub
+                  <h3 className="font-bold text-gray-900 mb-2">PIX</h3>
+                  <p className="text-sm text-gray-600 mb-3">Pagamento instantâneo</p>
+                  <button 
+                    onClick={() => alert('Funcionalidade em desenvolvimento!\n\nChave PIX em breve.')}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Ver chave PIX
                   </button>
                 </div>
               </div>
@@ -237,6 +287,7 @@ export default function DonatePage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

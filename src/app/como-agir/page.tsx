@@ -1,6 +1,7 @@
 'use client'
 
 import Navigation from '@/components/ui/Navigation'
+import Footer from '@/components/ui/Footer'
 import { 
   HandRaisedIcon,
   CheckCircleIcon,
@@ -214,6 +215,7 @@ export default function ComoAgirPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }
