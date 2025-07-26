@@ -12,9 +12,10 @@ import {
   FlagIcon,
   ClockIcon,
   PhoneIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline'
-import { getDemoEvents } from '@/lib/demo-events'
+import { getDemoEvents, deleteDemoEvent } from '@/lib/demo-events'
 
 interface Event {
   id: string
@@ -113,6 +114,27 @@ export default function EventsManagement() {
     setEvents(events.map(event => 
       event.id === eventId ? { ...event, flagged: !event.flagged } : event
     ))
+  }
+
+  const handleDelete = (eventId: string) => {
+    if (confirm('Tem certeza que deseja excluir este evento permanentemente? Esta ação não pode ser desfeita.')) {
+      // Delete from demo events (persists the deletion)
+      const success = deleteDemoEvent(eventId)
+      
+      if (success) {
+        // Update local state
+        setEvents(events.filter(event => event.id !== eventId))
+        
+        // Close modal if deleting the selected event
+        if (selectedEvent?.id === eventId) {
+          setSelectedEvent(null)
+        }
+        
+        alert('Evento excluído com sucesso!')
+      } else {
+        alert('Erro ao excluir evento. Tente novamente.')
+      }
+    }
   }
 
   const contactOrganizer = (type: 'email' | 'whatsapp', contact: string, eventTitle: string) => {
@@ -280,6 +302,14 @@ export default function EventsManagement() {
                       >
                         <PhoneIcon className="h-4 w-4" />
                       </button>
+                      
+                      <button
+                        onClick={() => handleDelete(event.id)}
+                        className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                        title="Excluir evento"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -358,30 +388,40 @@ export default function EventsManagement() {
                   <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">{selectedEvent.description}</p>
                 </div>
                 
-                {selectedEvent.status === 'pending' && (
-                  <div className="flex gap-4 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => {
-                        handleStatusChange(selectedEvent.id, 'approved')
-                        setSelectedEvent(null)
-                      }}
-                      className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      ✅ Aprovar Evento
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm('Tem certeza que deseja rejeitar este evento?')) {
-                          handleStatusChange(selectedEvent.id, 'rejected')
+                <div className="flex gap-4 pt-4 border-t border-gray-200">
+                  {selectedEvent.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleStatusChange(selectedEvent.id, 'approved')
                           setSelectedEvent(null)
-                        }
-                      }}
-                      className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                    >
-                      ❌ Rejeitar Evento
-                    </button>
-                  </div>
-                )}
+                        }}
+                        className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        ✅ Aprovar Evento
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm('Tem certeza que deseja rejeitar este evento?')) {
+                            handleStatusChange(selectedEvent.id, 'rejected')
+                            setSelectedEvent(null)
+                          }
+                        }}
+                        className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        ❌ Rejeitar Evento
+                      </button>
+                    </>
+                  )}
+                  
+                  <button
+                    onClick={() => handleDelete(selectedEvent.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                    Excluir Permanentemente
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -265,19 +265,40 @@ export function updateChamaDoPovoData(
   }
 
   // Calculate intensity (0-100) based on engagement
-  // Formula: weighted average of different engagement types
+  // Dynamic calculation based on event momentum and participation
   const viewWeight = 1;
-  const shareWeight = 5;
-  const confirmWeight = 10;
+  const shareWeight = 8;
+  const confirmWeight = 15;
   
   const totalEngagement = 
     (chamaData.views * viewWeight) +
     (chamaData.shares * shareWeight) +
     (chamaData.confirmations * confirmWeight);
   
-  // Normalize to 0-100 scale (adjust max as needed)
-  const maxExpected = 10000; // Expected max engagement for large events
-  chamaData.intensity = Math.min(100, Math.round((totalEngagement / maxExpected) * 100));
+  // Dynamic scaling based on engagement velocity and thresholds
+  // 100% = Event reaches "viral" status with strong participation
+  let intensity = 0;
+  
+  if (totalEngagement === 0) {
+    intensity = 0;
+  } else if (totalEngagement >= 5000) {
+    // Viral level: 5000+ engagement points = 80-100%
+    intensity = Math.min(100, 80 + Math.round((totalEngagement - 5000) / 250));
+  } else if (totalEngagement >= 2000) {
+    // High momentum: 2000-4999 points = 60-79%
+    intensity = 60 + Math.round(((totalEngagement - 2000) / 3000) * 19);
+  } else if (totalEngagement >= 500) {
+    // Growing: 500-1999 points = 40-59%
+    intensity = 40 + Math.round(((totalEngagement - 500) / 1500) * 19);
+  } else if (totalEngagement >= 100) {
+    // Starting: 100-499 points = 20-39%
+    intensity = 20 + Math.round(((totalEngagement - 100) / 400) * 19);
+  } else {
+    // Beginning: 1-99 points = 1-19%
+    intensity = Math.max(1, Math.round((totalEngagement / 100) * 19));
+  }
+  
+  chamaData.intensity = intensity;
   
   chamaData.lastUpdated = new Date().toISOString();
 

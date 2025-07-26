@@ -43,9 +43,11 @@ export default function CreateEventPage() {
     final_destination: '',
     city: '',
     state: '',
+    country: 'BR',
     expected_attendance: '',
     whatsapp_contact: '',
-    isNational: false
+    isNational: false,
+    isInternational: false
   })
 
   const [showCalendar, setShowCalendar] = useState(false)
@@ -76,6 +78,28 @@ export default function CreateEventPage() {
   const brazilianStates = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 
     'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+  ]
+
+  const internationalCountries = [
+    { code: 'US', name: 'Estados Unidos', flag: '🇺🇸' },
+    { code: 'CA', name: 'Canadá', flag: '🇨🇦' },
+    { code: 'UK', name: 'Reino Unido', flag: '🇬🇧' },
+    { code: 'DE', name: 'Alemanha', flag: '🇩🇪' },
+    { code: 'FR', name: 'França', flag: '🇫🇷' },
+    { code: 'IT', name: 'Itália', flag: '🇮🇹' },
+    { code: 'ES', name: 'Espanha', flag: '🇪🇸' },
+    { code: 'PT', name: 'Portugal', flag: '🇵🇹' },
+    { code: 'JP', name: 'Japão', flag: '🇯🇵' },
+    { code: 'AU', name: 'Austrália', flag: '🇦🇺' },
+    { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+    { code: 'CL', name: 'Chile', flag: '🇨🇱' },
+    { code: 'UY', name: 'Uruguai', flag: '🇺🇾' },
+    { code: 'PY', name: 'Paraguai', flag: '🇵🇾' },
+    { code: 'BO', name: 'Bolívia', flag: '🇧🇴' },
+    { code: 'PE', name: 'Peru', flag: '🇵🇪' },
+    { code: 'CO', name: 'Colômbia', flag: '🇨🇴' },
+    { code: 'VE', name: 'Venezuela', flag: '🇻🇪' },
+    { code: 'OTHER', name: 'Outro país', flag: '🌍' }
   ]
 
   const brazilianCapitals = [
@@ -398,8 +422,8 @@ export default function CreateEventPage() {
         date: formatDateToISO(formData.date), // Convert to ISO format for backend
         expected_attendance: formData.expected_attendance ? parseInt(formData.expected_attendance) : null,
         status: 'pending' as const,
-        is_international: false,
-        country: null
+        is_international: formData.isInternational,
+        country: formData.isInternational ? formData.country : null
       }
 
       const { data, error } = await createEvent(eventData)
@@ -418,9 +442,11 @@ export default function CreateEventPage() {
         final_destination: '',
         city: '',
         state: '',
+        country: 'BR',
         expected_attendance: '',
         whatsapp_contact: '',
-        isNational: false
+        isNational: false,
+        isInternational: false
       })
       setThumbnail(null)
       setThumbnailFile(null)
@@ -768,10 +794,12 @@ export default function CreateEventPage() {
                         onChange={(e) => setFormData(prev => ({ 
                           ...prev, 
                           isNational: e.target.checked,
+                          isInternational: false, // Can't be both national and international
                           state: e.target.checked ? '' : prev.state,
                           city: e.target.checked ? '' : prev.city
                         }))}
                         className="h-4 w-4 text-green-600 border-green-300 rounded focus:ring-green-500"
+                        disabled={formData.isInternational}
                       />
                       <span className="text-sm font-medium text-green-800">
                         🇧🇷 Evento Nacional - Todas as Capitais Brasileiras
@@ -784,7 +812,56 @@ export default function CreateEventPage() {
                     )}
                   </div>
 
-                  {!formData.isNational && (
+                  {/* International Event Toggle */}
+                  <div className="mb-4 p-4 bg-blue-100 border border-blue-300 rounded-lg">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isInternational}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          isInternational: e.target.checked,
+                          isNational: false, // Can't be both national and international
+                          state: e.target.checked ? '' : prev.state,
+                          city: e.target.checked ? '' : prev.city,
+                          country: e.target.checked ? prev.country : 'BR'
+                        }))}
+                        className="h-4 w-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
+                        disabled={formData.isNational}
+                      />
+                      <span className="text-sm font-medium text-blue-800">
+                        🌍 Evento Internacional - Brasileiros no Exterior
+                      </span>
+                    </label>
+                    {formData.isInternational && (
+                      <p className="text-xs text-blue-700 mt-2">
+                        Para brasileiros residentes ou de passagem no exterior que querem se organizar
+                      </p>
+                    )}
+                  </div>
+
+                  {formData.isInternational && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        País *
+                      </label>
+                      <select
+                        name="country"
+                        value={formData.country}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      >
+                        {internationalCountries.map(country => (
+                          <option key={country.code} value={country.code}>
+                            {country.flag} {country.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {!formData.isNational && !formData.isInternational && (
                     <select
                       name="state"
                       value={formData.state}
@@ -819,7 +896,7 @@ export default function CreateEventPage() {
                       value={formData.city}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Ex: São Paulo"
+                      placeholder={formData.isInternational ? "Ex: Nova York, Miami, Lisboa" : "Ex: São Paulo"}
                       required={!formData.isNational}
                     />
                   </div>
@@ -827,7 +904,12 @@ export default function CreateEventPage() {
 
                 <div className={formData.isNational ? "md:col-span-2" : ""}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {formData.isNational ? 'Ponto de Encontro Base (opcional)' : 'Ponto de Encontro *'}
+                    {formData.isNational 
+                      ? 'Ponto de Encontro Base (opcional)' 
+                      : formData.isInternational 
+                        ? 'Ponto de Encontro *'
+                        : 'Ponto de Encontro *'
+                    }
                   </label>
                   <input
                     type="text"
@@ -835,15 +917,23 @@ export default function CreateEventPage() {
                     value={formData.meeting_point}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={formData.isNational 
-                      ? "Ex: Centro da cidade (será aplicado a todas as capitais)" 
-                      : "Ex: Avenida Paulista, em frente ao MASP"
+                    placeholder={
+                      formData.isNational 
+                        ? "Ex: Centro da cidade (será aplicado a todas as capitais)"
+                        : formData.isInternational
+                          ? "Ex: Times Square, Central Park, Consulado do Brasil"
+                          : "Ex: Avenida Paulista, em frente ao MASP"
                     }
                     required={!formData.isNational}
                   />
                   {formData.isNational && (
                     <p className="text-xs text-gray-600 mt-1">
                       Se não especificado, será usado "Centro de [Capital]" para cada cidade
+                    </p>
+                  )}
+                  {formData.isInternational && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Escolha um local facilmente identificável e acessível para brasileiros na região
                     </p>
                   )}
                 </div>

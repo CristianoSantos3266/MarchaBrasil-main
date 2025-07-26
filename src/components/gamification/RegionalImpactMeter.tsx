@@ -157,8 +157,11 @@ export default function RegionalImpactMeter({
       {/* Call to Action */}
       <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
         <div className="text-center">
-          <div className="text-sm font-medium text-green-800 mb-1">
-            🚀 Fortaleça a mobilização no seu estado!
+          <div className="text-sm font-medium text-green-800 mb-1 flex items-center justify-center gap-2">
+            <svg className="w-4 h-4 text-green-700" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.236 4.53L8.107 10.5a.75.75 0 00-1.214 1.029l1.5 2.25a.75.75 0 001.214 0l4-5.679z" clipRule="evenodd"/>
+            </svg>
+            Fortaleça a mobilização no seu estado!
           </div>
           <div className="text-xs text-green-700">
             Crie eventos e convide patriotas para aumentar o impacto da sua região
