@@ -3,6 +3,7 @@ export interface Protest {
   title: string;
   description: string;
   city: string;
+  state?: string; // Legacy support for state property
   region: string; // state/province/region code
   country: string; // country code
   date: string;
@@ -44,6 +45,7 @@ export interface RSVPCounts {
   produtoresRurais: number;
   comerciantes: number;
   populacaoGeral: number;
+  [key: string]: number; // Index signature to allow string indexing
 }
 
 export interface RSVPCountsDetailed {

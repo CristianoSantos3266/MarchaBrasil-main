@@ -1,0 +1,19 @@
+
+> civic-mobilization@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use by process 7522, using available port 3001 instead.
+   ▲ Next.js 15.4.2 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.0.89:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+Slow filesystem detected. The benchmark took 918ms. If /Users/cristianosantos/civic-mobilization/.next is a network drive, consider moving it to a local folder. If you have an antivirus enabled, consider excluding your project directory.
+ ✓ Ready in 2.8s
+ ○ Compiling / ...
+ ✓ Compiled / in 5s
+ GET / 200 in 5887ms
+ ○ Compiling /protest/[id] ...
+ ✓ Compiled /protest/[id] in 666ms
+ GET /protest/demo-sp-1 200 in 1274ms

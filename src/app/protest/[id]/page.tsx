@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { globalProtests } from '@/data/globalProtests';
@@ -14,6 +14,11 @@ import { useMilestoneNotification } from '@/components/gamification/MilestoneNot
 import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator';
 import MutualConnections from '@/components/social/MutualConnections';
 import SocialShare from '@/components/social/SocialShare';
+import LiveEventUpdates from '@/components/realtime/LiveEventUpdates';
+import AttendanceConfirmation from '@/components/realtime/AttendanceConfirmation';
+import OrganizerUpdatePanel from '@/components/realtime/OrganizerUpdatePanel';
+import RealtimeUpdateFeed from '@/components/realtime/RealtimeUpdateFeed';
+import { notificationService } from '@/lib/notification-system';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
@@ -51,6 +56,7 @@ const protestTypeLabels = {
   motociata: 'Motociata',
   carreata: 'Carreata',
   caminhoneiros: 'Caminhoneiros',
+  tratorada: 'Tratorada',
   assembleia: 'Assembleia',
   manifestacao: 'Manifestação',
   outro: 'Outro'
@@ -69,6 +75,11 @@ export default function ProtestDetailPage() {
   
   const [refreshCounter, setRefreshCounter] = useState(0);
   const { showNotification, NotificationComponent } = useMilestoneNotification();
+
+  // Initialize notification service
+  useEffect(() => {
+    notificationService.initialize();
+  }, []);
 
   // Find protest in static data or demo events (refresh when refreshCounter changes)
   let protest = globalProtests.find(p => p.id === protestId);
@@ -207,7 +218,7 @@ export default function ProtestDetailPage() {
                   {protestTypeLabels[protest.type]}
                 </span>
                 <span>•</span>
-                <span>{protest.city}, {protest.state}</span>
+                <span>{protest.city}, {protest.state || protest.region}</span>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -226,7 +237,7 @@ export default function ProtestDetailPage() {
                   eventTitle={protest.title}
                   eventDescription={protest.description}
                   eventDate={formatDate(protest.date)}
-                  eventLocation={`${protest.city}, ${protest.state}`}
+                  eventLocation={`${protest.city}, ${protest.state || protest.region}`}
                   participantCount={totalRSVPs}
                   imageUrl={eventThumbnail}
                 />
@@ -277,7 +288,7 @@ export default function ProtestDetailPage() {
                   <BuildingOffice2Icon className="h-5 w-5 text-gray-600" />
                   <div>
                     <strong className="text-gray-900">Cidade:</strong>
-                    <span className="text-gray-700 ml-2">{protest.city}, {protest.state}</span>
+                    <span className="text-gray-700 ml-2">{protest.city}, {protest.state || protest.region}</span>
                   </div>
                 </div>
               </div>
@@ -403,6 +414,56 @@ export default function ProtestDetailPage() {
             <ConvoyRouteMap convoy={protest.convoy} className="w-full h-96" />
           </div>
         )}
+
+        {/* Real-time Features Section */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+          {/* Live Event Updates */}
+          <LiveEventUpdates 
+            protestId={protestId}
+            className="h-fit"
+          />
+          
+          {/* Attendance Confirmation */}
+          <AttendanceConfirmation
+            protestId={protestId}
+            protestLocation={{
+              latitude: -23.5505, // São Paulo coordinates (would be dynamic in real app)
+              longitude: -46.6333,
+              name: protest.location,
+              address: `${protest.location}, ${protest.city}, ${protest.state || protest.region}`,
+            }}
+            userRSVP={{
+              id: 'demo-rsvp-1',
+              type: 'cidadao',
+              confirmed: false
+            }}
+            onAttendanceConfirmed={(data) => {
+              console.log('Attendance confirmed:', data);
+              // In real app, this would update the backend
+            }}
+          />
+        </div>
+
+        {/* Real-time Update Feed */}
+        <div className="mb-8">
+          <RealtimeUpdateFeed 
+            protestIds={[protestId]}
+            maxUpdates={8}
+            showNotifications={true}
+          />
+        </div>
+
+        {/* Organizer Update Panel - Only for authorized users */}
+        <div className="mb-8">
+          <OrganizerUpdatePanel
+            protestId={protestId}
+            organizerName="Coordenação Local"
+            onUpdatePosted={(update) => {
+              console.log('New update posted:', update);
+              // In real app, this would broadcast to all users
+            }}
+          />
+        </div>
 
         {/* Safety guidelines */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
