@@ -405,7 +405,9 @@ export default function CreateEventPage() {
           state: '',
           expected_attendance: '',
           whatsapp_contact: '',
-          isNational: false
+          country: 'BR',
+          isNational: false,
+          isInternational: false
         })
         setThumbnail(null)
         setThumbnailFile(null)
@@ -477,12 +479,12 @@ export default function CreateEventPage() {
             <div className="text-4xl mb-4">⏳</div>
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Aguardando Aprovação</h1>
             <p className="text-gray-600">
-              {userProfile.role === 'organizer-pending' 
+              {userProfile?.role === 'organizer-pending' 
                 ? 'Seu perfil de organizador está sendo revisado pelos moderadores. Você receberá um email quando for aprovado.'
                 : 'Você precisa criar um perfil de organizador para criar eventos.'
               }
             </p>
-            {userProfile.role === 'user' && (
+            {userProfile?.role === 'user' && (
               <button
                 onClick={() => router.push('/criar-perfil')}
                 className="mt-4 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200"
