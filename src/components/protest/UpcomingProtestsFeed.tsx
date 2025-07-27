@@ -9,6 +9,7 @@ import { globalProtests } from '@/data/globalProtests';
 import { getCountryByCode, getRegionByCode } from '@/data/countries';
 import { getDemoEvents, isDemoMode, onDemoEventsUpdate, getThumbnail, deleteDemoEvent, addDemoEventRSVP } from '@/lib/demo-events';
 import { canUserEditEvent } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { SkeletonCard } from '@/components/ui/LoadingSpinner';
 import MutualConnections from '@/components/social/MutualConnections';
 import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator';
@@ -46,6 +47,7 @@ export default function UpcomingProtestsFeed({
   countryFilter = 'ALL',
   hideTitle = false 
 }: UpcomingProtestsFeedProps) {
+  const { user } = useAuth();
   const [upcomingProtests, setUpcomingProtests] = useState<Protest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [rsvpModal, setRsvpModal] = useState<{ isOpen: boolean; protestId: string; protestTitle: string; isConvoy: boolean }>({
@@ -399,8 +401,8 @@ export default function UpcomingProtestsFeed({
                       </button>
                     )}
                     
-                    {/* Edit/Delete buttons - only shown to event creators */}
-                    {protest.id.startsWith('demo-') && canUserEditEvent(protest) && (
+                    {/* Edit/Delete buttons - only shown to authenticated event creators */}
+                    {user && protest.id.startsWith('demo-') && canUserEditEvent(protest) && (
                       <div className="flex gap-2">
                         <button 
                           onClick={(e) => handleEdit(protest.id, e)}

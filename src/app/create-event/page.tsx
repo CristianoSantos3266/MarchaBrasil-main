@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/ui/Navigation'
 import Footer from '@/components/ui/Footer'
+import CaptchaVerification from '@/components/security/CaptchaVerification'
 import { useAuth } from '@/contexts/AuthContext'
 import { createEvent } from '@/lib/supabase'
 import { saveDemoEvent } from '@/lib/demo-events'
@@ -64,6 +65,7 @@ export default function CreateEventPage() {
   const [thumbnail, setThumbnail] = useState<string | null>(null)
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [captchaVerified, setCaptchaVerified] = useState(false)
 
   const protestTypes = [
     { value: 'manifestacao', label: 'Manifestação', icon: HandRaisedIcon },
@@ -366,6 +368,13 @@ export default function CreateEventPage() {
     
     setLoading(true)
     setMessage('')
+
+    // Check CAPTCHA verification
+    if (!captchaVerified) {
+      setMessage('❌ Complete a verificação de segurança para continuar')
+      setLoading(false)
+      return
+    }
 
     // Validate date format
     if (!validateDate(formData.date)) {
@@ -1021,11 +1030,18 @@ export default function CreateEventPage() {
               </div>
             )}
 
+            {/* CAPTCHA Verification */}
+            <CaptchaVerification
+              onVerify={setCaptchaVerified}
+              onReset={() => setCaptchaVerified(false)}
+              className="mb-6"
+            />
+
             {/* Submit */}
             <div className="text-center">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !captchaVerified}
                 className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-lg font-bold text-lg hover:from-green-700 hover:to-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 {loading ? (

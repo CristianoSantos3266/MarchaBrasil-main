@@ -13,7 +13,8 @@ import {
   UserCircleIcon,
   ChevronDownIcon,
   HandRaisedIcon,
-  FilmIcon
+  FilmIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline'
 
 export default function Navigation() {
@@ -88,6 +89,13 @@ export default function Navigation() {
               Manifestações
             </Link>
             
+            <Link 
+              href="/community" 
+              className="text-gray-700 hover:text-orange-600 font-medium transition-colors flex items-center gap-2"
+            >
+              <UsersIcon className="h-5 w-5" />
+              Comunidade
+            </Link>
             
             <Link 
               href="/doar" 
