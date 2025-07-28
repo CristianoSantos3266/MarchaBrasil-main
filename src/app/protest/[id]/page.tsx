@@ -26,7 +26,7 @@ import { ptBR } from 'date-fns/locale';
 import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon, PencilIcon } from '@heroicons/react/24/outline';
 import Footer from '@/components/ui/Footer';
 
-const MapboxConvoyMap = dynamic(() => import('@/components/map/MapboxConvoyMap'), {
+const SimpleConvoyMap = dynamic(() => import('@/components/map/SimpleConvoyMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -425,7 +425,7 @@ export default function ProtestDetailPage() {
             </div>
 
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Mapa da Rota</h3>
-            <MapboxConvoyMap convoy={protest.convoy} className="w-full h-96" />
+            <SimpleConvoyMap convoy={protest.convoy} className="w-full" />
           </div>
         )}
 

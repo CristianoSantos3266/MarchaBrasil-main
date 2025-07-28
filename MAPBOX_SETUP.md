@@ -35,8 +35,12 @@ The platform has been upgraded from Leaflet maps to Mapbox GL JS for better perf
 
 ## 🔧 Setup Requirements
 
-### 1. Mapbox Access Token
-Get your free Mapbox access token:
+### 1. Mapbox Access Token (Optional)
+The platform includes simplified fallback components that work without Mapbox:
+- **With Mapbox**: Get full interactive maps with professional styling
+- **Without Mapbox**: Use elegant fallback components with route information
+
+To enable full Mapbox features:
 1. Sign up at [mapbox.com](https://account.mapbox.com/)
 2. Create a new access token with default scopes
 3. Add it to your environment variables
@@ -47,7 +51,12 @@ Add to your `.env.local` file:
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.eyJ1IjoieW91ci11c2VybmFtZSIsImEiOiJ5b3VyLXRva2VuIn0...
 ```
 
-### 3. Dependencies
+### 3. Fallback Components
+When Mapbox token is not available, the platform uses:
+- **SimpleMapboxGlobal**: Clean setup instructions and placeholder
+- **SimpleConvoyMap**: Route information display with safety guidelines
+
+### 4. Dependencies
 The following packages are already installed:
 - `mapbox-gl`: Core Mapbox GL JS library
 - `react-map-gl`: React wrapper (optional, not currently used)
@@ -156,6 +165,13 @@ const createPopupContent = (protest, totalRSVPs) => {
 2. **CORS Errors**: Ensure token has correct scopes for your domain
 3. **Performance**: Use clustering for large numbers of markers
 4. **Mobile**: Test touch interactions on actual devices
+5. **Turbopack Issues**: Platform includes fallback components to avoid dynamic import conflicts
+
+### Turbopack Compatibility
+The platform handles Turbopack bundler issues by:
+- Using simplified fallback components when complex imports fail
+- Graceful degradation to functional map placeholders
+- Maintaining full functionality without external dependencies
 
 ### Debug Mode
 Enable debug logging:
