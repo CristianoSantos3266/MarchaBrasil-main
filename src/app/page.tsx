@@ -34,8 +34,7 @@ import Navigation from '@/components/ui/Navigation';
 import UpcomingProtestsFeed from '@/components/protest/UpcomingProtestsFeed';
 import VideoFeed from '@/components/video/VideoFeed';
 
-// Use simple fallback to avoid Turbopack issues
-const SimpleMapboxGlobal = dynamic(() => import('@/components/map/SimpleMapboxGlobal'), {
+const SmartMapboxGlobal = dynamic(() => import('@/components/map/SmartMapboxGlobal'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
@@ -270,7 +269,13 @@ export default function Home() {
               Descubra manifestações pacíficas em sua região. Clique no mapa para ver os eventos em sua cidade.
             </p>
           </div>
-          <SimpleMapboxGlobal />
+          <SmartMapboxGlobal
+            selectedCountry={selectedCountry?.code}
+            onProtestSelect={(protest) => {
+              // Navigate to protest detail page
+              window.location.href = `/protest/${protest.id}`;
+            }}
+          />
         </section>
 
         {selectedRegion && (
