@@ -10,9 +10,11 @@ const SimpleMapboxGlobal = dynamic(() => import('./SimpleMapboxGlobal'), { ssr: 
 interface SmartMapboxGlobalProps {
   selectedCountry?: string;
   onProtestSelect?: (protest: any) => void;
+  onCountrySelect?: (country: any) => void;
+  onRegionSelect?: (country: any, region: any) => void;
 }
 
-export default function SmartMapboxGlobal({ selectedCountry, onProtestSelect }: SmartMapboxGlobalProps) {
+export default function SmartMapboxGlobal({ selectedCountry, onProtestSelect, onCountrySelect, onRegionSelect }: SmartMapboxGlobalProps) {
   const [hasToken, setHasToken] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -40,9 +42,16 @@ export default function SmartMapboxGlobal({ selectedCountry, onProtestSelect }: 
       <MapboxGlobalMap
         selectedCountry={selectedCountry}
         onProtestSelect={onProtestSelect}
+        onCountrySelect={onCountrySelect}
+        onRegionSelect={onRegionSelect}
       />
     );
   }
 
-  return <SimpleMapboxGlobal />;
+  return (
+    <SimpleMapboxGlobal 
+      onCountrySelect={onCountrySelect}
+      onRegionSelect={onRegionSelect}
+    />
+  );
 }

@@ -1,10 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { countries, getCountryByCode } from '@/data/countries';
+import { Country, Region } from '@/data/countries';
 
-// Simple fallback map component that loads when window is ready
-export default function SimpleMapboxGlobal() {
+interface SimpleMapboxGlobalProps {
+  onCountrySelect?: (country: Country) => void;
+  onRegionSelect?: (country: Country, region: Region) => void;
+}
+
+export default function SimpleMapboxGlobal({ onCountrySelect, onRegionSelect }: SimpleMapboxGlobalProps) {
   const [mounted, setMounted] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [selectedView, setSelectedView] = useState<'world' | 'country'>('world');
 
   useEffect(() => {
     setMounted(true);
@@ -13,33 +21,148 @@ export default function SimpleMapboxGlobal() {
   if (!mounted) {
     return (
       <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
-          <p className="text-gray-600">Carregando mapa...</p>
-        </div>
+        <p className="text-gray-600">Carregando mapa...</p>
       </div>
     );
   }
 
-  return (
-    <div className="w-full h-96 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg border-2 border-green-200 flex items-center justify-center">
-      <div className="text-center p-8">
-        <div className="text-6xl mb-4">🗺️</div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-4">Mapa Interativo</h3>
-        <p className="text-gray-600 mb-6 max-w-md">
-          Para visualizar o mapa completo com todas as manifestações, configure sua chave do Mapbox.
-        </p>
-        <div className="bg-white rounded-lg p-4 text-left text-sm">
-          <p className="font-semibold text-gray-900 mb-2">Como configurar:</p>
-          <ol className="list-decimal list-inside space-y-1 text-gray-600">
-            <li>Crie uma conta gratuita em <span className="font-mono text-blue-600">mapbox.com</span></li>
-            <li>Gere um token de acesso</li>
-            <li>Adicione no arquivo <span className="font-mono">.env.local</span>:</li>
-          </ol>
-          <div className="bg-gray-100 rounded p-2 mt-2 font-mono text-xs">
-            NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=seu_token_aqui
+  const handleCountrySelect = (country: Country) => {
+    setSelectedCountry(country);
+    setSelectedView('country');
+    onCountrySelect?.(country);
+  };
+
+  const handleRegionSelect = (region: Region) => {
+    if (selectedCountry && onRegionSelect) {
+      onRegionSelect(selectedCountry, region);
+    }
+  };
+
+  const handleBackToWorld = () => {
+    setSelectedCountry(null);
+    setSelectedView('world');
+  };
+
+  const renderWorldView = () => (
+    <div className="w-full h-96 rounded-lg overflow-hidden border border-gray-300 bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="p-6 h-full flex flex-col">
+        <div className="text-center mb-6">
+          <div className="text-4xl mb-2">🌍</div>
+          <h3 className="text-xl font-bold text-gray-900">Escolha seu País</h3>
+          <p className="text-sm text-gray-600">Clique em um país para ver os estados/regiões</p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1 overflow-y-auto">
+          {countries.map((country) => (
+            <div 
+              key={country.code}
+              onClick={() => handleCountrySelect(country)}
+              className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer border-l-4 border-green-500 hover:border-green-600"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">
+                  {country.code === 'BR' ? '🇧🇷' : 
+                   country.code === 'US' ? '🇺🇸' : 
+                   country.code === 'AR' ? '🇦🇷' : 
+                   country.code === 'CA' ? '🇨🇦' : 
+                   country.code === 'FR' ? '🇫🇷' : 
+                   country.code === 'DE' ? '🇩🇪' : 
+                   country.code === 'GB' ? '🇬🇧' : 
+                   country.code === 'IT' ? '🇮🇹' : 
+                   country.code === 'ES' ? '🇪🇸' : 
+                   country.code === 'PT' ? '🇵🇹' : 
+                   country.code === 'JP' ? '🇯🇵' : 
+                   country.code === 'AU' ? '🇦🇺' : '📍'}
+                </span>
+                <h4 className="font-bold text-gray-900 text-sm">{country.name}</h4>
+              </div>
+              <div className="text-xs text-gray-600">
+                <p><strong>{country.regions.length}</strong> regiões</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCountryView = () => {
+    if (!selectedCountry) return null;
+
+    return (
+      <div className="w-full h-96 rounded-lg overflow-hidden border border-gray-300 bg-gradient-to-br from-green-50 to-blue-50">
+        <div className="p-6 h-full flex flex-col">
+          <div className="text-center mb-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <button 
+                onClick={handleBackToWorld}
+                className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              >
+                ← Voltar
+              </button>
+              <div className="text-2xl">
+                {selectedCountry.code === 'BR' ? '🇧🇷' : 
+                 selectedCountry.code === 'US' ? '🇺🇸' : 
+                 selectedCountry.code === 'AR' ? '🇦🇷' : '📍'}
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">{selectedCountry.name}</h3>
+            <p className="text-sm text-gray-600">Clique em uma região para ver manifestações</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 flex-1 overflow-y-auto">
+            {selectedCountry.regions.map((region) => (
+              <div 
+                key={region.code}
+                onClick={() => handleRegionSelect(region)}
+                className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer border-l-4 border-blue-500 hover:border-blue-600"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm">📍</span>
+                  <h4 className="font-bold text-gray-900 text-xs">{region.code}</h4>
+                </div>
+                <div className="text-xs text-gray-600">
+                  <p className="truncate" title={region.name}>{region.name}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full">
+      {/* Map controls */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm text-gray-600">
+            <strong>Mapa Interativo</strong> - {selectedView === 'world' ? 'Visualização Mundial' : `${selectedCountry?.name}`}
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleCountrySelect(getCountryByCode('BR')!)}
+              className="px-3 py-1 text-xs rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
+            >
+              🇧🇷 Brasil
+            </button>
+            <button 
+              onClick={handleBackToWorld}
+              className="px-3 py-1 text-xs rounded-full bg-blue-200 text-blue-700 hover:bg-blue-300 transition-colors"
+            >
+              🌍 Mundial
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Map */}
+      {selectedView === 'world' ? renderWorldView() : renderCountryView()}
+
+      {/* Instructions */}
+      <div className="mt-4 text-sm text-gray-600 text-center">
+        <p>🗺️ Mapa interativo • Clique para navegar entre países e regiões</p>
       </div>
     </div>
   );

@@ -6,35 +6,35 @@ import { getOrCreateUserSession } from './auth';
 const DEMO_EVENTS_KEY = 'marcha-brasil-demo-events';
 const DEMO_THUMBNAILS_KEY = 'marcha-brasil-demo-thumbnails';
 
-// Brazilian state capitals for national events with coordinates [lat, lng]
+// Brazilian state capitals for national events with coordinates [lng, lat] (Mapbox format)
 const brazilianCapitals = [
-  { state: 'AC', capital: 'Rio Branco', coordinates: [-9.9749, -67.8099] },
-  { state: 'AL', capital: 'Maceió', coordinates: [-9.6658, -35.7353] },
-  { state: 'AP', capital: 'Macapá', coordinates: [0.0389, -51.0694] },
-  { state: 'AM', capital: 'Manaus', coordinates: [-3.1190, -60.0261] },
-  { state: 'BA', capital: 'Salvador', coordinates: [-12.9714, -38.5014] },
-  { state: 'CE', capital: 'Fortaleza', coordinates: [-3.7319, -38.5434] },
-  { state: 'DF', capital: 'Brasília', coordinates: [-15.7975, -47.8825] },
-  { state: 'ES', capital: 'Vitória', coordinates: [-20.3155, -40.3376] },
-  { state: 'GO', capital: 'Goiânia', coordinates: [-16.6864, -49.2643] },
-  { state: 'MA', capital: 'São Luís', coordinates: [-2.5307, -44.3068] },
-  { state: 'MT', capital: 'Cuiabá', coordinates: [-15.6014, -56.0925] },
-  { state: 'MS', capital: 'Campo Grande', coordinates: [-20.4697, -54.6464] },
-  { state: 'MG', capital: 'Belo Horizonte', coordinates: [-19.9167, -43.9378] },
-  { state: 'PA', capital: 'Belém', coordinates: [-1.4558, -48.5044] },
-  { state: 'PB', capital: 'João Pessoa', coordinates: [-7.1195, -34.8641] },
-  { state: 'PR', capital: 'Curitiba', coordinates: [-25.4284, -49.2671] },
-  { state: 'PE', capital: 'Recife', coordinates: [-8.0476, -34.8775] },
-  { state: 'PI', capital: 'Teresina', coordinates: [-5.0892, -42.8019] },
-  { state: 'RJ', capital: 'Rio de Janeiro', coordinates: [-22.9068, -43.1729] },
-  { state: 'RN', capital: 'Natal', coordinates: [-5.7945, -35.2094] },
-  { state: 'RS', capital: 'Porto Alegre', coordinates: [-30.0346, -51.2177] },
-  { state: 'RO', capital: 'Porto Velho', coordinates: [-8.7619, -63.9004] },
-  { state: 'RR', capital: 'Boa Vista', coordinates: [2.8235, -60.6753] },
-  { state: 'SC', capital: 'Florianópolis', coordinates: [-27.5954, -48.5482] },
-  { state: 'SP', capital: 'São Paulo', coordinates: [-23.5505, -46.6333] },
-  { state: 'SE', capital: 'Aracaju', coordinates: [-10.9472, -37.0731] },
-  { state: 'TO', capital: 'Palmas', coordinates: [-10.1753, -48.3603] }
+  { state: 'AC', capital: 'Rio Branco', coordinates: [-67.8099, -9.9749] },
+  { state: 'AL', capital: 'Maceió', coordinates: [-35.7353, -9.6658] },
+  { state: 'AP', capital: 'Macapá', coordinates: [-51.0694, 0.0389] },
+  { state: 'AM', capital: 'Manaus', coordinates: [-60.0261, -3.1190] },
+  { state: 'BA', capital: 'Salvador', coordinates: [-38.5014, -12.9714] },
+  { state: 'CE', capital: 'Fortaleza', coordinates: [-38.5434, -3.7319] },
+  { state: 'DF', capital: 'Brasília', coordinates: [-47.8825, -15.7975] },
+  { state: 'ES', capital: 'Vitória', coordinates: [-40.3376, -20.3155] },
+  { state: 'GO', capital: 'Goiânia', coordinates: [-49.2643, -16.6864] },
+  { state: 'MA', capital: 'São Luís', coordinates: [-44.3068, -2.5307] },
+  { state: 'MT', capital: 'Cuiabá', coordinates: [-56.0925, -15.6014] },
+  { state: 'MS', capital: 'Campo Grande', coordinates: [-54.6464, -20.4697] },
+  { state: 'MG', capital: 'Belo Horizonte', coordinates: [-43.9378, -19.9167] },
+  { state: 'PA', capital: 'Belém', coordinates: [-48.5044, -1.4558] },
+  { state: 'PB', capital: 'João Pessoa', coordinates: [-34.8641, -7.1195] },
+  { state: 'PR', capital: 'Curitiba', coordinates: [-49.2671, -25.4284] },
+  { state: 'PE', capital: 'Recife', coordinates: [-34.8775, -8.0476] },
+  { state: 'PI', capital: 'Teresina', coordinates: [-42.8019, -5.0892] },
+  { state: 'RJ', capital: 'Rio de Janeiro', coordinates: [-43.1729, -22.9068] },
+  { state: 'RN', capital: 'Natal', coordinates: [-35.2094, -5.7945] },
+  { state: 'RS', capital: 'Porto Alegre', coordinates: [-51.2177, -30.0346] },
+  { state: 'RO', capital: 'Porto Velho', coordinates: [-63.9004, -8.7619] },
+  { state: 'RR', capital: 'Boa Vista', coordinates: [-60.6753, 2.8235] },
+  { state: 'SC', capital: 'Florianópolis', coordinates: [-48.5482, -27.5954] },
+  { state: 'SP', capital: 'São Paulo', coordinates: [-46.6333, -23.5505] },
+  { state: 'SE', capital: 'Aracaju', coordinates: [-37.0731, -10.9472] },
+  { state: 'TO', capital: 'Palmas', coordinates: [-48.3603, -10.1753] }
 ];
 
 // Migrate existing demo events to add coordinates if missing
@@ -58,7 +58,7 @@ function migrateDemoEventsCoordinates(): void {
       const stateCapital = brazilianCapitals.find(cap => cap.state === event.region);
       const coordinates: [number, number] = stateCapital 
         ? stateCapital.coordinates as [number, number]
-        : [-23.5505, -46.6333]; // Default to São Paulo [lat, lng]
+        : [-46.6333, -23.5505]; // Default to São Paulo [lng, lat]
       
       return {
         ...event,
@@ -324,7 +324,7 @@ export function forceRegenerateCoordinates(): void {
       const stateCapital = brazilianCapitals.find(cap => cap.state === event.region);
       const coordinates: [number, number] = stateCapital 
         ? stateCapital.coordinates as [number, number]
-        : [-23.5505, -46.6333]; // Default to São Paulo [lat, lng]
+        : [-46.6333, -23.5505]; // Default to São Paulo [lng, lat]
       
       return {
         ...event,
@@ -333,7 +333,7 @@ export function forceRegenerateCoordinates(): void {
     });
     
     localStorage.setItem(DEMO_EVENTS_KEY, JSON.stringify(updatedEvents));
-    console.log('Force regenerated coordinates for', updatedEvents.length, 'demo events');
+    console.log('Force regenerated coordinates for', updatedEvents.length, 'demo events with correct [lng, lat] format');
     
     // Notify listeners
     notifyListeners();

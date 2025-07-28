@@ -22,7 +22,7 @@ import RegionalImpactMeter from '@/components/gamification/RegionalImpactMeter';
 import { LeaderboardWidget } from '@/components/social/Leaderboards';
 import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
 import { getProtestsByCountryAndRegion } from '@/data/globalProtests';
-import { getDemoEvents, isDemoMode, addDemoEventRSVP, fixTorontoEvents } from '@/lib/demo-events';
+import { getDemoEvents, isDemoMode, addDemoEventRSVP, fixTorontoEvents, forceRegenerateCoordinates } from '@/lib/demo-events';
 import { Country, Region, getCountryByCode, getRegionByCode } from '@/data/countries';
 import ProtestCard from '@/components/protest/ProtestCard';
 import RSVPModal from '@/components/protest/RSVPModal';
@@ -57,10 +57,11 @@ export default function Home() {
     isConvoy: false
   });
 
-  // Fix existing Toronto events on page load
+  // Fix existing demo events on page load
   useEffect(() => {
     if (isDemoMode()) {
       fixTorontoEvents();
+      forceRegenerateCoordinates(); // Fix coordinate format issues
     }
   }, []);
 
@@ -259,6 +260,8 @@ export default function Home() {
             />
           </div>
         </section>
+
+        {/* Interactive Map Section */}
         <section className="mb-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
@@ -275,6 +278,8 @@ export default function Home() {
               // Navigate to protest detail page
               window.location.href = `/protest/${protest.id}`;
             }}
+            onCountrySelect={handleCountrySelect}
+            onRegionSelect={handleRegionSelect}
           />
         </section>
 

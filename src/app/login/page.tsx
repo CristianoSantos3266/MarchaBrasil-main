@@ -28,7 +28,9 @@ export default function LoginPage() {
           email: email,
           name: email.split('@')[0]
         }
-        localStorage.setItem('demoUser', JSON.stringify(demoUser))
+        localStorage.setItem('demo-user', JSON.stringify(demoUser))
+        // Trigger event to notify AuthContext
+        window.dispatchEvent(new CustomEvent('demo-user-updated'))
         setMessage('Conta criada com sucesso! Você está conectado.')
         setTimeout(() => router.push('/'), 2000)
       } else {
@@ -38,7 +40,9 @@ export default function LoginPage() {
           email: email,
           name: email.split('@')[0]
         }
-        localStorage.setItem('demoUser', JSON.stringify(demoUser))
+        localStorage.setItem('demo-user', JSON.stringify(demoUser))
+        // Trigger event to notify AuthContext
+        window.dispatchEvent(new CustomEvent('demo-user-updated'))
         setMessage('Login realizado com sucesso!')
         setTimeout(() => router.push('/'), 1500)
       }
