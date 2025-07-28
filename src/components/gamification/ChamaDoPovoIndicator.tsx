@@ -83,61 +83,59 @@ export default function ChamaDoPovoIndicator({
   const currentSize = sizeClasses[size];
 
   return (
-    <div className={`flex flex-col items-center gap-3 ${className}`} style={{ background: 'none !important' }}>
-      {/* Circular Fire Indicator */}
-      <div 
-        className={`relative ${currentSize.container} flex items-center justify-center`} 
-        style={{ 
-          background: 'none !important', 
-          backgroundColor: 'transparent !important',
-          boxShadow: 'none !important',
-          border: 'none !important',
-          backgroundImage: 'none !important',
-          backgroundClip: 'initial !important'
-        }}
-      >
-        {/* Progress ring */}
+    <div className={`flex flex-col items-center gap-3 ${className}`}>
+      {/* Circular Progress Indicator - Clean Version */}
+      <div className={`relative ${currentSize.container}`}>
+        {/* Progress ring using pure SVG - no containers with backgrounds */}
         <svg 
-          className="absolute inset-0 w-full h-full transform -rotate-90" 
-          viewBox="0 0 36 36"
-          style={{ 
-            background: 'none !important', 
-            backgroundColor: 'transparent !important'
-          }}
+          className="w-full h-full transform -rotate-90" 
+          viewBox="0 0 40 40"
         >
-          {/* Progress ring only - no background */}
-          <path
+          {/* Background circle - very subtle */}
+          <circle
+            cx="20"
+            cy="20"
+            r="16"
+            stroke="#f3f4f6"
+            strokeWidth="2"
+            fill="none"
+          />
+          {/* Progress arc */}
+          <circle
+            cx="20"
+            cy="20"
+            r="16"
             stroke={getIntensityColor(chamaData.intensity)}
             strokeWidth="3"
             strokeLinecap="round"
             fill="none"
-            strokeDasharray={`${chamaData.intensity}, 100`}
-            d="M18 2.0845
-               a 15.9155 15.9155 0 0 1 0 31.831
-               a 15.9155 15.9155 0 0 1 0 -31.831"
+            strokeDasharray={`${(chamaData.intensity / 100) * 100.53} 100.53`}
             className="transition-all duration-500 ease-in-out"
             style={{
-              filter: chamaData.intensity > 0 ? 'drop-shadow(0 0 6px currentColor)' : 'none'
+              filter: chamaData.intensity > 0 ? 'drop-shadow(0 0 4px currentColor)' : 'none'
             }}
           />
         </svg>
         
-        {/* Activity icon in center */}
-        <div className={`relative z-10 ${currentSize.fireSize} flex items-center justify-center`} style={{ background: 'none' }}>
+        {/* Center content - positioned absolutely over the SVG */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {/* Heart icon */}
           <svg 
-            className={`${size === 'small' ? 'w-5 h-5' : size === 'medium' ? 'w-6 h-6' : 'w-7 h-7'}`} 
+            className={`${size === 'small' ? 'w-4 h-4' : size === 'medium' ? 'w-5 h-5' : 'w-6 h-6'}`} 
             fill="currentColor" 
             viewBox="0 0 20 20"
-            style={{ color: getIntensityColor(chamaData.intensity), background: 'none' }}
+            style={{ color: getIntensityColor(chamaData.intensity) }}
           >
             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/>
           </svg>
-        </div>
-        
-        {/* Intensity percentage */}
-        <div className={`absolute -bottom-1 -right-1 px-1.5 py-0.5 ${currentSize.text} font-bold`}
-             style={{ color: getIntensityColor(chamaData.intensity), background: 'none', backgroundColor: 'transparent', boxShadow: 'none' }}>
-          {chamaData.intensity}%
+          
+          {/* Percentage - positioned below the icon */}
+          <div 
+            className={`${currentSize.text} font-bold leading-none mt-0.5`}
+            style={{ color: getIntensityColor(chamaData.intensity) }}
+          >
+            {chamaData.intensity}%
+          </div>
         </div>
       </div>
 

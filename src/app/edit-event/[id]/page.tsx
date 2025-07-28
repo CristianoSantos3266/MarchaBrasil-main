@@ -38,6 +38,8 @@ export default function EditEventPage() {
     final_destination: '',
     city: '',
     state: '',
+    country: 'BR',
+    isInternational: false,
     expected_attendance: '',
     whatsapp_contact: ''
   })
@@ -72,6 +74,22 @@ export default function EditEventPage() {
     'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
   ]
 
+  const canadianProvinces = [
+    { code: 'ON', name: 'Ontario' },
+    { code: 'QC', name: 'Quebec' },
+    { code: 'BC', name: 'British Columbia' },
+    { code: 'AB', name: 'Alberta' },
+    { code: 'MB', name: 'Manitoba' },
+    { code: 'SK', name: 'Saskatchewan' },
+    { code: 'NS', name: 'Nova Scotia' },
+    { code: 'NB', name: 'New Brunswick' },
+    { code: 'PE', name: 'Prince Edward Island' },
+    { code: 'NL', name: 'Newfoundland and Labrador' },
+    { code: 'NT', name: 'Northwest Territories' },
+    { code: 'YT', name: 'Yukon' },
+    { code: 'NU', name: 'Nunavut' }
+  ]
+
   // Check if we're in demo mode
   const demoMode = isDemoMode()
 
@@ -102,9 +120,11 @@ export default function EditEventPage() {
       date: formatDateToBrazilian(eventData.date),
       time: eventData.time,
       meeting_point: eventData.location,
-      final_destination: '',
+      final_destination: eventData.final_destination || '',
       city: eventData.city,
       state: eventData.region,
+      country: eventData.country || 'BR',
+      isInternational: eventData.country !== 'BR',
       expected_attendance: '',
       whatsapp_contact: ''
     })
@@ -179,7 +199,38 @@ export default function EditEventPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const compressImage = (imageData: string, callback: (compressedData: string) => void) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Calculate new dimensions (max 800px width/height)
+      const maxSize = 800;
+      let { width, height } = img;
+      
+      if (width > height && width > maxSize) {
+        height = (height * maxSize) / width;
+        width = maxSize;
+      } else if (height > maxSize) {
+        width = (width * maxSize) / height;
+        height = maxSize;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw and compress
+      ctx?.drawImage(img, 0, 0, width, height);
+      const compressedData = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+      callback(compressedData);
+    };
+    img.src = imageData;
+  }
+
   const processFile = (file: File) => {
+    console.log('Processing file:', file.name, file.type, file.size);
+    
     // Clear any previous error messages
     setMessage('')
     
@@ -201,9 +252,22 @@ export default function EditEventPage() {
     const reader = new FileReader()
     reader.onload = (event) => {
       if (event.target?.result) {
-        setThumbnail(event.target.result as string)
-        setMessage('✅ Imagem carregada com sucesso!')
-        setTimeout(() => setMessage(''), 3000)
+        const imageData = event.target.result as string;
+        console.log('Image loaded successfully, data length:', imageData.length);
+        
+        // Compress image if it's too large
+        if (imageData.length > 100000) { // If larger than ~100KB
+          compressImage(imageData, (compressedData) => {
+            console.log('Image compressed from', imageData.length, 'to', compressedData.length);
+            setThumbnail(compressedData)
+            setMessage('✅ Imagem carregada e comprimida com sucesso!')
+            setTimeout(() => setMessage(''), 3000)
+          });
+        } else {
+          setThumbnail(imageData)
+          setMessage('✅ Imagem carregada com sucesso!')
+          setTimeout(() => setMessage(''), 3000)
+        }
       }
     }
     reader.onerror = () => {
@@ -296,11 +360,16 @@ export default function EditEventPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate delay
       
+      // Prepare the thumbnail data - use the new one if uploaded, otherwise keep existing
+      const thumbnailData = thumbnail || existingThumbnail;
+      
+      console.log('Updating event with thumbnail:', thumbnailData ? 'Present' : 'None');
+      
       // Update the demo event
       const success = updateDemoEvent(id as string, { 
         ...formData, 
         date: formatDateToISO(formData.date),
-        thumbnail: thumbnail || existingThumbnail
+        thumbnail: thumbnailData
       })
       
       if (success) {
@@ -578,10 +647,23 @@ export default function EditEventPage() {
                   required
                   className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 text-lg"
                 >
-                  <option value="">Selecione o estado</option>
-                  {brazilianStates.map(state => (
-                    <option key={state} value={state}>{state}</option>
-                  ))}
+                  {formData.isInternational && formData.country === 'CA' ? (
+                    <>
+                      <option value="">Selecione a província</option>
+                      {canadianProvinces.map(province => (
+                        <option key={province.code} value={province.code}>
+                          {province.name}
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <option value="">Selecione o estado</option>
+                      {brazilianStates.map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </>
+                  )}
                 </select>
               </div>
             </div>

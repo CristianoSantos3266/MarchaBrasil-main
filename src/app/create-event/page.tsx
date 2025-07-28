@@ -8,6 +8,7 @@ import CaptchaVerification from '@/components/security/CaptchaVerification'
 import { useAuth } from '@/contexts/AuthContext'
 import { createEvent } from '@/lib/supabase'
 import { saveDemoEvent } from '@/lib/demo-events'
+import CelebrationPopup from '@/components/ui/CelebrationPopup'
 
 // Set Portuguese locale for the entire document
 if (typeof window !== 'undefined') {
@@ -66,6 +67,7 @@ export default function CreateEventPage() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [captchaVerified, setCaptchaVerified] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
 
   const protestTypes = [
     { value: 'manifestacao', label: 'Manifestação', icon: HandRaisedIcon },
@@ -132,6 +134,22 @@ export default function CreateEventPage() {
     { state: 'SP', capital: 'São Paulo' },
     { state: 'SE', capital: 'Aracaju' },
     { state: 'TO', capital: 'Palmas' }
+  ]
+
+  const canadianProvinces = [
+    { code: 'ON', name: 'Ontario' },
+    { code: 'QC', name: 'Quebec' },
+    { code: 'BC', name: 'British Columbia' },
+    { code: 'AB', name: 'Alberta' },
+    { code: 'MB', name: 'Manitoba' },
+    { code: 'SK', name: 'Saskatchewan' },
+    { code: 'NS', name: 'Nova Scotia' },
+    { code: 'NB', name: 'New Brunswick' },
+    { code: 'PE', name: 'Prince Edward Island' },
+    { code: 'NL', name: 'Newfoundland and Labrador' },
+    { code: 'NT', name: 'Northwest Territories' },
+    { code: 'YT', name: 'Yukon' },
+    { code: 'NU', name: 'Nunavut' }
   ]
 
   // Check if we're in demo mode
@@ -394,6 +412,9 @@ export default function CreateEventPage() {
           date: formatDateToISO(formData.date),
           thumbnail 
         });
+        
+        // Show celebration popup
+        setShowCelebration(true)
         
         if (formData.isNational) {
           setMessage(`Eventos criados com sucesso! (Modo Demo - ${savedEvents.length} manifestações criadas em todas as capitais)`)
@@ -872,6 +893,28 @@ export default function CreateEventPage() {
                     </div>
                   )}
 
+                  {formData.isInternational && formData.country === 'CA' && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Província *
+                      </label>
+                      <select
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      >
+                        <option value="">Selecione a província</option>
+                        {canadianProvinces.map(province => (
+                          <option key={province.code} value={province.code}>
+                            {province.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   {!formData.isNational && !formData.isInternational && (
                     <select
                       name="state"
@@ -1064,6 +1107,18 @@ export default function CreateEventPage() {
         </div>
       </div>
       <Footer />
+      
+      {/* Celebration Popup */}
+      <CelebrationPopup
+        isOpen={showCelebration}
+        onClose={() => {
+          setShowCelebration(false)
+          // Redirect to home page after celebration
+          setTimeout(() => router.push('/'), 500)
+        }}
+        title="Evento Criado com Sucesso!"
+        message="Sua manifestação foi registrada e será revisada pela moderação. Divulgue para seus amigos e familiares!"
+      />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ import RegionalImpactMeter from '@/components/gamification/RegionalImpactMeter';
 import { LeaderboardWidget } from '@/components/social/Leaderboards';
 import { Protest, ParticipantType, ConvoyJoinLocation } from '@/types';
 import { getProtestsByCountryAndRegion } from '@/data/globalProtests';
-import { getDemoEvents, isDemoMode, addDemoEventRSVP } from '@/lib/demo-events';
+import { getDemoEvents, isDemoMode, addDemoEventRSVP, fixTorontoEvents } from '@/lib/demo-events';
 import { Country, Region, getCountryByCode, getRegionByCode } from '@/data/countries';
 import ProtestCard from '@/components/protest/ProtestCard';
 import RSVPModal from '@/components/protest/RSVPModal';
@@ -56,6 +56,13 @@ export default function Home() {
     protestTitle: '',
     isConvoy: false
   });
+
+  // Fix existing Toronto events on page load
+  useEffect(() => {
+    if (isDemoMode()) {
+      fixTorontoEvents();
+    }
+  }, []);
 
   const handleCountrySelect = (country: Country) => {
     setSelectedCountry(country);

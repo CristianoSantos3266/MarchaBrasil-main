@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navigation from '@/components/ui/Navigation';
 import VideoUpload from '@/components/video/VideoUpload';
@@ -8,7 +8,7 @@ import { VideoUploadData } from '@/types/video';
 import { CloudArrowUpIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-export default function VideoUploadPage() {
+function VideoUploadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const protestId = searchParams.get('protestId');
@@ -223,5 +223,13 @@ export default function VideoUploadPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VideoUploadPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div>Carregando...</div></div>}>
+      <VideoUploadContent />
+    </Suspense>
   );
 }

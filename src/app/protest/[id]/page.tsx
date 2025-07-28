@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { globalProtests } from '@/data/globalProtests';
 import { getDemoEvents, isDemoMode, addDemoEventRSVP, getThumbnail } from '@/lib/demo-events';
+import { canUserEditEvent } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { ParticipantType, ConvoyJoinLocation } from '@/types';
 import RSVPModal from '@/components/protest/RSVPModal';
 import ProtestResults from '@/components/results/ProtestResults';
@@ -21,7 +23,7 @@ import RealtimeUpdateFeed from '@/components/realtime/RealtimeUpdateFeed';
 import { notificationService } from '@/lib/notification-system';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, ClockIcon, MapPinIcon, BuildingOffice2Icon, HandRaisedIcon, SpeakerWaveIcon, PencilIcon } from '@heroicons/react/24/outline';
 import Footer from '@/components/ui/Footer';
 
 const ConvoyRouteMap = dynamic(() => import('@/components/map/ConvoyRouteMap'), {
@@ -65,6 +67,7 @@ const protestTypeLabels = {
 export default function ProtestDetailPage() {
   const params = useParams();
   const protestId = params.id as string;
+  const { user } = useAuth();
   
   const [rsvpModal, setRsvpModal] = useState<{ isOpen: boolean; protestId: string; protestTitle: string; isConvoy: boolean }>({
     isOpen: false,
@@ -132,7 +135,7 @@ export default function ProtestDetailPage() {
       if (success) {
         // Gamification: Update user participation and check for badges
         const userId = 'demo-user-' + Date.now(); // In real app, get from auth context
-        const { newBadges } = updateUserParticipation(userId, 'attend', protest.city, protest.state);
+        const { newBadges } = updateUserParticipation(userId, 'attend', protest.city, protest.region || protest.state);
         
         // Update Chama do Povo data
         const previousTotal = Object.values(protest.rsvps || {}).reduce((sum, count) => sum + count, 0);
@@ -241,6 +244,17 @@ export default function ProtestDetailPage() {
                   participantCount={totalRSVPs}
                   imageUrl={eventThumbnail}
                 />
+                
+                {/* Edit Button - Only show for event creators */}
+                {user && protest.id.startsWith('demo-') && canUserEditEvent(protest) && (
+                  <button
+                    onClick={() => window.location.href = `/edit-event/${protest.id}`}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                    Editar Evento
+                  </button>
+                )}
               </div>
             </div>
           </div>

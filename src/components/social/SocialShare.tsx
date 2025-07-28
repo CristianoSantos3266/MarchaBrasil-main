@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ShareIcon, LinkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import ShareModal from './ShareModal';
 
 interface SocialShareProps {
   eventId: string;
@@ -26,6 +27,7 @@ export default function SocialShare({
 }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const shareUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/protest/${eventId}`
@@ -98,7 +100,7 @@ export default function SocialShare({
     <div className={`relative ${className}`}>
       {/* Share Button */}
       <button
-        onClick={handleNativeShare}
+        onClick={() => setShowShareModal(true)}
         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
       >
         <ShareIcon className="h-5 w-5" />
@@ -196,6 +198,18 @@ export default function SocialShare({
           </div>
         </div>
       )}
+
+      {/* New Enhanced Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        eventTitle={eventTitle}
+        eventDescription={eventDescription}
+        eventDate={eventDate}
+        eventLocation={eventLocation}
+        eventUrl={shareUrl}
+        participantCount={participantCount}
+      />
     </div>
   );
 }

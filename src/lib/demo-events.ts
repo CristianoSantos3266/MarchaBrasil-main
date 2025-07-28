@@ -189,11 +189,33 @@ export function saveDemoEvent(eventData: any): Protest[] {
       }
     });
   } else {
-    // Single city event - find coordinates from capital list
-    const stateCapital = brazilianCapitals.find(cap => cap.state === eventData.state);
-    const coordinates: [number, number] = stateCapital 
-      ? stateCapital.coordinates as [number, number]
-      : [-23.5505, -46.6333]; // Default to São Paulo [lat, lng]
+    // Single city event - handle both national and international
+    let coordinates: [number, number];
+    let country = eventData.country || 'BR';
+    let region = eventData.state; // This could be state or province
+    
+    if (eventData.isInternational && country !== 'BR') {
+      // International event - use default coordinates for the country
+      const defaultCoords: Record<string, [number, number]> = {
+        'CA': [45.4215, -75.6972], // Ottawa
+        'US': [38.9072, -77.0369], // Washington DC
+        'UK': [51.5074, -0.1278],  // London
+        'DE': [52.5200, 13.4050],  // Berlin
+        'FR': [48.8566, 2.3522],   // Paris
+        'IT': [41.9028, 12.4964],  // Rome
+        'ES': [40.4168, -3.7038],  // Madrid
+        'PT': [38.7223, -9.1393],  // Lisbon
+        'JP': [35.6762, 139.6503], // Tokyo
+        'AU': [-35.2809, 149.1300] // Canberra
+      };
+      coordinates = defaultCoords[country] || [0, 0];
+    } else {
+      // Brazilian event - find coordinates from capital list
+      const stateCapital = brazilianCapitals.find(cap => cap.state === region);
+      coordinates = stateCapital 
+        ? stateCapital.coordinates as [number, number]
+        : [-23.5505, -46.6333]; // Default to São Paulo [lat, lng]
+    }
       
     const currentUser = getOrCreateUserSession();
     const newEvent: Protest = {
@@ -201,8 +223,8 @@ export function saveDemoEvent(eventData: any): Protest[] {
       title: eventData.title,
       description: eventData.description,
       city: eventData.city,
-      region: eventData.state,
-      country: 'BR',
+      region: region,
+      country: country,
       date: eventData.date,
       time: eventData.time,
       location: eventData.meeting_point,
@@ -214,6 +236,12 @@ export function saveDemoEvent(eventData: any): Protest[] {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
+    
+    // Add final_destination if provided
+    if (eventData.final_destination) {
+      newEvent.final_destination = eventData.final_destination;
+    }
+    
     newEvents.push(newEvent);
     
     // Store thumbnail separately for single events
@@ -244,6 +272,41 @@ export function saveDemoEvent(eventData: any): Protest[] {
 export function clearDemoEvents(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(DEMO_EVENTS_KEY);
+  localStorage.removeItem(DEMO_THUMBNAILS_KEY);
+  notifyListeners();
+}
+
+// Fix existing Toronto events to have correct country code
+export function fixTorontoEvents(): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const stored = localStorage.getItem(DEMO_EVENTS_KEY);
+    if (!stored) return;
+    
+    const events: Protest[] = JSON.parse(stored);
+    let hasChanges = false;
+    
+    const updatedEvents = events.map(event => {
+      if (event.city.toLowerCase().includes('toronto') && event.country === 'BR') {
+        hasChanges = true;
+        return {
+          ...event,
+          country: 'CA',
+          region: 'ON'
+        };
+      }
+      return event;
+    });
+    
+    if (hasChanges) {
+      localStorage.setItem(DEMO_EVENTS_KEY, JSON.stringify(updatedEvents));
+      notifyListeners();
+      console.log('Fixed Toronto events to use CA country code');
+    }
+  } catch (error) {
+    console.error('Error fixing Toronto events:', error);
+  }
 }
 
 // Force regenerate demo events with correct coordinates
@@ -303,6 +366,8 @@ export function updateDemoEvent(eventId: string, eventData: any): boolean {
       location: eventData.meeting_point || eventData.location,
       city: eventData.city || existingEvents[eventIndex].city,
       region: eventData.state || existingEvents[eventIndex].region,
+      country: eventData.country || existingEvents[eventIndex].country || 'BR',
+      final_destination: eventData.final_destination || existingEvents[eventIndex].final_destination,
       updatedAt: new Date().toISOString()
     };
     
