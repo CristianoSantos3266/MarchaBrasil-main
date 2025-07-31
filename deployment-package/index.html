@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+  <html lang="pt-BR">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>🇧🇷 Marcha Brasil - Manifestações Pacíficas</title>
+      <link rel="manifest" href="/manifest.json">
+      <meta name="theme-color" content="#002776">
+      <style>
+          body { font-family: system-ui; margin: 0; padding: 20px; }
+          .loading { text-align: center; margin-top: 100px; }
+      </style>
+  </head>
+  <body>
+      <div class="loading">
+          <h1>🇧🇷 Marcha Brasil</h1>
+          <p>Carregando plataforma completa...</p>
+          <p><a href="/manifestacoes">Ver Manifestações</a> | <a href="/login">Login</a></p>
+      </div>
+      <script>
+          // Redirect to the main platform after 2 seconds
+          setTimeout(() => {
+              window.location.href = "/manifestacoes";
+          }, 2000);
+      </script>
+  </body>
+  </html>
