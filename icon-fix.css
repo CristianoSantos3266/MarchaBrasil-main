@@ -1,0 +1,47 @@
+/* Emergency icon size fix for production */
+/* Force proper icon sizing for Heroicons */
+svg {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  flex-shrink: 0 !important;
+}
+
+/* Heroicons size overrides */
+.h-4.w-4,
+.h-4.w-4 > svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+.h-5.w-5,
+.h-5.w-5 > svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+
+.h-6.w-6,
+.h-6.w-6 > svg {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+.h-8.w-8,
+.h-8.w-8 > svg {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+/* Specific targeting for heroicons */
+svg[data-slot="icon"] {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+/* Override any scaling issues */
+.heroicon,
+[class*="Icon"] svg {
+  width: inherit !important;
+  height: inherit !important;
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+}

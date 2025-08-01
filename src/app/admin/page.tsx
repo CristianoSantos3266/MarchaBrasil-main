@@ -46,29 +46,19 @@ export default function AdminDashboard() {
     // Load demo data and calculate stats
     // Temporary static data to avoid hydration issues
     setStats({
-      totalEvents: 47,
-      pendingEvents: 8,
-      approvedEvents: 35,
-      rejectedEvents: 4,
-      totalParticipants: 23567,
-      verifiedOrganizers: 12,
-      totalDonations: 15847.50,
-      flaggedItems: 3
+      totalEvents: 0,
+      pendingEvents: 0,
+      approvedEvents: 0,
+      rejectedEvents: 0,
+      totalParticipants: 0,
+      verifiedOrganizers: 0,
+      totalDonations: 0,
+      flaggedItems: 0
     })
 
-    // Mock recent events
-    setRecentEvents([
-      { id: '1', title: 'Manifestação pela Democracia - SP', city: 'São Paulo', region: 'SP', date: '2024-07-25', status: 'approved' },
-      { id: '2', title: 'Carreata Patriótica - RJ', city: 'Rio de Janeiro', region: 'RJ', date: '2024-07-24', status: 'pending' },
-      { id: '3', title: 'Assembleia Cidadã - MG', city: 'Belo Horizonte', region: 'MG', date: '2024-07-23', status: 'approved' }
-    ])
-
-    // Mock recent videos  
-    setRecentVideos([
-      { id: '1', title: 'Hino da Independência - 7 de Setembro 2024', category: 'hino', views: 1250, likes: 89, status: 'approved' },
-      { id: '2', title: 'ANISTIA JÁ', category: 'manifestacao', views: 1567, likes: 128, status: 'approved' },
-      { id: '3', title: 'Manifestação Patriótica - Brasil', category: 'manifestacao', views: 892, likes: 67, status: 'approved' }
-    ])
+    // No events or videos yet - fresh start
+    setRecentEvents([])
+    setRecentVideos([])
   }, [])
 
   const statCards = [
@@ -77,42 +67,42 @@ export default function AdminDashboard() {
       value: stats.approvedEvents,
       icon: CheckBadgeIcon,
       color: 'green',
-      change: '+12%'
+      change: '0%'
     },
     {
       title: 'Eventos Pendentes',
       value: stats.pendingEvents,
       icon: ClockIcon,
       color: 'yellow',
-      change: '+3'
+      change: '0'
     },
     {
       title: 'Participantes Confirmados',
       value: stats.totalParticipants.toLocaleString('pt-BR'),
       icon: UserGroupIcon,
       color: 'blue',
-      change: '+8.5%'
+      change: '0%'
     },
     {
       title: 'Organizadores Verificados',
       value: stats.verifiedOrganizers,
       icon: UsersIcon,
       color: 'purple',
-      change: '+2'
+      change: '0'
     },
     {
       title: 'Doações (R$)',
       value: `R$ ${stats.totalDonations.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
       icon: CurrencyDollarIcon,
       color: 'green',
-      change: '+22%'
+      change: '0%'
     },
     {
       title: 'Itens Sinalizados',
       value: stats.flaggedItems,
       icon: ExclamationTriangleIcon,
       color: 'red',
-      change: '-1'
+      change: '0'
     }
   ]
 
@@ -257,7 +247,7 @@ export default function AdminDashboard() {
               <UsersIcon className="h-6 w-6 text-blue-600" />
               <div className="text-left">
                 <div className="font-medium text-blue-900">Verificar Organizadores</div>
-                <div className="text-sm text-blue-600">3 aguardando</div>
+                <div className="text-sm text-blue-600">0 aguardando</div>
               </div>
             </button>
             

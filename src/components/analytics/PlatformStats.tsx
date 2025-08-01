@@ -19,29 +19,36 @@ interface PlatformMetrics {
 
 export default function PlatformStats() {
   const [metrics, setMetrics] = useState<PlatformMetrics>({
-    totalEvents: 47,
-    totalRSVPs: 23567,
-    activeCountries: 12,
-    dailyViews: 8934,
-    weeklyGrowth: 23.5,
-    lastUpdated: new Date().toISOString()
+    totalEvents: 0,
+    totalRSVPs: 0,
+    activeCountries: 0,
+    dailyViews: 0,
+    weeklyGrowth: 0,
+    lastUpdated: '' // Initialize empty to prevent hydration mismatch
   });
 
   const [timeframe, setTimeframe] = useState<'24h' | '7d' | '30d'>('7d');
 
+  // Initialize timestamp on client side only to prevent hydration mismatch
   useEffect(() => {
-    // Simulate real-time updates
-    const interval = setInterval(() => {
-      setMetrics(prev => ({
-        ...prev,
-        dailyViews: prev.dailyViews + Math.floor(Math.random() * 50),
-        totalRSVPs: prev.totalRSVPs + Math.floor(Math.random() * 10),
-        lastUpdated: new Date().toISOString()
-      }));
-    }, 30000); // Update every 30 seconds
-
-    return () => clearInterval(interval);
+    setMetrics(prev => ({
+      ...prev,
+      lastUpdated: new Date().toISOString()
+    }));
   }, []);
+
+  // Removed auto-increment for fresh start
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setMetrics(prev => ({
+  //       ...prev,
+  //       dailyViews: prev.dailyViews + Math.floor(Math.random() * 50),
+  //       totalRSVPs: prev.totalRSVPs + Math.floor(Math.random() * 10),
+  //       lastUpdated: new Date().toISOString()
+  //     }));
+  //   }, 30000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -186,7 +193,7 @@ export default function PlatformStats() {
       </div>
 
       <div className="mt-4 text-center text-xs text-gray-500">
-        Last updated: {formatDate(metrics.lastUpdated)}
+        Last updated: {metrics.lastUpdated ? formatDate(metrics.lastUpdated) : 'Loading...'}
       </div>
     </div>
   );

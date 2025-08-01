@@ -44,7 +44,7 @@ export default function OrganizerLeaderboard({
   const calculateOrganizerStats = () => {
     setLoading(true);
     
-    // Get all demo events
+    // Get all demo events - will be empty for fresh start
     const allEvents = getDemoEvents();
     
     // Filter by timeframe
