@@ -542,13 +542,11 @@ export default function CreateEventPage() {
             <p className="text-lg text-gray-600">
               Organize uma manifestação pacífica em defesa da democracia
             </p>
-            <div className="mt-2 text-sm text-blue-600">
-              {isDemoMode ? (
-                <span><strong>Modo Demo</strong> - Teste a criação de eventos</span>
-              ) : (
-                <>Organizador: <strong>{userProfile?.public_name}</strong></>
-              )}
-            </div>
+            {!isDemoMode && (
+              <div className="mt-2 text-sm text-blue-600">
+                Organizador: <strong>{userProfile?.public_name}</strong>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
