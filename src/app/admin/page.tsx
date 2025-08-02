@@ -15,6 +15,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline'
 import OrganizerLeaderboard from '@/components/admin/OrganizerLeaderboard'
+import { usePlatformStats } from '@/hooks/usePlatformStats'
 
 interface DashboardStats {
   totalEvents: number
@@ -28,6 +29,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const platformStats = usePlatformStats();
   const [stats, setStats] = useState<DashboardStats>({
     totalEvents: 0,
     pendingEvents: 0,
@@ -43,23 +45,22 @@ export default function AdminDashboard() {
   const [recentVideos, setRecentVideos] = useState<any[]>([])
 
   useEffect(() => {
-    // Load demo data and calculate stats
-    // Temporary static data to avoid hydration issues
+    // Use real platform stats
     setStats({
-      totalEvents: 0,
-      pendingEvents: 0,
-      approvedEvents: 0,
+      totalEvents: platformStats.totalEvents,
+      pendingEvents: 0, // TODO: Implementar quando tiver dados de status de eventos
+      approvedEvents: platformStats.totalEvents,
       rejectedEvents: 0,
-      totalParticipants: 0,
-      verifiedOrganizers: 0,
-      totalDonations: 0,
+      totalParticipants: platformStats.confirmedParticipants,
+      verifiedOrganizers: platformStats.verifiedOrganizers,
+      totalDonations: platformStats.totalDonations,
       flaggedItems: 0
     })
 
     // No events or videos yet - fresh start
     setRecentEvents([])
     setRecentVideos([])
-  }, [])
+  }, [platformStats])
 
   const statCards = [
     {

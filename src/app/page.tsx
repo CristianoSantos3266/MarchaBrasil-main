@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePlatformStats } from '@/hooks/usePlatformStats';
 import { 
   HeartIcon, 
   MapPinIcon, 
@@ -50,6 +51,7 @@ export default function Home() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
   const [protests, setProtests] = useState<Protest[]>([]);
+  const platformStats = usePlatformStats();
   const [rsvpModal, setRsvpModal] = useState<{ isOpen: boolean; protestId: string; protestTitle: string; isConvoy: boolean }>({
     isOpen: false,
     protestId: '',
@@ -200,16 +202,22 @@ export default function Home() {
           {/* Stats with Brazilian colors */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
-              <div className="text-3xl font-bold text-white drop-shadow">127.3k+</div>
+              <div className="text-3xl font-bold text-white drop-shadow">
+                {platformStats.confirmedParticipants.toLocaleString('pt-BR')}
+              </div>
               <div className="text-white/90 drop-shadow">Brasileiros Mobilizados</div>
             </div>
             <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
-              <div className="text-3xl font-bold text-white drop-shadow">26</div>
+              <div className="text-3xl font-bold text-white drop-shadow">
+                {platformStats.activeStates || 27}
+              </div>
               <div className="text-white/90 drop-shadow">Estados + DF</div>
             </div>
             <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
-              <div className="text-3xl font-bold text-white drop-shadow">847</div>
-              <div className="text-white/90 drop-shadow">Manifestações Realizadas</div>
+              <div className="text-3xl font-bold text-white drop-shadow">
+                {platformStats.totalEvents.toLocaleString('pt-BR')}
+              </div>
+              <div className="text-white/90 drop-shadow">Manifestações Registradas</div>
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import {
   ArrowTrendingDownIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { usePlatformStats } from '@/hooks/usePlatformStats';
 
 interface PlatformMetrics {
   totalEvents: number;
@@ -18,6 +19,7 @@ interface PlatformMetrics {
 }
 
 export default function PlatformStats() {
+  const platformStats = usePlatformStats();
   const [metrics, setMetrics] = useState<PlatformMetrics>({
     totalEvents: 0,
     totalRSVPs: 0,
@@ -29,26 +31,17 @@ export default function PlatformStats() {
 
   const [timeframe, setTimeframe] = useState<'24h' | '7d' | '30d'>('7d');
 
-  // Initialize timestamp on client side only to prevent hydration mismatch
+  // Use real platform stats
   useEffect(() => {
-    setMetrics(prev => ({
-      ...prev,
+    setMetrics({
+      totalEvents: platformStats.totalEvents,
+      totalRSVPs: platformStats.confirmedParticipants,
+      activeCountries: platformStats.activeStates,
+      dailyViews: 0, // TODO: Implementar tracking de views
+      weeklyGrowth: 0, // TODO: Calcular crescimento baseado em dados históricos
       lastUpdated: new Date().toISOString()
-    }));
-  }, []);
-
-  // Removed auto-increment for fresh start
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setMetrics(prev => ({
-  //       ...prev,
-  //       dailyViews: prev.dailyViews + Math.floor(Math.random() * 50),
-  //       totalRSVPs: prev.totalRSVPs + Math.floor(Math.random() * 10),
-  //       lastUpdated: new Date().toISOString()
-  //     }));
-  //   }, 30000);
-  //   return () => clearInterval(interval);
-  // }, []);
+    });
+  }, [platformStats]);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
