@@ -1,0 +1,32 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+spawn ssh -o StrictHostKeyChecking=no root@148.230.85.210
+
+expect "password:"
+send "Helena3266##\r"
+
+expect "# "
+send "cd /var/www/marchabrasil-staging\r"
+
+expect "# "
+send "pm2 delete marchabrasil-staging\r"
+
+expect "# "
+send "PORT=3001 pm2 start npm --name \"marchabrasil-staging\" -- start\r"
+
+expect "# "
+send "pm2 status\r"
+
+expect "# "
+send "sleep 3\r"
+
+expect "# "
+send "curl -I http://localhost:3001\r"
+
+expect "# "
+send "curl -s http://localhost:3001 | grep -c 'href=\"/support\"'\r"
+
+expect "# "
+send "exit\r"
+expect eof

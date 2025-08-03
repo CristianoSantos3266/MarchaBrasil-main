@@ -1,0 +1,66 @@
+#!/usr/bin/expect -f
+
+set timeout 60
+
+# Connect to server
+spawn ssh -o StrictHostKeyChecking=no root@148.230.85.210
+expect {
+    "password:" {
+        send "Helena3266\r"
+        exp_continue
+    }
+    "# " {
+        puts "Connected successfully!"
+    }
+    timeout {
+        puts "Connection timeout"
+        exit 1
+    }
+}
+
+# Navigate to staging directory
+send "cd /var/www/marchabrasil-staging\r"
+expect "# "
+
+# Show current directory
+send "pwd\r"
+expect "# "
+
+# Fix navigation links /doar -> /support
+send "sed -i 's|href=\"/doar\"|href=\"/support\"|g' src/components/ui/Navigation.tsx\r"
+expect "# "
+
+# Fix homepage button <a> -> <Link>
+send "sed -i 's|<a href=\"/support\"|<Link href=\"/support\"|g' src/app/page.tsx\r"
+expect "# "
+
+send "sed -i 's|</a>|</Link>|g' src/app/page.tsx\r"
+expect "# "
+
+# Remove old doar page
+send "rm -rf src/app/doar\r"
+expect "# "
+
+puts "Running npm build..."
+send "npm run build\r"
+expect {
+    "# " {
+        puts "Build completed"
+    }
+    timeout {
+        puts "Build timeout - continuing..."
+    }
+}
+
+puts "Restarting PM2..."
+send "pm2 restart marchabrasil-staging\r"
+expect "# "
+
+# Verify fix
+send "curl -s http://localhost:3001 | grep -c 'href=\"/support\"'\r"
+expect "# "
+
+send "exit\r"
+expect eof
+
+puts "Deployment completed!"

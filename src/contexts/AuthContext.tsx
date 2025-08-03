@@ -26,20 +26,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadDemoUser = () => {
     if (typeof window !== 'undefined') {
       const demoUser = localStorage.getItem('demo-user')
-      console.log('Demo mode: checking localStorage for demo-user:', demoUser)
       if (demoUser) {
         try {
           const userData = JSON.parse(demoUser)
-          console.log('Demo mode: parsed user data:', userData)
           setUser(userData)
           setUserProfile({
             id: userData.id,
             email: userData.email,
-            public_name: userData.email.split('@')[0],
-            name: userData.email.split('@')[0],
-            role: 'user',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            public_name: userData.public_name || userData.email?.split('@')[0] || userData.name,
+            name: userData.name || userData.email?.split('@')[0],
+            role: userData.role || 'user',
+            created_at: userData.created_at || new Date().toISOString(),
+            updated_at: userData.updated_at || new Date().toISOString()
           })
         } catch (error) {
           console.error('Error parsing demo user data:', error)
@@ -59,7 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Listen for localStorage changes (e.g., from login page)
       const handleStorageChange = (e: StorageEvent) => {
         if (e.key === 'demo-user') {
-          console.log('Demo user localStorage changed, reloading user data')
           loadDemoUser()
         }
       }
@@ -68,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Also listen for custom events (for same-page updates)
       const handleCustomStorageChange = () => {
-        console.log('Demo user custom event triggered, reloading user data')
         loadDemoUser()
       }
       

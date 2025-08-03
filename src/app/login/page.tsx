@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { signIn, signUp } from '@/lib/supabase'
 import { DocumentTextIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 
 export default function LoginPage() {
@@ -28,44 +29,49 @@ export default function LoginPage() {
     setMessage('')
 
     try {
+      let result;
+      
       if (isSignUp) {
-        // Create demo user for signup
-        const demoUser = {
-          id: `demo-${Date.now()}`,
-          email: email,
-          name: email.split('@')[0],
-          public_name: email.split('@')[0],
-          role: 'user',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        result = await signUp(email, password)
+        if (result.error) {
+          setMessage(result.error.message || 'Erro ao criar conta')
+          return
         }
-        localStorage.setItem('demo-user', JSON.stringify(demoUser))
         setMessage('Conta criada com sucesso! Redirecionando...')
       } else {
-        // Create demo user for login
+        result = await signIn(email, password)
+        if (result.error) {
+          setMessage(result.error.message || 'Erro ao fazer login')
+          return
+        }
+        setMessage('Login realizado com sucesso! Redirecionando...')
+      }
+
+      // In demo mode, the signIn/signUp functions handle the demo user creation
+      // Store user data for AuthContext to pick up
+      if (result.data?.user) {
         const demoUser = {
-          id: `demo-user`,
-          email: email,
-          name: email.split('@')[0],
-          public_name: email.split('@')[0],
+          id: result.data.user.id,
+          email: result.data.user.email,
+          name: result.data.user.email?.split('@')[0] || 'User',
+          public_name: result.data.user.email?.split('@')[0] || 'User',
           role: 'user',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
         localStorage.setItem('demo-user', JSON.stringify(demoUser))
-        setMessage('Login realizado com sucesso! Redirecionando...')
+        
+        // Dispatch event to notify AuthContext
+        window.dispatchEvent(new CustomEvent('demo-user-updated'))
       }
       
-      // Dispatch event to notify AuthContext
-      window.dispatchEvent(new CustomEvent('demo-user-updated'))
-      
-      // Wait a moment for the context to update, then navigate
+      // Navigate after a short delay
       setTimeout(() => {
         router.push('/')
       }, 1000)
       
     } catch (error: any) {
-      setMessage(error.message || 'Erro ao fazer login')
+      setMessage(error.message || 'Erro ao processar solicitação')
     } finally {
       setLoading(false)
     }

@@ -51,19 +51,19 @@ export default function VideosPage() {
         {/* Stats */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">234</div>
+            <div className="text-3xl font-bold text-purple-600 mb-2">6</div>
             <div className="text-gray-600">Vídeos Aprovados</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">15.2M</div>
+            <div className="text-3xl font-bold text-green-600 mb-2">0</div>
             <div className="text-gray-600">Visualizações Totais</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">27</div>
+            <div className="text-3xl font-bold text-blue-600 mb-2">6</div>
             <div className="text-gray-600">Estados Representados</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-3xl font-bold text-yellow-600 mb-2">89</div>
+            <div className="text-3xl font-bold text-yellow-600 mb-2">6</div>
             <div className="text-gray-600">Cidades Ativas</div>
           </div>
         </section>
@@ -98,15 +98,15 @@ export default function VideosPage() {
                     <div className="flex items-center gap-4 text-purple-200">
                       <span className="flex items-center gap-1">
                         <EyeIcon className="h-4 w-4" />
-                        2.3M visualizações
+                        0 visualizações
                       </span>
                       <span className="flex items-center gap-1">
                         <HeartIcon className="h-4 w-4" />
-                        45K curtidas
+                        0 curtidas
                       </span>
                       <span className="flex items-center gap-1">
                         <CalendarDaysIcon className="h-4 w-4" />
-                        Há 2 dias
+                        Recém adicionado
                       </span>
                     </div>
                   </div>

@@ -1,0 +1,32 @@
+🚨 MANUAL DEPLOYMENT - Copy/Paste These Commands
+
+SSH: root@148.230.85.210 
+Password: Helena3266
+
+COMMANDS TO RUN:
+==================
+
+cd /var/www/marchabrasil-staging
+
+# Fix navigation links /doar -> /support
+sed -i 's|href="/doar"|href="/support"|g' src/components/ui/Navigation.tsx
+
+# Fix homepage button <a> -> <Link>
+sed -i 's|<a href="/support"|<Link href="/support"|g' src/app/page.tsx
+sed -i 's|</a>|</Link>|g' src/app/page.tsx
+
+# Remove old doar page
+rm -rf src/app/doar
+
+# Rebuild and restart
+npm run build
+
+pm2 restart marchabrasil-staging
+
+# Verify fix
+curl -s http://localhost:3001 | grep -c 'href="/support"'
+
+# Should return 2 (both nav + button point to /support)
+
+==================
+DONE! Both "Apoie" links now go to /support

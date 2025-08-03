@@ -1,0 +1,39 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+
+spawn ssh root@148.230.85.210
+expect "password:"
+send "Helena3266\r"
+
+expect "# "
+send "cd /var/www/marchabrasil-staging\r"
+
+expect "# "
+send "pwd\r"
+
+expect "# "
+send "sed -i 's|href=\"/doar\"|href=\"/support\"|g' src/components/ui/Navigation.tsx\r"
+
+expect "# "
+send "sed -i 's|<a href=\"/support\"|<Link href=\"/support\"|g' src/app/page.tsx\r"
+
+expect "# "
+send "sed -i 's|</a>|</Link>|g' src/app/page.tsx\r"
+
+expect "# "
+send "rm -rf src/app/doar\r"
+
+expect "# "
+send "npm run build\r"
+
+expect "# "
+send "pm2 restart marchabrasil-staging\r"
+
+expect "# "
+send "curl -s http://localhost:3001 | grep -c 'href=\"/support\"'\r"
+
+expect "# "
+send "exit\r"
+
+expect eof

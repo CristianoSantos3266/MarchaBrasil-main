@@ -1,0 +1,27 @@
+🚨 EXPEDITED STAGING FIX
+
+SSH to server: root@148.230.85.210
+
+Run these commands:
+
+cd /var/www/marchabrasil-staging
+
+# Fix Navigation component - change /doar to /support
+sed -i 's|href="/doar"|href="/support"|g' src/components/ui/Navigation.tsx
+
+# Fix homepage button - change <a> to <Link>  
+sed -i 's|<a href="/support"|<Link href="/support"|g' src/app/page.tsx
+sed -i 's|</a>|</Link>|g' src/app/page.tsx
+
+# Remove old doar page
+rm -rf src/app/doar
+
+# Rebuild and restart
+npm run build
+pm2 restart marchabrasil-staging
+
+# Verify fix
+curl -s http://148.230.85.210:3001 | grep -c "href=\"/support\""
+# Should return 2 (nav + button both point to /support)
+
+✅ DONE - Both "Apoie" links now go to /support

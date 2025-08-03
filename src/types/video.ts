@@ -19,6 +19,11 @@ export interface Video {
   tags: string[];
   isLive?: boolean;
   liveStreamUrl?: string;
+  // YouTube integration
+  isYouTube?: boolean;
+  youtubeId?: string;
+  originalYoutubeUrl?: string;
+  source: 'upload' | 'youtube';
 }
 
 export type VideoStatus = 

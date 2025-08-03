@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Deploy Updated VideoFeed to Staging
+echo "🚀 Deploying updated VideoFeed component to staging..."
+
+expect -c "
+set timeout 60
+spawn ssh -i ~/.ssh/id_staging root@148.230.85.210
+expect \"root@148.230.85.210's password:\"
+send \"Helena3266##\r\"
+expect \"#\"
+send \"cd /var/www/marchabrasil-staging\r\"
+expect \"#\"
+send \"cp src/components/video/VideoFeed.tsx src/components/video/VideoFeed.tsx.backup\r\"
+expect \"#\"
+send \"cat > src/components/video/VideoFeed.tsx << 'ENDOFFILE'\r\"
+send \"'use client';\r\"
+send \"\r\"
+send \"import { useState, useEffect } from 'react';\r\"
+send \"import { PlayIcon, EyeIcon, HeartIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/outline';\r\"
+send \"import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';\r\"
+send \"import { Video, VideoSearchFilters } from '@/types/video';\r\"
+send \"\r\"
+send \"interface VideoFeedProps {\r\"
+send \"  showSearchFilters?: boolean;\r\"
+send \"  maxVideos?: number;\r\"
+send \"  protestId?: string;\r\"
+send \"  state?: string;\r\"
+send \"}\r\"
+send \"ENDOFFILE\r\"
+expect \"#\"
+send \"npm run build\r\"
+expect -re \"(#|>)\"
+send \"pm2 restart marchabrasil-staging\r\"
+expect \"#\"
+send \"sleep 3\r\"
+expect \"#\"
+send \"curl -s -o /dev/null -w \\\"%{http_code}\\\" http://localhost:3001/videos\r\"
+expect \"#\"
+send \"exit\r\"
+expect eof
+"
