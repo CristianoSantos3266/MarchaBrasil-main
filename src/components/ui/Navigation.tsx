@@ -14,7 +14,8 @@ import {
   ChevronDownIcon,
   HandRaisedIcon,
   FilmIcon,
-  UsersIcon
+  UsersIcon,
+  NewspaperIcon
 } from '@heroicons/react/24/outline'
 
 export default function Navigation() {
@@ -79,6 +80,14 @@ export default function Navigation() {
             >
               <FilmIcon className="h-5 w-5" />
               Vídeos
+            </Link>
+            
+            <Link 
+              href="/news" 
+              className="text-gray-700 hover:text-orange-600 font-medium transition-colors flex items-center gap-2"
+            >
+              <NewspaperIcon className="h-5 w-5" />
+              Notícias
             </Link>
             
             <Link 
@@ -258,6 +267,15 @@ export default function Navigation() {
               >
                 <FilmIcon className="h-5 w-5" />
                 Vídeos
+              </Link>
+              
+              <Link 
+                href="/news" 
+                className="text-gray-700 hover:text-orange-600 font-medium py-2 transition-colors flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <NewspaperIcon className="h-5 w-5" />
+                Notícias
               </Link>
               
               <Link 

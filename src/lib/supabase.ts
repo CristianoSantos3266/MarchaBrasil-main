@@ -327,3 +327,271 @@ export const updateDonationStatus = async (
   
   return { data, error }
 }
+
+// News helpers
+export const getPublishedNews = async (limit?: number) => {
+  if (DEMO_MODE) {
+    // Return demo news data
+    const demoNews = [
+      {
+        id: 'news-1',
+        title: 'Grande Manifestação Pacífica em São Paulo',
+        slug: 'manifestacao-sao-paulo-2024',
+        content: `# Grande Manifestação Pacífica em São Paulo
+
+Milhares de brasileiros se reuniram pacificamente na Avenida Paulista para defender a democracia e os valores constitucionais. O evento contou com a participação de famílias, estudantes e trabalhadores de toda a região metropolitana.
+
+## Principais Reivindicações
+
+- Defesa da Constituição
+- Transparência no governo
+- Liberdade de expressão
+- Fortalecimento das instituições democráticas
+
+A manifestação transcorreu de forma ordeira, com total apoio das autoridades locais e ampla cobertura da imprensa nacional e internacional.`,
+        excerpt: 'Milhares se reuniram pacificamente na Avenida Paulista defendendo a democracia e valores constitucionais.',
+        image_url: '/images/news/manifestacao-sp-2024.jpg',
+        tags: ['São Paulo', 'Manifestação', 'Democracia', 'Constituição'],
+        status: 'published' as const,
+        author_id: 'demo-admin',
+        author_name: 'Redação Marcha Brasil',
+        created_at: '2024-07-15T10:00:00Z',
+        updated_at: '2024-07-15T10:00:00Z',
+        published_at: '2024-07-15T10:00:00Z',
+        view_count: 1250
+      },
+      {
+        id: 'news-2',
+        title: 'Movimento Estudantil Organiza Ato Cívico em Brasília',
+        slug: 'movimento-estudantil-brasilia',
+        content: `# Movimento Estudantil Organiza Ato Cívico em Brasília
+
+Estudantes de universidades de todo o país se mobilizam para um grande ato cívico na capital federal. O evento tem como objetivo defender a educação pública e a autonomia universitária.
+
+## Apoio das Universidades
+
+- UnB - Universidade de Brasília
+- USP - Universidade de São Paulo  
+- UFMG - Universidade Federal de Minas Gerais
+- UFRJ - Universidade Federal do Rio de Janeiro
+
+O movimento conta com apoio de professores, reitores e da sociedade civil organizada.`,
+        excerpt: 'Estudantes de todo o país se mobilizam em Brasília pela educação pública e autonomia universitária.',
+        video_url: 'https://www.youtube.com/watch?v=GHB0ITXp--c',
+        tags: ['Brasília', 'Educação', 'Estudantes', 'Universidades'],
+        status: 'published' as const,
+        author_id: 'demo-admin',
+        author_name: 'Redação Marcha Brasil',
+        created_at: '2024-07-12T14:30:00Z',
+        updated_at: '2024-07-12T14:30:00Z',
+        published_at: '2024-07-12T14:30:00Z',
+        view_count: 890
+      },
+      {
+        id: 'news-3',
+        title: 'Cidadãos se Mobilizam no Rio pela Transparência',
+        slug: 'mobilizacao-rio-transparencia',
+        content: `# Cidadãos se Mobilizam no Rio pela Transparência
+
+Uma grande mobilização cívica acontece no Rio de Janeiro, reunindo cidadãos de todas as idades em defesa da transparência pública e do combate à corrupção.
+
+## Participação Diversa
+
+O movimento conta com:
+- Profissionais liberais
+- Comerciantes
+- Aposentados
+- Jovens e estudantes
+- Famílias inteiras
+
+A mobilização é apartidária e tem como foco exclusivo a defesa da transparência nas instituições públicas.`,
+        excerpt: 'Grande mobilização cívica no Rio de Janeiro em defesa da transparência pública e combate à corrupção.',
+        image_url: '/images/news/mobilizacao-rio-2024.jpg',
+        tags: ['Rio de Janeiro', 'Transparência', 'Combate à Corrupção', 'Sociedade Civil'],
+        status: 'published' as const,
+        author_id: 'demo-admin',
+        author_name: 'Redação Marcha Brasil',
+        created_at: '2024-07-10T16:45:00Z',
+        updated_at: '2024-07-10T16:45:00Z',
+        published_at: '2024-07-10T16:45:00Z',
+        view_count: 650
+      }
+    ]
+    
+    const result = limit ? demoNews.slice(0, limit) : demoNews
+    return { data: result, error: null }
+  }
+
+  if (!supabase) {
+    return { data: [], error: null }
+  }
+
+  let query = supabase
+    .from('news_posts')
+    .select(`
+      *,
+      users!news_posts_author_id_fkey(public_name)
+    `)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+  return { data, error }
+}
+
+export const getNewsPost = async (slug: string) => {
+  if (DEMO_MODE) {
+    const demoNews = await getPublishedNews()
+    const post = demoNews.data?.find(post => post.slug === slug)
+    return { data: post || null, error: post ? null : { message: 'Post not found' } }
+  }
+
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+
+  const { data, error } = await supabase
+    .from('news_posts')
+    .select(`
+      *,
+      users!news_posts_author_id_fkey(public_name)
+    `)
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single()
+
+  return { data, error }
+}
+
+export const getAllNews = async (authorId?: string) => {
+  if (DEMO_MODE) {
+    const demoNews = await getPublishedNews()
+    return demoNews
+  }
+
+  if (!supabase) {
+    return { data: [], error: null }
+  }
+
+  let query = supabase
+    .from('news_posts')
+    .select(`
+      *,
+      users!news_posts_author_id_fkey(public_name)
+    `)
+    .order('created_at', { ascending: false })
+
+  if (authorId) {
+    query = query.eq('author_id', authorId)
+  }
+
+  const { data, error } = await query
+  return { data, error }
+}
+
+export const createNewsPost = async (newsData: any, authorId: string) => {
+  if (DEMO_MODE) {
+    // Simulate creating a news post
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const newPost = {
+      id: `news-${Date.now()}`,
+      ...newsData,
+      slug: newsData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''),
+      author_id: authorId,
+      author_name: 'Demo User',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      published_at: newsData.status === 'published' ? new Date().toISOString() : null,
+      view_count: 0
+    }
+    return { data: newPost, error: null }
+  }
+
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+
+  const slug = newsData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  
+  const { data, error } = await supabase
+    .from('news_posts')
+    .insert({
+      ...newsData,
+      slug,
+      author_id: authorId,
+      published_at: newsData.status === 'published' ? new Date().toISOString() : null
+    })
+    .select(`
+      *,
+      users!news_posts_author_id_fkey(public_name)
+    `)
+    .single()
+
+  return { data, error }
+}
+
+export const updateNewsPost = async (postId: string, updates: any) => {
+  if (DEMO_MODE) {
+    // Simulate updating a news post
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return { 
+      data: { 
+        id: postId, 
+        ...updates,
+        updated_at: new Date().toISOString(),
+        published_at: updates.status === 'published' ? new Date().toISOString() : null
+      }, 
+      error: null 
+    }
+  }
+
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+
+  if (updates.title) {
+    updates.slug = updates.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  }
+
+  if (updates.status === 'published' && !updates.published_at) {
+    updates.published_at = new Date().toISOString()
+  }
+
+  const { data, error } = await supabase
+    .from('news_posts')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', postId)
+    .select(`
+      *,
+      users!news_posts_author_id_fkey(public_name)
+    `)
+    .single()
+
+  return { data, error }
+}
+
+export const deleteNewsPost = async (postId: string) => {
+  if (DEMO_MODE) {
+    // Simulate deleting a news post
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return { error: null }
+  }
+
+  if (!supabase) {
+    return { error: { message: 'Supabase not configured' } }
+  }
+
+  const { error } = await supabase
+    .from('news_posts')
+    .delete()
+    .eq('id', postId)
+
+  return { error }
+}

@@ -34,6 +34,8 @@ import PlatformStats from '@/components/analytics/PlatformStats';
 import Navigation from '@/components/ui/Navigation';
 import UpcomingProtestsFeed from '@/components/protest/UpcomingProtestsFeed';
 import VideoFeed from '@/components/video/VideoFeed';
+import { getPublishedNews } from '@/lib/supabase';
+import { NewsPost } from '@/types/news';
 
 const SmartMapboxGlobal = dynamic(() => import('@/components/map/SmartMapboxGlobal'), {
   ssr: false,
@@ -51,6 +53,7 @@ export default function Home() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
   const [protests, setProtests] = useState<Protest[]>([]);
+  const [latestNews, setLatestNews] = useState<NewsPost[]>([]);
   const platformStats = usePlatformStats();
   const [rsvpModal, setRsvpModal] = useState<{ isOpen: boolean; protestId: string; protestTitle: string; isConvoy: boolean }>({
     isOpen: false,
@@ -65,6 +68,21 @@ export default function Home() {
       fixTorontoEvents();
       forceRegenerateCoordinates(); // Fix coordinate format issues
     }
+  }, []);
+
+  // Load latest news
+  useEffect(() => {
+    const loadNews = async () => {
+      try {
+        const { data, error } = await getPublishedNews(3);
+        if (!error && data) {
+          setLatestNews(data);
+        }
+      } catch (error) {
+        console.error('Error loading news:', error);
+      }
+    };
+    loadNews();
   }, []);
 
   const handleCountrySelect = (country: Country) => {
@@ -419,6 +437,102 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Latest News Section */}
+        {latestNews.length > 0 && (
+          <section className="mb-8">
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg shadow-md p-6 border border-orange-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                  <span className="text-3xl">📰</span>
+                  Últimas Notícias
+                </h2>
+                <Link 
+                  href="/news" 
+                  className="text-orange-600 hover:text-orange-700 font-medium text-sm flex items-center gap-2 transition-colors"
+                >
+                  Ver todas
+                  <ArrowRightIcon className="h-4 w-4" />
+                </Link>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {latestNews.map((post) => (
+                  <article key={post.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    {/* Featured Image/Video */}
+                    <div className="relative aspect-video bg-gray-900">
+                      {post.image_url ? (
+                        <Image
+                          src={post.image_url}
+                          alt={post.title}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none'
+                          }}
+                        />
+                      ) : post.video_url && post.video_url.includes('youtube.com') ? (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={`https://i.ytimg.com/vi/${post.video_url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1]}/maxresdefault.jpg`}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                            <div className="bg-red-600 rounded-full p-2">
+                              <FilmIcon className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                          <div className="text-center text-white">
+                            <EnvelopeIcon className="h-12 w-12 mx-auto mb-2 opacity-80" />
+                            <p className="text-sm font-medium">Marcha Brasil</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-4">
+                      <div className="text-xs text-gray-500 mb-2">
+                        {new Date(post.published_at || post.created_at).toLocaleDateString('pt-BR')}
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 leading-tight">
+                        <Link href={`/news/${post.slug}`} className="hover:text-orange-600 transition-colors">
+                          {post.title}
+                        </Link>
+                      </h3>
+                      <p className="text-gray-600 text-xs line-clamp-2 mb-3">
+                        {post.excerpt || post.content.replace(/[#*`]/g, '').substring(0, 100) + '...'}
+                      </p>
+                      
+                      {/* Tags */}
+                      {post.tags && post.tags.length > 0 && (
+                        <div className="flex gap-1 mb-2">
+                          {post.tags.slice(0, 2).map((tag) => (
+                            <span key={tag} className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">
+                              #{tag.replace(/\s/g, '')}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <Link
+                        href={`/news/${post.slug}`}
+                        className="inline-flex items-center text-orange-600 hover:text-orange-800 font-medium text-xs transition-colors"
+                      >
+                        Ler mais →
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Analytics when no region selected */}
         {!selectedRegion && (
