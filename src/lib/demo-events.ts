@@ -106,16 +106,98 @@ function notifyListeners() {
   listeners.forEach(callback => callback());
 }
 
-// Helper function to compress and store thumbnail separately
+// Helper function to get localStorage usage in bytes
+function getStorageSize(): number {
+  let total = 0;
+  for (let key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      total += localStorage[key].length + key.length;
+    }
+  }
+  return total;
+}
+
+// Helper function to clean old thumbnails if storage is getting full
+function cleanupOldThumbnails(): void {
+  try {
+    const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+    const events = JSON.parse(localStorage.getItem(DEMO_EVENTS_KEY) || '[]');
+    
+    // Get thumbnails with their event creation dates
+    const thumbnailsWithDates = Object.entries(thumbnails).map(([eventId, thumbnail]) => {
+      const event = events.find((e: any) => e.id === eventId);
+      return {
+        eventId,
+        thumbnail,
+        createdAt: event?.created_at || new Date().toISOString()
+      };
+    });
+    
+    // Sort by creation date (oldest first)
+    thumbnailsWithDates.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    
+    // Remove oldest 25% of thumbnails
+    const toRemove = Math.floor(thumbnailsWithDates.length * 0.25);
+    const updatedThumbnails: Record<string, string> = {};
+    
+    thumbnailsWithDates.slice(toRemove).forEach(({ eventId, thumbnail }) => {
+      updatedThumbnails[eventId] = thumbnail as string;
+    });
+    
+    localStorage.setItem(DEMO_THUMBNAILS_KEY, JSON.stringify(updatedThumbnails));
+    console.log(`Cleaned up ${toRemove} old thumbnails to free storage space`);
+  } catch (error) {
+    console.warn('Failed to cleanup thumbnails:', error);
+  }
+}
+
+// Helper function to compress and store thumbnail separately with size monitoring
 function storeThumbnail(eventId: string, thumbnailData: string | null): void {
   if (!thumbnailData || typeof window === 'undefined') return;
   
   try {
     const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
-    thumbnails[eventId] = thumbnailData;
-    localStorage.setItem(DEMO_THUMBNAILS_KEY, JSON.stringify(thumbnails));
+    
+    // Calculate new size
+    const newThumbnails = { ...thumbnails, [eventId]: thumbnailData };
+    const newThumbnailsString = JSON.stringify(newThumbnails);
+    
+    // Check storage before adding
+    const currentSize = getStorageSize();
+    const newItemSize = newThumbnailsString.length;
+    const estimatedTotalSize = currentSize + newItemSize;
+    
+    // localStorage limit is typically 5-10MB, use 4MB as safe threshold
+    const STORAGE_LIMIT = 4 * 1024 * 1024; // 4MB
+    
+    if (estimatedTotalSize > STORAGE_LIMIT) {
+      console.log(`Storage approaching limit (${(estimatedTotalSize / 1024 / 1024).toFixed(2)}MB), cleaning up old thumbnails...`);
+      cleanupOldThumbnails();
+    }
+    
+    // Store the thumbnail
+    const finalThumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+    finalThumbnails[eventId] = thumbnailData;
+    localStorage.setItem(DEMO_THUMBNAILS_KEY, JSON.stringify(finalThumbnails));
+    
+    console.log(`Thumbnail stored for event ${eventId} (${(thumbnailData.length / 1024).toFixed(1)}KB)`);
   } catch (error) {
     console.warn(`Failed to store thumbnail for ${eventId}:`, error);
+    
+    // If storage fails, try cleanup and retry once
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      console.log('Storage quota exceeded, attempting cleanup and retry...');
+      cleanupOldThumbnails();
+      
+      try {
+        const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+        thumbnails[eventId] = thumbnailData;
+        localStorage.setItem(DEMO_THUMBNAILS_KEY, JSON.stringify(thumbnails));
+        console.log(`Thumbnail stored for event ${eventId} after cleanup`);
+      } catch (retryError) {
+        console.error(`Failed to store thumbnail even after cleanup:`, retryError);
+      }
+    }
   }
 }
 
@@ -129,6 +211,48 @@ export function getThumbnail(eventId: string): string | undefined {
   } catch (error) {
     console.warn(`Failed to get thumbnail for ${eventId}:`, error);
     return undefined;
+  }
+}
+
+// Helper function to get storage statistics for debugging
+export function getStorageStats(): { 
+  totalSize: number; 
+  thumbnailCount: number; 
+  eventCount: number; 
+  sizeMB: number;
+  thumbnailSizeMB: number;
+  largestThumbnailKB: number;
+} {
+  if (typeof window === 'undefined') return { 
+    totalSize: 0, thumbnailCount: 0, eventCount: 0, sizeMB: 0, thumbnailSizeMB: 0, largestThumbnailKB: 0 
+  };
+  
+  try {
+    const events = JSON.parse(localStorage.getItem(DEMO_EVENTS_KEY) || '[]');
+    const thumbnails = JSON.parse(localStorage.getItem(DEMO_THUMBNAILS_KEY) || '{}');
+    const totalSize = getStorageSize();
+    const thumbnailSize = JSON.stringify(thumbnails).length;
+    
+    let largestThumbnail = 0;
+    Object.values(thumbnails).forEach((thumbnail: any) => {
+      if (typeof thumbnail === 'string' && thumbnail.length > largestThumbnail) {
+        largestThumbnail = thumbnail.length;
+      }
+    });
+    
+    return {
+      totalSize,
+      thumbnailCount: Object.keys(thumbnails).length,
+      eventCount: events.length,
+      sizeMB: parseFloat((totalSize / 1024 / 1024).toFixed(2)),
+      thumbnailSizeMB: parseFloat((thumbnailSize / 1024 / 1024).toFixed(2)),
+      largestThumbnailKB: parseFloat((largestThumbnail / 1024).toFixed(1))
+    };
+  } catch (error) {
+    console.warn('Failed to get storage stats:', error);
+    return { 
+      totalSize: 0, thumbnailCount: 0, eventCount: 0, sizeMB: 0, thumbnailSizeMB: 0, largestThumbnailKB: 0 
+    };
   }
 }
 

@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { createEvent } from '@/lib/supabase'
 import { saveDemoEvent } from '@/lib/demo-events'
 import CelebrationPopup from '@/components/ui/CelebrationPopup'
+import { createThumbnail, validateImageFile } from '@/utils/imageProcessing'
 
 // Set Portuguese locale for the entire document
 if (typeof window !== 'undefined') {
@@ -278,19 +279,20 @@ export default function CreateEventPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     console.log('File selected:', file.name, file.type, file.size)
     
     // Clear any previous error messages
     setMessage('')
     
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setMessage('❌ Por favor, selecione apenas arquivos de imagem (JPG, PNG, GIF).')
+    // Validate file using utility function
+    const validation = validateImageFile(file)
+    if (!validation.isValid) {
+      setMessage(`❌ ${validation.error}`)
       return
     }
     
-    // Validate file size (max 5MB)
+    // Additional size check for event thumbnails (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setMessage('❌ A imagem deve ter no máximo 5MB.')
       return
@@ -298,20 +300,23 @@ export default function CreateEventPage() {
 
     setThumbnailFile(file)
     
-    // Create preview URL
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setThumbnail(event.target.result as string)
-        setMessage('✅ Imagem carregada com sucesso!')
-        // Clear success message after 3 seconds
-        setTimeout(() => setMessage(''), 3000)
-      }
+    try {
+      // Create compressed thumbnail (150px max, 0.7 quality)
+      const compressedThumbnail = await createThumbnail(file, 150)
+      
+      // Log compression efficiency
+      const originalSize = file.size
+      const compressedSize = compressedThumbnail.length
+      console.log(`Image compressed: ${originalSize} bytes → ${compressedSize} bytes (${((1 - compressedSize/originalSize) * 100).toFixed(1)}% reduction)`)
+      
+      setThumbnail(compressedThumbnail)
+      setMessage('✅ Imagem carregada e otimizada com sucesso!')
+      // Clear success message after 3 seconds
+      setTimeout(() => setMessage(''), 3000)
+    } catch (error) {
+      console.error('Error processing image:', error)
+      setMessage('❌ Erro ao processar a imagem. Tente novamente.')
     }
-    reader.onerror = () => {
-      setMessage('❌ Erro ao ler a imagem. Tente novamente.')
-    }
-    reader.readAsDataURL(file)
   }
 
   const handleDragEnter = (e: React.DragEvent) => {
