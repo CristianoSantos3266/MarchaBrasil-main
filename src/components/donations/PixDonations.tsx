@@ -19,8 +19,8 @@ export default function PixDonations({ amount, isMonthly = false }: PixDonations
   const [selectedAmount, setSelectedAmount] = useState(amount || 0);
   const [customAmount, setCustomAmount] = useState('');
 
-  // Mock PIX key for demonstration
-  const pixKey = "marcha.brasil@email.com";
+  // Official PIX key for donations
+  const pixKey = "d271a5b0-4256-4c14-a3cc-0f71f3bf5bce";
   
   const presetAmounts = [5, 15, 50, 100, 250, 500];
 
@@ -118,7 +118,7 @@ export default function PixDonations({ amount, isMonthly = false }: PixDonations
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1">
-              <p className="text-sm text-gray-600 mb-1">Chave PIX (Email):</p>
+              <p className="text-sm text-gray-600 mb-1">Chave PIX (UUID):</p>
               <p className="font-mono text-lg text-gray-900 break-all">{pixKey}</p>
             </div>
             <button

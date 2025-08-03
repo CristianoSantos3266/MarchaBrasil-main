@@ -268,7 +268,7 @@ export default function PrivacyPage() {
                   <strong>Email:</strong> equipe@marchabrasil.com<br/>
                   <strong>Telegram:</strong> @marchabrasil<br/>
                   <strong>Instagram:</strong> marchabrasil2025<br/>
-                  <strong>WhatsApp:</strong> Disponível na página de contato
+                  <strong>WhatsApp:</strong> +1 (365) 767-1900
                 </p>
               </div>
               

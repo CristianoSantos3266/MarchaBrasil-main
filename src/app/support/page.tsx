@@ -42,7 +42,7 @@ export default function SupportPage() {
     const type = monthly ? 'mensal' : 'única';
     
     if (selectedMethod === 'pix') {
-      alert(`Pagamento PIX ${type} de ${tier.name} (R$${tier.amount}). Use a chave PIX: marcha.brasil@email.com`);
+      alert(`Pagamento PIX ${type} de ${tier.name} (R$${tier.amount}). Use a chave PIX: d271a5b0-4256-4c14-a3cc-0f71f3bf5bce`);
     } else {
       // Set the tier for Stripe checkout
       setSelectedTier(tier);
@@ -53,7 +53,7 @@ export default function SupportPage() {
     const amount = prompt('Digite o valor personalizado (BRL):');
     if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
       if (selectedMethod === 'pix') {
-        alert(`Pagamento PIX de R$${amount}. Use a chave PIX: marcha.brasil@email.com`);
+        alert(`Pagamento PIX de R$${amount}. Use a chave PIX: d271a5b0-4256-4c14-a3cc-0f71f3bf5bce`);
       } else {
         setCustomAmount(Number(amount));
         setSelectedTier(null);
@@ -278,14 +278,14 @@ export default function SupportPage() {
 
                     <div className="bg-white rounded-lg p-6 shadow-sm border border-green-200">
                       <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-2">Chave PIX (Email):</p>
+                        <p className="text-sm text-gray-600 mb-2">Chave PIX (UUID):</p>
                         <div className="flex items-center justify-center gap-3 mb-4">
                           <code className="text-lg font-mono bg-gray-50 px-3 py-2 rounded border">
-                            marcha.brasil@email.com
+                            d271a5b0-4256-4c14-a3cc-0f71f3bf5bce
                           </code>
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText('marcha.brasil@email.com');
+                              navigator.clipboard.writeText('d271a5b0-4256-4c14-a3cc-0f71f3bf5bce');
                               alert('Chave PIX copiada!');
                             }}
                             className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition-colors"

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { HeartIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, GlobeAltIcon, EnvelopeIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -27,8 +27,28 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* Legal Links */}
+        {/* Contact Information */}
         <div className="mt-6 pt-4 border-t border-gray-800">
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
+            <a 
+              href="mailto:equipe@marchabrasil.com" 
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
+            >
+              <EnvelopeIcon className="h-3 w-3" />
+              equipe@marchabrasil.com
+            </a>
+            <a 
+              href="https://wa.me/13657671900?text=Olá! Gostaria de mais informações sobre a Marcha Brasil." 
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-green-400 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ChatBubbleLeftRightIcon className="h-3 w-3" />
+              WhatsApp: +1 (365) 767-1900
+            </a>
+          </div>
+          
+          {/* Legal Links */}
           <div className="flex flex-wrap justify-center gap-6 mb-4">
             <Link 
               href="/termos" 

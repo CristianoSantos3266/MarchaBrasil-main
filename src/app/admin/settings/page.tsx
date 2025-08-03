@@ -107,7 +107,7 @@ export default function SettingsPage() {
       privacyPolicyUrl: '/privacy',
       termsOfServiceUrl: '/terms',
       cookiePolicyUrl: '/cookies',
-      contactEmail: 'contato@marchabrasil.com',
+      contactEmail: 'equipe@marchabrasil.com',
       companyName: 'Marcha Brasil Ltda.'
     }
   })

@@ -245,7 +245,7 @@ export default function FAQPage() {
                   <EnvelopeIcon className="h-8 w-8 text-blue-600" />
                 </div>
                 <div className="font-bold text-blue-800">Email</div>
-                <div className="text-sm text-blue-600">contato@marchabrasil.com</div>
+                <div className="text-sm text-blue-600">equipe@marchabrasil.com</div>
               </div>
               <div className="bg-white rounded-lg p-4 border border-blue-200">
                 <div className="flex justify-center mb-2">
@@ -254,12 +254,12 @@ export default function FAQPage() {
                 <div className="font-bold text-blue-800">Telegram</div>
                 <div className="text-sm text-blue-600">@MobilizacaoCivica</div>
               </div>
-              <a href="https://wa.me/13657671900" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-4 border border-blue-200 hover:bg-blue-50 transition-colors">
+              <a href="https://wa.me/13657671900?text=Olá! Gostaria de mais informações sobre a Marcha Brasil." target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-4 border border-blue-200 hover:bg-blue-50 transition-colors">
                 <div className="flex justify-center mb-2">
                   <DevicePhoneMobileIcon className="h-8 w-8 text-blue-600" />
                 </div>
                 <div className="font-bold text-blue-800">WhatsApp</div>
-                <div className="text-sm text-blue-600">Entre em contato</div>
+                <div className="text-sm text-blue-600">+1 (365) 767-1900</div>
               </a>
             </div>
           </div>
