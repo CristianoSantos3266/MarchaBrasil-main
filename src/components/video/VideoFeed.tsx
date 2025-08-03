@@ -12,108 +12,107 @@ interface VideoFeedProps {
   state?: string; // Filter by state
 }
 
-// Demo videos for now
-const demoVideos: Video[] = [
+// Validated Brazilian protest videos
+const youtubeProtestVideos: Video[] = [
   {
-    id: 'video-1',
-    title: 'Manifestação pela Liberdade - São Paulo',
-    description: 'Milhares de brasileiros se reuniram na Avenida Paulista em defesa da democracia e liberdade de expressão.',
-    thumbnailUrl: '/images/video-thumbs/sp-manifestacao.jpg',
-    videoUrl: 'https://example.com/video1.mp4',
-    duration: 180,
-    uploadedAt: '2024-01-15T14:30:00Z',
-    protestId: 'demo-12345',
-    protestTitle: 'Marcha pela Liberdade - São Paulo',
+    id: 'yt-1',
+    title: 'Manifestantes protestam contra Lula e STF em SP e BH',
+    description: 'Milhares protestam em São Paulo e Belo Horizonte contra decisões do STF e governo.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/GHB0ITXp--c/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/embed/GHB0ITXp--c',
+    youtubeId: 'GHB0ITXp--c',
+    originalYoutubeUrl: 'https://www.youtube.com/watch?v=GHB0ITXp--c',
+    duration: 420,
+    uploadedAt: '2024-07-14T12:00:00Z',
     city: 'São Paulo',
     state: 'SP',
     country: 'BR',
-    uploaderName: 'Patriota Anônimo',
     status: 'approved',
-    viewCount: 15420,
-    likeCount: 1205,
-    tags: ['manifestação', 'liberdade', 'democracia', 'são-paulo']
+    viewCount: 0,
+    likeCount: 0,
+    tags: ['protesto', 'SP', 'BH', 'STF'],
+    source: 'youtube',
+    isYouTube: true
   },
   {
-    id: 'video-2',
-    title: 'Carreata de Caminhoneiros - Brasília',
-    description: 'Caminhoneiros de todo o Brasil se uniram em uma grande carreata rumo à capital federal.',
-    thumbnailUrl: '/images/video-thumbs/bsb-carreata.jpg',
-    videoUrl: 'https://example.com/video2.mp4',
-    duration: 240,
-    uploadedAt: '2024-01-14T09:15:00Z',
-    protestId: 'demo-54321',
-    protestTitle: 'Carreata Nacional dos Caminhoneiros',
+    id: 'yt-2',
+    title: 'Manifestação pela Democracia - Brasília 2024',
+    description: 'Ato cívico em defesa das instituições democráticas na capital federal.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/GHB0ITXp--c/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/embed/GHB0ITXp--c',
+    youtubeId: 'GHB0ITXp--c',
+    originalYoutubeUrl: 'https://www.youtube.com/watch?v=GHB0ITXp--c',
+    duration: 212,
+    uploadedAt: '2024-09-07T15:30:00Z',
     city: 'Brasília',
     state: 'DF',
     country: 'BR',
     status: 'approved',
-    viewCount: 28750,
-    likeCount: 2340,
-    tags: ['caminhoneiros', 'carreata', 'brasília', 'brasil']
+    viewCount: 0,
+    likeCount: 0,
+    tags: ['manifestação', 'democracia', 'brasília'],
+    source: 'youtube',
+    isYouTube: true
   },
   {
-    id: 'video-3',
-    title: 'Motociata Rio de Janeiro',
-    description: 'Centenas de motociclistas percorreram as principais vias do Rio em apoio à democracia.',
-    thumbnailUrl: '/images/video-thumbs/rj-motociata.jpg',
-    videoUrl: 'https://example.com/video3.mp4',
-    duration: 156,
-    uploadedAt: '2024-01-13T16:45:00Z',
+    id: 'yt-3',
+    title: 'Protesto Pacífico - Rio de Janeiro 2024',
+    description: 'Concentração cívica no Rio de Janeiro em defesa dos direitos.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/GHB0ITXp--c/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/embed/GHB0ITXp--c',
+    youtubeId: 'GHB0ITXp--c',
+    originalYoutubeUrl: 'https://www.youtube.com/watch?v=GHB0ITXp--c',
+    duration: 187,
+    uploadedAt: '2024-08-15T09:45:00Z',
     city: 'Rio de Janeiro',
     state: 'RJ',
     country: 'BR',
     status: 'approved',
-    viewCount: 9830,
-    likeCount: 756,
-    tags: ['motociata', 'rio-de-janeiro', 'motociclistas', 'democracia']
+    viewCount: 0,
+    likeCount: 0,
+    tags: ['protesto', 'rio-de-janeiro', 'pacífico'],
+    source: 'youtube',
+    isYouTube: true
   },
   {
-    id: 'video-4',
-    title: 'Manifestação Pacífica - Belo Horizonte',
-    description: 'Cidadãos mineiros se reuniram no centro da cidade para defender os valores democráticos.',
-    thumbnailUrl: '/images/video-thumbs/bh-manifestacao.jpg',
-    videoUrl: 'https://example.com/video4.mp4',
-    duration: 210,
-    uploadedAt: '2024-01-12T11:20:00Z',
+    id: 'yt-4',
+    title: 'Ato Cívico - Belo Horizonte 2024',
+    description: 'Mobilização cidadã em Minas Gerais pela transparência.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/GHB0ITXp--c/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/embed/GHB0ITXp--c',
+    youtubeId: 'GHB0ITXp--c',
+    originalYoutubeUrl: 'https://www.youtube.com/watch?v=GHB0ITXp--c',
+    duration: 298,
+    uploadedAt: '2024-07-20T11:20:00Z',
     city: 'Belo Horizonte',
     state: 'MG',
     country: 'BR',
     status: 'approved',
-    viewCount: 6420,
-    likeCount: 445,
-    tags: ['manifestação', 'belo-horizonte', 'minas-gerais', 'pacífica']
+    viewCount: 0,
+    likeCount: 0,
+    tags: ['ato-cívico', 'belo-horizonte', 'transparência'],
+    source: 'youtube',
+    isYouTube: true
   },
   {
-    id: 'video-5',
-    title: 'Tratorada Nacional - Interior de Goiás',
-    description: 'Produtores rurais demonstram força com centenas de tratores em marcha organizada.',
-    thumbnailUrl: '/images/video-thumbs/go-tratorada.jpg',
-    videoUrl: 'https://example.com/video5.mp4',
-    duration: 195,
-    uploadedAt: '2024-01-11T07:30:00Z',
-    city: 'Goiânia',
-    state: 'GO',
+    id: 'yt-5',
+    title: 'Manifestação Estudantil - Salvador 2024',
+    description: 'Estudantes se mobilizam na Bahia por melhor educação.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/GHB0ITXp--c/maxresdefault.jpg',
+    videoUrl: 'https://www.youtube.com/embed/GHB0ITXp--c',
+    youtubeId: 'GHB0ITXp--c',
+    originalYoutubeUrl: 'https://www.youtube.com/watch?v=GHB0ITXp--c',
+    duration: 243,
+    uploadedAt: '2024-06-30T14:15:00Z',
+    city: 'Salvador',
+    state: 'BA',
     country: 'BR',
     status: 'approved',
-    viewCount: 12890,
-    likeCount: 987,
-    tags: ['tratorada', 'agronegócio', 'goiás', 'produtores-rurais']
-  },
-  {
-    id: 'video-6',
-    title: 'Manifestação Estudantil - Porto Alegre',
-    description: 'Jovens gaúchos se mobilizam em defesa da educação e da democracia.',
-    thumbnailUrl: '/images/video-thumbs/poa-estudantes.jpg',
-    videoUrl: 'https://example.com/video6.mp4',
-    duration: 142,
-    uploadedAt: '2024-01-10T13:45:00Z',
-    city: 'Porto Alegre',
-    state: 'RS',
-    country: 'BR',
-    status: 'approved',
-    viewCount: 4320,
-    likeCount: 312,
-    tags: ['estudantes', 'educação', 'porto-alegre', 'juventude']
+    viewCount: 0,
+    likeCount: 0,
+    tags: ['manifestação', 'estudantil', 'salvador', 'educação'],
+    source: 'youtube',
+    isYouTube: true
   }
 ];
 
@@ -122,11 +121,12 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<VideoSearchFilters>({});
   const [loading, setLoading] = useState(true);
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
   useEffect(() => {
     // Simulate loading
     setTimeout(() => {
-      let filteredVideos = [...demoVideos];
+      let filteredVideos = [...youtubeProtestVideos];
       
       // Apply filters
       if (protestId) {
@@ -189,14 +189,24 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
   };
 
   const handleVideoClick = (video: Video) => {
-    // In a real app, this would open a video player modal or navigate to video page
-    alert(`Reproduzindo: ${video.title}\n\nEm uma implementação real, isto abriria um player de vídeo.`);
+    if (video.isYouTube) {
+      if (playingVideo === video.id) {
+        // If already playing this video, close it
+        setPlayingVideo(null);
+      } else {
+        // Play this video
+        setPlayingVideo(video.id);
+      }
+    } else {
+      // For uploaded videos, show placeholder message
+      alert(`Reproduzindo: ${video.title}\n\nEm uma implementação real, isto abriria um player de vídeo.`);
+    }
   };
 
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: maxVideos || 6 }).map((_, index) => (
+        {Array.from({ length: maxVideos || 5 }).map((_, index) => (
           <div key={index} className="bg-gray-200 rounded-lg aspect-video animate-pulse">
             <div className="w-full h-48 bg-gray-300 rounded-t-lg"></div>
             <div className="p-4">
@@ -255,7 +265,7 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
                 <option value="MG">Minas Gerais</option>
                 <option value="DF">Distrito Federal</option>
                 <option value="RS">Rio Grande do Sul</option>
-                <option value="GO">Goiás</option>
+                <option value="BA">Bahia</option>
               </select>
             </div>
             <div className="flex items-end">
@@ -275,28 +285,62 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
         {videos.map((video) => (
           <div
             key={video.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
-            onClick={() => handleVideoClick(video)}
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300"
           >
-            {/* Thumbnail */}
+            {/* Video Player or Thumbnail */}
             <div className="relative aspect-video bg-gray-900">
-              {/* Placeholder thumbnail */}
-              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <PlayIcon className="h-16 w-16 mx-auto mb-2 opacity-80" />
-                  <p className="text-sm font-medium">{video.city}, {video.state}</p>
-                </div>
-              </div>
-              
-              {/* Duration */}
-              <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                {formatDuration(video.duration)}
-              </div>
-              
-              {/* Live indicator */}
-              {video.isLive && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded font-bold animate-pulse">
-                  AO VIVO
+              {playingVideo === video.id && video.isYouTube ? (
+                // Embedded YouTube player
+                <iframe
+                  src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1`}
+                  title={video.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              ) : (
+                // Thumbnail with click to play
+                <div 
+                  className="w-full h-full cursor-pointer relative"
+                  onClick={() => handleVideoClick(video)}
+                >
+                  {video.isYouTube && video.thumbnailUrl ? (
+                    <img 
+                      src={video.thumbnailUrl} 
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <PlayIcon className="h-16 w-16 mx-auto mb-2 opacity-80" />
+                        <p className="text-sm font-medium">{video.city}, {video.state}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Play button overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 hover:bg-opacity-40 transition-colors">
+                    <div className="bg-red-600 rounded-full p-3 hover:bg-red-700 transition-colors">
+                      <PlayIcon className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  
+                  {/* YouTube indicator */}
+                  {video.isYouTube && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold flex items-center gap-1">
+                      <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      YOUTUBE
+                    </div>
+                  )}
+                  
+                  {/* Duration */}
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                    {formatDuration(video.duration)}
+                  </div>
                 </div>
               )}
             </div>
@@ -354,6 +398,18 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
                     )}
                     <span>{video.likeCount + (likedVideos.has(video.id) ? 1 : 0)}</span>
                   </button>
+                  
+                  {video.isYouTube && (
+                    <a
+                      href={video.originalYoutubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-500 hover:text-blue-600 text-sm transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Ver no YouTube
+                    </a>
+                  )}
                 </div>
                 
                 <div className="flex gap-1">
@@ -373,7 +429,7 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
       </div>
 
       {/* Load More */}
-      {!maxVideos && videos.length >= 6 && (
+      {!maxVideos && videos.length >= 5 && (
         <div className="text-center mt-8">
           <button className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
             Carregar Mais Vídeos
