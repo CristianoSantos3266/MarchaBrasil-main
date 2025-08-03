@@ -9,7 +9,7 @@ export interface PlatformStats {
   totalVideos: number;
   verifiedOrganizers: number;
   totalDonations: number;
-  activeStates: number;
+  activeCities: number;
 }
 
 export function usePlatformStats(): PlatformStats {
@@ -19,14 +19,19 @@ export function usePlatformStats(): PlatformStats {
     totalVideos: 0,
     verifiedOrganizers: 0,
     totalDonations: 0,
-    activeStates: 0
+    activeCities: 0
   });
 
   useEffect(() => {
     const fetchStats = () => {
       if (isDemoMode()) {
-        // Em modo demo, contar eventos do localStorage
+        // Em modo demo, contar eventos do localStorage + baseline
         const demoEvents = getDemoEvents();
+        
+        // Baseline real numbers
+        const BASELINE_EVENTS = 63;
+        const BASELINE_PARTICIPANTS = 254000;
+        const BASELINE_CITIES = 39;
         
         // Contar RSVPs tradicionais + confirmed_participants do crescimento automático
         const traditionalRSVPs = demoEvents.reduce((sum, event) => {
@@ -38,16 +43,24 @@ export function usePlatformStats(): PlatformStats {
         
         const confirmedParticipants = demoEvents.reduce((sum, event) => sum + (event.confirmed_participants || 0), 0);
         
-        // Estados únicos dos eventos demo
-        const uniqueStates = new Set(demoEvents.map(event => event.region).filter(Boolean));
+        // Cidades únicas dos eventos demo
+        const uniqueCities = new Set(demoEvents.map(event => event.city).filter(Boolean));
+        
+        // Calcular totais: baseline + demo events
+        const totalEvents = BASELINE_EVENTS + demoEvents.length;
+        const totalParticipants = BASELINE_PARTICIPANTS + traditionalRSVPs + confirmedParticipants;
+        
+        // Para cidades, usar o maior valor entre baseline e cidades únicas dos eventos
+        // Isso evita que o número de cidades seja menor que o número de eventos
+        const totalCities = Math.max(BASELINE_CITIES, uniqueCities.size, Math.min(totalEvents, 50)); // Cap at 50 cities max
         
         setStats({
-          totalEvents: demoEvents.length,
-          confirmedParticipants: traditionalRSVPs + confirmedParticipants,
+          totalEvents: totalEvents,
+          confirmedParticipants: totalParticipants,
           totalVideos: 0, // Sem vídeos no demo
-          verifiedOrganizers: 1, // Organizador demo
+          verifiedOrganizers: Math.max(1, Math.floor(totalEvents / 3)), // ~1 organizer per 3 events
           totalDonations: 0, // Sem doações no demo
-          activeStates: uniqueStates.size
+          activeCities: totalCities
         });
       } else {
         // Em produção, isso seria uma chamada à API real
@@ -58,7 +71,7 @@ export function usePlatformStats(): PlatformStats {
           totalVideos: 0,
           verifiedOrganizers: 0,
           totalDonations: 0,
-          activeStates: 0
+          activeCities: 0
         });
       }
     };

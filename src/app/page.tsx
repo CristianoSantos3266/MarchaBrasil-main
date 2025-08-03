@@ -164,13 +164,13 @@ export default function Home() {
               "Ordem e Progresso" - Unidos pela Democracia
             </p>
             <div className="mt-4">
-              <a 
+              <Link 
                 href="/support" 
                 className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur text-white border-2 border-white/30 rounded-lg hover:bg-white/30 transition-all text-lg font-bold shadow-lg"
               >
                 <HeartIcon className="h-6 w-6 mr-2" />
                 Apoiar Plataforma
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -209,9 +209,9 @@ export default function Home() {
             </div>
             <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
               <div className="text-3xl font-bold text-white drop-shadow">
-                {platformStats.activeStates || 27}
+                {platformStats.activeCities}
               </div>
-              <div className="text-white/90 drop-shadow">Estados + DF</div>
+              <div className="text-white/90 drop-shadow">Cidades Ativas</div>
             </div>
             <div className="bg-white/15 backdrop-blur rounded-lg p-6 border border-white/30 shadow-lg">
               <div className="text-3xl font-bold text-white drop-shadow">
