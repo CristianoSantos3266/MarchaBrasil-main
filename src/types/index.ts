@@ -19,6 +19,12 @@ export interface Protest {
   createdBy?: string; // User ID who created the event
   createdAt: string;
   updatedAt: string;
+  // Campos para crescimento automático de participantes
+  expected_attendance?: number;
+  confirmed_participants?: number;
+  original_estimate?: number;
+  growth_started_at?: string;
+  growth_completed?: boolean;
 }
 
 export interface ConvoyInfo {

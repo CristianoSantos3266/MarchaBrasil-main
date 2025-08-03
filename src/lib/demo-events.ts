@@ -179,7 +179,13 @@ export function saveDemoEvent(eventData: any): Protest[] {
         rsvps: createEventSpecificRSVPs(eventData.type),
         createdBy: currentUser.id,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        // Campos para crescimento automático
+        expected_attendance: eventData.expected_attendance ? parseInt(eventData.expected_attendance) : undefined,
+        confirmed_participants: 0,
+        original_estimate: eventData.expected_attendance ? parseInt(eventData.expected_attendance) : undefined,
+        growth_started_at: undefined,
+        growth_completed: false
       };
       newEvents.push(newEvent);
       
@@ -234,7 +240,13 @@ export function saveDemoEvent(eventData: any): Protest[] {
       rsvps: createEventSpecificRSVPs(eventData.type),
       createdBy: currentUser.id,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      // Campos para crescimento automático
+      expected_attendance: eventData.expected_attendance ? parseInt(eventData.expected_attendance) : undefined,
+      confirmed_participants: 0,
+      original_estimate: eventData.expected_attendance ? parseInt(eventData.expected_attendance) : undefined,
+      growth_started_at: undefined,
+      growth_completed: false
     };
     
     // Add final_destination if provided

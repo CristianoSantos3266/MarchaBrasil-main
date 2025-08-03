@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ParticipantGrowthScheduler from "@/components/admin/ParticipantGrowthScheduler";
 
 export const metadata: Metadata = {
   title: "🇧🇷 Marcha Brasil - Manifestações Pacíficas",
@@ -55,6 +56,7 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <AuthProvider>
           {children}
+          <ParticipantGrowthScheduler enabled={true} intervalMinutes={60} />
         </AuthProvider>
       </body>
     </html>

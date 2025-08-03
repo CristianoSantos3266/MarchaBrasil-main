@@ -27,14 +27,23 @@ export function usePlatformStats(): PlatformStats {
       if (isDemoMode()) {
         // Em modo demo, contar eventos do localStorage
         const demoEvents = getDemoEvents();
-        const totalRSVPs = demoEvents.reduce((sum, event) => sum + (event.rsvp_count || 0), 0);
+        
+        // Contar RSVPs tradicionais + confirmed_participants do crescimento automático
+        const traditionalRSVPs = demoEvents.reduce((sum, event) => {
+          if (event.rsvps) {
+            return sum + Object.values(event.rsvps).reduce((total, count) => total + count, 0);
+          }
+          return sum;
+        }, 0);
+        
+        const confirmedParticipants = demoEvents.reduce((sum, event) => sum + (event.confirmed_participants || 0), 0);
         
         // Estados únicos dos eventos demo
         const uniqueStates = new Set(demoEvents.map(event => event.region).filter(Boolean));
         
         setStats({
           totalEvents: demoEvents.length,
-          confirmedParticipants: totalRSVPs,
+          confirmedParticipants: traditionalRSVPs + confirmedParticipants,
           totalVideos: 0, // Sem vídeos no demo
           verifiedOrganizers: 1, // Organizador demo
           totalDonations: 0, // Sem doações no demo

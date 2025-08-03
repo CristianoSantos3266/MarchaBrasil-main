@@ -65,6 +65,10 @@ export interface Database {
           time: string
           description: string
           expected_attendance: number | null
+          confirmed_participants: number
+          original_estimate: number | null
+          growth_started_at: string | null
+          growth_completed: boolean
           whatsapp_contact: string
           status: 'pending' | 'approved' | 'rejected'
           rejection_reason: string | null
@@ -86,6 +90,10 @@ export interface Database {
           time: string
           description: string
           expected_attendance?: number | null
+          confirmed_participants?: number
+          original_estimate?: number | null
+          growth_started_at?: string | null
+          growth_completed?: boolean
           whatsapp_contact: string
           status?: 'pending' | 'approved' | 'rejected'
           rejection_reason?: string | null
@@ -107,6 +115,10 @@ export interface Database {
           time?: string
           description?: string
           expected_attendance?: number | null
+          confirmed_participants?: number
+          original_estimate?: number | null
+          growth_started_at?: string | null
+          growth_completed?: boolean
           whatsapp_contact?: string
           status?: 'pending' | 'approved' | 'rejected'
           rejection_reason?: string | null
