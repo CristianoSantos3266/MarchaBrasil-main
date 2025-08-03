@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { DocumentTextIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 
 export default function LoginPage() {
@@ -13,39 +14,56 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
+  const { refreshProfile } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!email || !password) {
+      setMessage('Por favor, preencha todos os campos.')
+      return
+    }
+    
     setLoading(true)
     setMessage('')
 
     try {
-      // Demo mode - simple simulation
       if (isSignUp) {
-        // Simulate signup
+        // Create demo user for signup
         const demoUser = {
           id: `demo-${Date.now()}`,
           email: email,
-          name: email.split('@')[0]
+          name: email.split('@')[0],
+          public_name: email.split('@')[0],
+          role: 'user',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
         localStorage.setItem('demo-user', JSON.stringify(demoUser))
-        // Trigger event to notify AuthContext
-        window.dispatchEvent(new CustomEvent('demo-user-updated'))
-        setMessage('Conta criada com sucesso! Você está conectado.')
-        setTimeout(() => router.push('/'), 2000)
+        setMessage('Conta criada com sucesso! Redirecionando...')
       } else {
-        // Simulate login
+        // Create demo user for login
         const demoUser = {
           id: `demo-user`,
           email: email,
-          name: email.split('@')[0]
+          name: email.split('@')[0],
+          public_name: email.split('@')[0],
+          role: 'user',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
         localStorage.setItem('demo-user', JSON.stringify(demoUser))
-        // Trigger event to notify AuthContext
-        window.dispatchEvent(new CustomEvent('demo-user-updated'))
-        setMessage('Login realizado com sucesso!')
-        setTimeout(() => router.push('/'), 1500)
+        setMessage('Login realizado com sucesso! Redirecionando...')
       }
+      
+      // Dispatch event to notify AuthContext
+      window.dispatchEvent(new CustomEvent('demo-user-updated'))
+      
+      // Wait a moment for the context to update, then navigate
+      setTimeout(() => {
+        router.push('/')
+      }, 1000)
+      
     } catch (error: any) {
       setMessage(error.message || 'Erro ao fazer login')
     } finally {
