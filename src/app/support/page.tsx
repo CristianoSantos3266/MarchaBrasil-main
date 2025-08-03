@@ -177,6 +177,93 @@ export default function SupportPage() {
                 </p>
               </div>
 
+              {/* Amount Selector - Added for better UX */}
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-200 mb-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                  Valor do Apoio
+                </h4>
+                
+                {/* Quick tier buttons */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                  {DONATION_TIERS.map((tier) => (
+                    <button
+                      key={tier.id}
+                      onClick={() => {
+                        setSelectedTier(tier);
+                        setCustomAmount(0);
+                      }}
+                      className={`p-3 rounded-lg border-2 transition-all text-center ${
+                        selectedTier?.id === tier.id
+                          ? 'border-blue-600 bg-blue-50 text-blue-900'
+                          : 'border-gray-200 hover:border-blue-300 text-gray-700'
+                      }`}
+                    >
+                      <div className="text-sm font-medium">R${tier.amount}</div>
+                      <div className="text-xs text-gray-500">{tier.name}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom amount input */}
+                <div className="border-t pt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ou digite um valor personalizado:
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">R$</span>
+                        <input
+                          type="number"
+                          min="5"
+                          step="5"
+                          placeholder="50"
+                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            if (value >= 5) {
+                              setCustomAmount(value);
+                              setSelectedTier(null);
+                            } else {
+                              setCustomAmount(0);
+                            }
+                          }}
+                          value={customAmount > 0 ? customAmount : ''}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCustomAmount(0);
+                        setSelectedTier(null);
+                      }}
+                      className="px-3 py-2 text-gray-500 hover:text-gray-700 transition-colors"
+                      title="Limpar"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Valor mínimo: R$5
+                  </p>
+                </div>
+
+                {/* Selected amount display */}
+                {(selectedTier || customAmount > 0) && (
+                  <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-900">
+                        R${selectedTier ? selectedTier.amount : customAmount}
+                      </div>
+                      <div className="text-sm text-green-700">
+                        {selectedTier ? selectedTier.name : 'Valor Personalizado'} • {isMonthly ? 'Mensal' : 'Único'}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Stripe checkout section */}
               <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-200 text-center">
                 <div className="mb-4">
                   <svg className="h-8 w-auto mx-auto mb-3" viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -190,7 +277,7 @@ export default function SupportPage() {
                   </p>
                 </div>
                 
-{selectedTier ? (
+                {selectedTier ? (
                   <StripeCheckout
                     tier={selectedTier}
                     isMonthly={isMonthly}
@@ -207,7 +294,7 @@ export default function SupportPage() {
                 ) : (
                   <div className="text-center">
                     <p className="text-gray-600 mb-4">
-                      Selecione um nível de apoio abaixo para processar o pagamento
+                      Selecione um valor acima para processar o pagamento
                     </p>
                     <button
                       className="bg-gray-300 text-gray-500 px-8 py-3 rounded-lg font-semibold cursor-not-allowed flex items-center gap-2 mx-auto"
