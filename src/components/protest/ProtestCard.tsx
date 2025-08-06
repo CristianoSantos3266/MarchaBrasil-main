@@ -40,6 +40,7 @@ const protestTypeLabels = {
   tratorada: 'Tratorada',
   assembleia: 'Assembleia',
   manifestacao: 'Manifestação',
+  buzinaço: 'Buzinaço',
   outro: 'Outro'
 };
 
@@ -51,7 +52,23 @@ const protestTypeIcons = {
   tratorada: '🚜',
   assembleia: '🏛️',
   manifestacao: '✊',
+  buzinaço: '📢',
   outro: '📢'
+};
+
+// Function to get color-coded background for protest type ribbon
+const getProtestTypeColor = (type: string) => {
+  const colorMap: Record<string, string> = {
+    marcha: 'bg-green-600',
+    carreata: 'bg-blue-600',
+    motociata: 'bg-orange-500',
+    tratorada: 'bg-amber-700',
+    assembleia: 'bg-gray-600',
+    buzinaço: 'bg-red-600',
+    manifestacao: 'bg-neutral-600',
+    outro: 'bg-neutral-600'
+  };
+  return colorMap[type] || 'bg-neutral-600';
 };
 
 export default function ProtestCard({ protest, onRSVP, onViewDetails, onEmailAlert }: ProtestCardProps) {
@@ -101,12 +118,16 @@ export default function ProtestCard({ protest, onRSVP, onViewDetails, onEmailAle
 
       {/* Thumbnail */}
       {protest.thumbnail && (
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <img 
             src={protest.thumbnail} 
             alt={protest.title}
             className="w-full h-48 object-cover rounded-lg border border-gray-200"
           />
+          {/* Type Ribbon */}
+          <div className={`absolute bottom-2 left-2 ${getProtestTypeColor(protest.type)} text-white text-xs font-bold px-2 py-1 rounded bg-opacity-80`}>
+            {protestTypeLabels[protest.type]}
+          </div>
         </div>
       )}
 

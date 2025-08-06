@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { PlayIcon, EyeIcon, HeartIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { Video, VideoSearchFilters } from '@/types/video';
+import Link from 'next/link';
 
 interface VideoFeedProps {
   showSearchFilters?: boolean;
@@ -399,6 +400,13 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
                     <span>{video.likeCount + (likedVideos.has(video.id) ? 1 : 0)}</span>
                   </button>
                   
+                  <Link
+                    href={`/videos/${video.id}`}
+                    className="text-gray-500 hover:text-purple-600 text-sm transition-colors"
+                  >
+                    Ver detalhes
+                  </Link>
+                  
                   {video.isYouTube && (
                     <a
                       href={video.originalYoutubeUrl}
@@ -407,7 +415,7 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
                       className="text-gray-500 hover:text-blue-600 text-sm transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Ver no YouTube
+                      YouTube
                     </a>
                   )}
                 </div>

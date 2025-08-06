@@ -77,7 +77,7 @@ export default function VideosPage() {
                   <div className="text-center text-white">
                     <PlayIcon className="h-20 w-20 mx-auto mb-4 opacity-80" />
                     <p className="text-lg font-medium">Vídeo em Destaque</p>
-                    <p className="text-sm opacity-80">Manifestação Nacional - Brasília</p>
+                    <p className="text-sm opacity-80">Protesto Nacional - Brasília</p>
                   </div>
                 </div>
               </div>
@@ -87,7 +87,7 @@ export default function VideosPage() {
                   DESTAQUE DA SEMANA
                 </div>
                 <h2 className="text-2xl font-bold mb-4">
-                  Grande Manifestação em Brasília Reúne 50 Mil Pessoas
+                  Grande Protesto em Brasília Reúne 50 Mil Pessoas
                 </h2>
                 <p className="text-purple-100 mb-6">
                   Brasileiros de todo o país se reuniram na capital federal para defender a democracia 
@@ -187,7 +187,7 @@ export default function VideosPage() {
                 href="/create-event"
                 className="inline-flex items-center px-8 py-4 bg-purple-500 text-white rounded-lg font-bold text-lg hover:bg-purple-400 transition-colors border-2 border-white/20"
               >
-                Organizar Manifestação
+                Organizar Protesto
                 <ArrowRightIcon className="h-6 w-6 ml-2" />
               </Link>
             </div>

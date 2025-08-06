@@ -89,6 +89,7 @@ export type ProtestType =
   | 'tratorada'
   | 'assembleia'
   | 'manifestacao'
+  | 'buzinaço'
   | 'outro';
 
 export type ParticipantType = 

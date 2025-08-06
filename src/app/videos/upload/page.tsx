@@ -111,10 +111,10 @@ function VideoUploadContent() {
               </div>
             </div>
             <h1 className="text-4xl font-bold mb-4">
-              Enviar Vídeo da Manifestação
+              Enviar Vídeo do Protesto
             </h1>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-              Compartilhe vídeos das manifestações pacíficas e ajude a documentar 
+              Compartilhe vídeos dos protestos pacíficos e ajude a documentar 
               este momento histórico da democracia brasileira.
             </p>
             {protestId && protestTitle && (

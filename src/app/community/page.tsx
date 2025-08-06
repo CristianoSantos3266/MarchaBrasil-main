@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
 import Footer from '@/components/ui/Footer'
 import NucleoCreation from '@/components/community/NucleoCreation'
@@ -287,35 +288,37 @@ export default function CommunityPage() {
                 </div>
                 <div className="p-6 space-y-4">
                   {nucleos.slice(0, 3).map(nucleo => (
-                    <div key={nucleo.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium text-gray-900">{nucleo.name}</h3>
-                            {nucleo.isPrivate && <EyeIcon className="w-4 h-4 text-gray-400" />}
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">{nucleo.description}</p>
-                          <div className="flex items-center gap-3 text-xs text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <UsersIcon className="w-3 h-3" />
-                              {nucleo.memberCount} membros
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPinIcon className="w-3 h-3" />
-                              {nucleo.city}, {nucleo.state}
-                            </span>
+                    <Link key={nucleo.id} href={`/community/${nucleo.id}`}>
+                      <div className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-gray-900">{nucleo.name}</h3>
+                              {nucleo.isPrivate && <EyeIcon className="w-4 h-4 text-gray-400" />}
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{nucleo.description}</p>
+                            <div className="flex items-center gap-3 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <UsersIcon className="w-3 h-3" />
+                                {nucleo.memberCount} membros
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPinIcon className="w-3 h-3" />
+                                {nucleo.city}, {nucleo.state}
+                              </span>
+                            </div>
                           </div>
                         </div>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {nucleo.tags.slice(0, 3).map(tag => (
+                            <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                              <TagIcon className="w-2 h-2" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {nucleo.tags.slice(0, 3).map(tag => (
-                          <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                            <TagIcon className="w-2 h-2" />
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -374,48 +377,50 @@ export default function CommunityPage() {
           {activeTab === 'nucleos' && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredNucleos.map(nucleo => (
-                <div key={nucleo.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-bold text-gray-900 line-clamp-2">{nucleo.name}</h3>
-                      {nucleo.isPrivate && (
-                        <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                          Privado
+                <Link key={nucleo.id} href={`/community/${nucleo.id}`}>
+                  <div className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-bold text-gray-900 line-clamp-2">{nucleo.name}</h3>
+                        {nucleo.isPrivate && (
+                          <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                            Privado
+                          </span>
+                        )}
+                      </div>
+                      
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">{nucleo.description}</p>
+                      
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                        <span className="flex items-center gap-1">
+                          <UsersIcon className="w-4 h-4" />
+                          {nucleo.memberCount} membros
                         </span>
-                      )}
-                    </div>
-                    
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">{nucleo.description}</p>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                      <span className="flex items-center gap-1">
-                        <UsersIcon className="w-4 h-4" />
-                        {nucleo.memberCount} membros
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPinIcon className="w-4 h-4" />
-                        {nucleo.city}, {nucleo.state}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {nucleo.tags.map(tag => (
-                        <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                          <TagIcon className="w-2 h-2" />
-                          {tag}
+                        <span className="flex items-center gap-1">
+                          <MapPinIcon className="w-4 h-4" />
+                          {nucleo.city}, {nucleo.state}
                         </span>
-                      ))}
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {nucleo.tags.map(tag => (
+                          <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                            <TagIcon className="w-2 h-2" />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <p className="text-xs text-gray-400 mb-4">
+                        Criado em {new Date(nucleo.createdAt).toLocaleDateString('pt-BR')}
+                      </p>
+                      
+                      <div className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-center">
+                        {nucleo.isPrivate ? 'Solicitar Convite' : 'Participar do Núcleo'}
+                      </div>
                     </div>
-                    
-                    <p className="text-xs text-gray-400 mb-4">
-                      Criado em {new Date(nucleo.createdAt).toLocaleDateString('pt-BR')}
-                    </p>
-                    
-                    <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
-                      {nucleo.isPrivate ? 'Solicitar Convite' : 'Participar do Núcleo'}
-                    </button>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

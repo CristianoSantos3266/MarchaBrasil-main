@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Navigation from '@/components/ui/Navigation';
 import Footer from '@/components/ui/Footer';
 import UpcomingProtestsFeed from '@/components/protest/UpcomingProtestsFeed';
-import { CalendarIcon, MapPinIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import CompletedProtestsFeed from '@/components/protest/CompletedProtestsFeed';
+import { CalendarIcon, MapPinIcon, GlobeAltIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export default function ManifestationsPage() {
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'BR' | 'INTERNATIONAL'>('BR');
+  const [viewMode, setViewMode] = useState<'upcoming' | 'completed'>('upcoming');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50">
@@ -23,10 +25,10 @@ export default function ManifestationsPage() {
               </div>
             </div>
             <h1 className="text-4xl font-bold mb-4">
-              Manifestações Pacíficas
+              Protestos Pacíficos
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Encontre e participe de manifestações cívicas organizadas em todo o Brasil e ao redor do mundo. 
+              Encontre e participe de protestos cívicos organizados em todo o Brasil e ao redor do mundo. 
               Fortaleça a democracia através da participação pacífica e organizada.
             </p>
           </div>
@@ -37,11 +39,41 @@ export default function ManifestationsPage() {
         {/* Filter Tabs */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <MapPinIcon className="h-6 w-6 text-green-600" />
-                Todas as Manifestações
+                {viewMode === 'upcoming' ? 'Próximos Protestos' : 'Eventos Encerrados'}
               </h2>
+              
+              {/* View Mode Toggle */}
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('upcoming')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                    viewMode === 'upcoming'
+                      ? 'bg-white text-green-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  Próximas
+                </button>
+                <button
+                  onClick={() => setViewMode('completed')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                    viewMode === 'completed'
+                      ? 'bg-white text-gray-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <CheckCircleIcon className="h-4 w-4" />
+                  Encerrados
+                </button>
+              </div>
+            </div>
+
+            {/* Location Filter Tabs */}
+            <div className="flex items-center justify-center mb-4">
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => setActiveFilter('BR')}
@@ -114,13 +146,23 @@ export default function ManifestationsPage() {
         </div>
 
         {/* Manifestations Feed */}
-        <UpcomingProtestsFeed 
-          countryFilter={activeFilter}
-          hideTitle={true}
-          onProtestSelect={(protestId) => {
-            window.location.href = `/protest/${protestId}`;
-          }}
-        />
+        {viewMode === 'upcoming' ? (
+          <UpcomingProtestsFeed 
+            countryFilter={activeFilter}
+            hideTitle={true}
+            onProtestSelect={(protestId) => {
+              window.location.href = `/protest/${protestId}`;
+            }}
+          />
+        ) : (
+          <CompletedProtestsFeed 
+            countryFilter={activeFilter}
+            hideTitle={true}
+            onProtestSelect={(protestId) => {
+              window.location.href = `/protest/${protestId}`;
+            }}
+          />
+        )}
 
         {/* Call to Action */}
         <div className="mt-12 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl text-white p-8 text-center">

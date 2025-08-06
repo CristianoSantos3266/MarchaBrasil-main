@@ -276,7 +276,7 @@ export default function VideoUpload({ onUpload, protestId, protestTitle }: Video
                 value={formData.title}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Ex: Manifestação pela Democracia - São Paulo"
+                placeholder="Ex: Protesto pela Democracia - São Paulo"
                 required
               />
             </div>

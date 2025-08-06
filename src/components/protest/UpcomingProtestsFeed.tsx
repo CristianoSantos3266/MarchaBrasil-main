@@ -42,6 +42,33 @@ function formatDateToBrazilian(date: string): string {
   return date;
 }
 
+// Function to get color-coded background for protest type ribbon
+const getProtestTypeColor = (type: string) => {
+  const colorMap: Record<string, string> = {
+    marcha: 'bg-green-600',
+    carreata: 'bg-blue-600',
+    motociata: 'bg-orange-500',
+    tratorada: 'bg-amber-700',
+    assembleia: 'bg-gray-600',
+    buzinaço: 'bg-red-600',
+    manifestacao: 'bg-neutral-600',
+    outro: 'bg-neutral-600'
+  };
+  return colorMap[type] || 'bg-neutral-600';
+};
+
+const protestTypeLabels: Record<string, string> = {
+  marcha: 'Marcha',
+  motociata: 'Motociata',
+  carreata: 'Carreata',
+  caminhoneiros: 'Caminhoneiros',
+  tratorada: 'Tratorada',
+  assembleia: 'Assembleia',
+  manifestacao: 'Manifestação',
+  buzinaço: 'Buzinaço',
+  outro: 'Outro'
+};
+
 export default function UpcomingProtestsFeed({ 
   onProtestSelect, 
   countryFilter = 'ALL',
@@ -213,7 +240,7 @@ export default function UpcomingProtestsFeed({
         {!hideTitle && (
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <CalendarIcon className="h-6 w-6 text-blue-600" />
-            Próximas Manifestações
+            Próximos Protestos
           </h2>
         )}
         <div className="overflow-x-auto pb-4">
@@ -235,17 +262,17 @@ export default function UpcomingProtestsFeed({
         {!hideTitle && (
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <CalendarIcon className="h-6 w-6 text-blue-600" />
-            Próximas Manifestações
+            Próximos Protestos
           </h2>
         )}
         <div className="text-center py-8 text-gray-500">
           <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-gray-300" />
           <p>
             {countryFilter === 'BR' 
-              ? 'Nenhuma manifestação nacional agendada'
+              ? 'Nenhum protesto nacional agendado'
               : countryFilter === 'INTERNATIONAL'
-              ? 'Nenhuma manifestação internacional agendada'
-              : 'Nenhuma manifestação agendada no momento'
+              ? 'Nenhum protesto internacional agendado'
+              : 'Nenhum protesto agendado no momento'
             }
           </p>
           <p className="text-sm mt-1">Seja o primeiro a organizar um evento!</p>
@@ -260,7 +287,7 @@ export default function UpcomingProtestsFeed({
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <CalendarIcon className="h-6 w-6 text-blue-600" />
-            Próximas Manifestações
+            Próximos Protestos
           </h2>
           <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
             {upcomingProtests.length} eventos
@@ -330,6 +357,11 @@ export default function UpcomingProtestsFeed({
                       </span>
                     </div>
                   )}
+                  
+                  {/* Type Ribbon */}
+                  <div className={`absolute bottom-2 right-2 ${getProtestTypeColor(protest.type)} text-white text-xs font-bold px-2 py-1 rounded bg-opacity-80 z-10`}>
+                    {protestTypeLabels[protest.type] || protest.type}
+                  </div>
                 </div>
 
                 {/* Content */}

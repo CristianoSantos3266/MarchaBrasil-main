@@ -17,7 +17,8 @@ import ChamaDoPovoIndicator from '@/components/gamification/ChamaDoPovoIndicator
 import MutualConnections from '@/components/social/MutualConnections';
 import SocialShare from '@/components/social/SocialShare';
 import LiveEventUpdates from '@/components/realtime/LiveEventUpdates';
-import AttendanceConfirmation from '@/components/realtime/AttendanceConfirmation';
+import AttendanceConfirmation from '@/components/events/AttendanceConfirmation';
+import ContextualComments from '@/components/comments/ContextualComments';
 import OrganizerUpdatePanel from '@/components/realtime/OrganizerUpdatePanel';
 import RealtimeUpdateFeed from '@/components/realtime/RealtimeUpdateFeed';
 import { notificationService } from '@/lib/notification-system';
@@ -439,22 +440,11 @@ export default function ProtestDetailPage() {
           
           {/* Attendance Confirmation */}
           <AttendanceConfirmation
-            protestId={protestId}
-            protestLocation={{
-              latitude: -23.5505, // São Paulo coordinates (would be dynamic in real app)
-              longitude: -46.6333,
-              name: protest.location,
-              address: `${protest.location}, ${protest.city}, ${protest.state || protest.region}`,
-            }}
-            userRSVP={{
-              id: 'demo-rsvp-1',
-              type: 'cidadao',
-              confirmed: false
-            }}
-            onAttendanceConfirmed={(data) => {
-              console.log('Attendance confirmed:', data);
-              // In real app, this would update the backend
-            }}
+            eventId={protestId}
+            confirmedCount={Math.floor(Math.random() * 500) + 100}
+            estimatedFromSource={Math.floor(Math.random() * 2000) + 1000}
+            sourceName="G1"
+            sourceUrl="https://g1.globo.com"
           />
         </div>
 
@@ -492,6 +482,14 @@ export default function ProtestDetailPage() {
             <p>• <strong>Meio Ambiente:</strong> Não deixe lixo nem danifique propriedades</p>
             <p>• <strong>Neutralidade:</strong> Evite simbolos ou manifestações partidárias</p>
           </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mb-8">
+          <ContextualComments 
+            contextType="event"
+            contextId={protestId}
+          />
         </div>
 
         {/* Protest Results - Only shows after protest ends */}

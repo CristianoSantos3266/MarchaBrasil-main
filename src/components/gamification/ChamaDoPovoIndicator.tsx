@@ -85,11 +85,19 @@ export default function ChamaDoPovoIndicator({
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
       {/* Circular Progress Indicator - Clean Version */}
-      <div className={`relative ${currentSize.container}`}>
-        {/* Progress ring using pure SVG - no containers with backgrounds */}
-        <svg 
-          className="w-full h-full transform -rotate-90" 
+      <div className="w-16 h-16 relative">
+        <svg
           viewBox="0 0 40 40"
+          className="w-full h-full transform -rotate-90"
+          style={{
+            width: '64px',
+            height: '64px',
+            minWidth: '64px',
+            minHeight: '64px',
+            maxWidth: '64px',
+            maxHeight: '64px',
+            display: 'block',
+          }}
         >
           {/* Background circle - very subtle */}
           <circle

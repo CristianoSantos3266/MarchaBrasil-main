@@ -14,7 +14,8 @@ import {
   HandRaisedIcon,
   EnvelopeIcon,
   FilmIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { 
   CheckBadgeIcon 
@@ -33,6 +34,7 @@ import TrendingEvents from '@/components/analytics/TrendingEvents';
 import PlatformStats from '@/components/analytics/PlatformStats';
 import Navigation from '@/components/ui/Navigation';
 import UpcomingProtestsFeed from '@/components/protest/UpcomingProtestsFeed';
+import CompletedProtestsFeed from '@/components/protest/CompletedProtestsFeed';
 import VideoFeed from '@/components/video/VideoFeed';
 import { getPublishedNews } from '@/lib/supabase';
 import { NewsPost } from '@/types/news';
@@ -213,7 +215,7 @@ export default function Home() {
             </h2>
             <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed drop-shadow">
               Junte-se a milhares de brasileiros que defendem a democracia, a liberdade e os direitos constitucionais. 
-              Manifestações pacíficas são um direito garantido pela Constituição de 1988.
+              Protestos pacíficos são um direito garantido pela Constituição de 1988.
             </p>
           </div>
           
@@ -235,7 +237,7 @@ export default function Home() {
               <div className="text-3xl font-bold text-white drop-shadow">
                 {platformStats.totalEvents.toLocaleString('pt-BR')}
               </div>
-              <div className="text-white/90 drop-shadow">Manifestações Registradas</div>
+              <div className="text-white/90 drop-shadow">Protestos Registrados</div>
             </div>
           </div>
         </div>
@@ -253,7 +255,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 <span className="text-3xl">🇧🇷</span>
-                Manifestações Nacionais
+                Protestos Nacionais
               </h2>
               <span className="text-sm text-green-700 bg-green-200 px-3 py-1 rounded-full font-medium">
                 Brasil
@@ -268,7 +270,7 @@ export default function Home() {
         </section>
 
         {/* International Events Feed */}
-        <section className="mb-12">
+        <section className="mb-8">
           <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow-md p-6 border border-blue-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
@@ -282,6 +284,26 @@ export default function Home() {
             <UpcomingProtestsFeed 
               onProtestSelect={handleViewDetails} 
               countryFilter="INTERNATIONAL"
+              hideTitle={true}
+            />
+          </div>
+        </section>
+
+        {/* Completed Events Feed */}
+        <section className="mb-12">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg shadow-md p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <CheckCircleIcon className="h-7 w-7 text-green-600" />
+                Eventos Encerrados
+              </h2>
+              <span className="text-sm text-gray-700 bg-gray-200 px-3 py-1 rounded-full font-medium">
+                Histórico
+              </span>
+            </div>
+            <CompletedProtestsFeed 
+              onProtestSelect={handleViewDetails} 
+              countryFilter="ALL"
               hideTitle={true}
             />
           </div>
@@ -338,10 +360,10 @@ export default function Home() {
           <section>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                Manifestações em {selectedRegion?.name}
+                Protestos em {selectedRegion?.name}
               </h2>
               <p className="text-lg text-gray-600">
-                Manifestações pacíficas organizadas por cidadãos brasileiros em defesa da democracia
+                Protestos pacíficos organizados por cidadãos brasileiros em defesa da democracia
               </p>
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -363,7 +385,7 @@ export default function Home() {
           <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Buscar Manifestações
+                Buscar Protestos
               </h2>
               <p className="text-gray-600">
                 Encontre eventos por título, cidade, estado ou tipo de manifestação
@@ -623,7 +645,7 @@ export default function Home() {
                   <HandRaisedIcon className="h-6 w-6" />
                   Paz
                 </h4>
-                <p className="text-white/80 text-sm">Manifestações pacíficas e ordeiras</p>
+                <p className="text-white/80 text-sm">Protestos pacíficos e ordeiros</p>
               </div>
             </div>
             

@@ -258,8 +258,8 @@ export const getDonationStats = async () => {
     // Return demo data when Supabase is not configured
     return { 
       data: {
-        total_raised: 867,
-        total_donors: 23,
+        total_raised: 0,
+        total_donors: 0,
         currency: 'BRL',
         last_updated: new Date().toISOString()
       }, 
@@ -592,6 +592,239 @@ export const deleteNewsPost = async (postId: string) => {
     .from('news_posts')
     .delete()
     .eq('id', postId)
+
+  return { error }
+}
+
+// Attendance helpers
+export const confirmEventAttendance = async (eventId: string, userId: string) => {
+  if (DEMO_MODE) {
+    // Simulate attendance confirmation
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return { 
+      data: { 
+        event_id: eventId, 
+        user_id: userId, 
+        confirmed_at: new Date().toISOString() 
+      }, 
+      error: null 
+    }
+  }
+
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+
+  // First check if user already confirmed
+  const { data: existing } = await supabase
+    .from('event_confirmations')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
+    .single()
+
+  if (existing) {
+    return { data: null, error: { message: 'User already confirmed attendance' } }
+  }
+
+  // Insert confirmation
+  const { data, error } = await supabase
+    .from('event_confirmations')
+    .insert({
+      event_id: eventId,
+      user_id: userId
+    })
+    .select()
+    .single()
+
+  if (!error) {
+    // Increment event confirmed_count using RPC
+    await supabase.rpc('increment_event_confirmation', { event_id: eventId })
+  }
+
+  return { data, error }
+}
+
+export const checkUserAttendanceConfirmation = async (eventId: string, userId: string) => {
+  if (DEMO_MODE) {
+    // In demo mode, simulate some confirmations
+    const demoConfirmed = Math.random() > 0.7 // 30% chance user confirmed
+    return { data: demoConfirmed ? { confirmed: true } : null, error: null }
+  }
+
+  if (!supabase) {
+    return { data: null, error: null }
+  }
+
+  const { data, error } = await supabase
+    .from('event_confirmations')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
+    .single()
+
+  return { data, error }
+}
+
+export const getEventWithAttendance = async (eventId: string) => {
+  if (DEMO_MODE) {
+    // Return demo event with attendance data
+    return {
+      data: {
+        id: eventId,
+        title: 'Demo Event',
+        confirmed_count: Math.floor(Math.random() * 1000) + 50,
+        estimated_from_source: Math.floor(Math.random() * 5000) + 1000,
+        source_name: 'Folha de S.Paulo',
+        source_url: 'https://folha.uol.com.br'
+      },
+      error: null
+    }
+  }
+
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      users!events_creator_id_fkey(public_name)
+    `)
+    .eq('id', eventId)
+    .single()
+
+  return { data, error }
+}
+
+// Comments helpers
+export const getComments = async (contextType: 'event' | 'video', contextId: string, limit?: number) => {
+  if (DEMO_MODE) {
+    // Return demo comments
+    const demoComments = [
+      {
+        id: 'comment-1',
+        context_type: contextType,
+        context_id: contextId,
+        user_id: 'demo-user-1',
+        comment_text: 'Excelente iniciativa! Vamos participar em massa.',
+        is_flagged: false,
+        created_at: new Date(Date.now() - 3600000).toISOString(),
+        users: { public_name: 'Maria Silva' }
+      },
+      {
+        id: 'comment-2',
+        context_type: contextType,
+        context_id: contextId,
+        user_id: 'demo-user-2',
+        comment_text: 'Importante manter a manifestação pacífica. Democracia sempre!',
+        is_flagged: false,
+        created_at: new Date(Date.now() - 7200000).toISOString(),
+        users: { public_name: 'João Santos' }
+      },
+      {
+        id: 'comment-3',
+        context_type: contextType,
+        context_id: contextId,
+        user_id: 'demo-user-3',
+        comment_text: 'Organizadores estão de parabéns pela transparência.',
+        is_flagged: false,
+        created_at: new Date(Date.now() - 10800000).toISOString(),
+        users: { public_name: 'Ana Costa' }
+      }
+    ]
+    
+    const result = limit ? demoComments.slice(0, limit) : demoComments
+    return { data: result, error: null }
+  }
+
+  if (!supabase) {
+    return { data: [], error: null }
+  }
+
+  let query = supabase
+    .from('comments')
+    .select(`
+      *,
+      users!comments_user_id_fkey(public_name)
+    `)
+    .eq('context_type', contextType)
+    .eq('context_id', contextId)
+    .eq('is_flagged', false)
+    .order('created_at', { ascending: false })
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+  return { data, error }
+}
+
+export const createComment = async (
+  contextType: 'event' | 'video',
+  contextId: string,
+  userId: string,
+  commentText: string
+) => {
+  if (DEMO_MODE) {
+    // Simulate creating a comment
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return {
+      data: {
+        id: `comment-${Date.now()}`,
+        context_type: contextType,
+        context_id: contextId,
+        user_id: userId,
+        comment_text: commentText,
+        is_flagged: false,
+        created_at: new Date().toISOString(),
+        users: { public_name: 'Usuário Demo' }
+      },
+      error: null
+    }
+  }
+
+  if (!supabase) {
+    return { data: null, error: { message: 'Supabase not configured' } }
+  }
+
+  // Sanitize comment text
+  const sanitizedText = commentText.trim().substring(0, 500)
+
+  const { data, error } = await supabase
+    .from('comments')
+    .insert({
+      context_type: contextType,
+      context_id: contextId,
+      user_id: userId,
+      comment_text: sanitizedText
+    })
+    .select(`
+      *,
+      users!comments_user_id_fkey(public_name)
+    `)
+    .single()
+
+  return { data, error }
+}
+
+export const flagComment = async (commentId: string) => {
+  if (DEMO_MODE) {
+    // Simulate flagging a comment
+    await new Promise(resolve => setTimeout(resolve, 300))
+    return { error: null }
+  }
+
+  if (!supabase) {
+    return { error: { message: 'Supabase not configured' } }
+  }
+
+  const { error } = await supabase
+    .from('comments')
+    .update({ is_flagged: true })
+    .eq('id', commentId)
 
   return { error }
 }

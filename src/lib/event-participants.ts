@@ -20,6 +20,9 @@ export const EVENT_PARTICIPANT_MAPPING: Record<string, string[]> = {
   // Carreata: Cars and general population
   'carreata': ['carros', 'populacaoGeral'],
   
+  // Buzinaço: Only general population (pedestrians with flags and signs)
+  'buzinaço': ['populacaoGeral'],
+  
   // Assembleia: Only general population (meeting/assembly)
   'assembleia': ['populacaoGeral', 'comerciantes', 'produtoresRurais']
 };

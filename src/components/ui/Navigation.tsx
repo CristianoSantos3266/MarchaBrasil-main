@@ -95,7 +95,7 @@ export default function Navigation() {
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center gap-2"
             >
               <CalendarIcon className="h-5 w-5" />
-              Manifestações
+              Protestos
             </Link>
             
             <Link 
@@ -226,10 +226,10 @@ export default function Navigation() {
             ) : (
               <Link 
                 href="/login"
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2 whitespace-nowrap"
               >
                 <LockClosedIcon className="h-5 w-5" />
-                Entrar / Criar Conta
+                Criar Conta
               </Link>
             )}
           </div>
@@ -284,7 +284,7 @@ export default function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <CalendarIcon className="h-5 w-5" />
-                Manifestações
+                Protestos
               </Link>
               
               
@@ -371,11 +371,11 @@ export default function Navigation() {
               ) : (
                 <Link 
                   href="/login"
-                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg font-bold text-center mt-2 flex items-center justify-center gap-2"
+                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg font-bold text-center mt-2 flex items-center justify-center gap-2 whitespace-nowrap"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <LockClosedIcon className="h-5 w-5" />
-                  Entrar / Criar Conta
+                  Criar Conta
                 </Link>
               )}
             </div>

@@ -39,7 +39,7 @@ export default function CreateEventPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'manifestacao' as 'manifestacao' | 'marcha' | 'caminhoneiros' | 'carreata' | 'motociata' | 'tratorada' | 'assembleia',
+    type: 'manifestacao' as 'manifestacao' | 'marcha' | 'caminhoneiros' | 'carreata' | 'motociata' | 'tratorada' | 'buzinaço' | 'assembleia',
     date: '',
     time: '',
     meeting_point: '',
@@ -77,6 +77,7 @@ export default function CreateEventPage() {
     { value: 'carreata', label: 'Carreata', icon: TruckIcon },
     { value: 'motociata', label: 'Motociata', icon: MapPinIcon },
     { value: 'tratorada', label: 'Tratorada', icon: TruckIcon },
+    { value: 'buzinaço', label: 'Buzinaço', icon: HandRaisedIcon },
     { value: 'assembleia', label: 'Assembleia', icon: BuildingLibraryIcon }
   ]
 
@@ -422,7 +423,7 @@ export default function CreateEventPage() {
         setShowCelebration(true)
         
         if (formData.isNational) {
-          setMessage(`Eventos criados com sucesso! (Modo Demo - ${savedEvents.length} manifestações criadas em todas as capitais)`)
+          setMessage(`Eventos criados com sucesso! (Modo Demo - ${savedEvents.length} protestos criados em todas as capitais)`)
         } else {
           setMessage(`Evento criado com sucesso! (Modo Demo - ${savedEvents[0].title})`)
         }
@@ -542,10 +543,10 @@ export default function CreateEventPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
               <HandRaisedIcon className="h-8 w-8 text-green-600" />
-              Criar Nova Manifestação
+              Organize um Novo Protesto
             </h1>
             <p className="text-lg text-gray-600">
-              Organize uma manifestação pacífica em defesa da democracia
+              Cadastre um protesto pacífico e ajude a fortalecer a democracia
             </p>
             {!isDemoMode && (
               <div className="mt-2 text-sm text-blue-600">
@@ -565,7 +566,7 @@ export default function CreateEventPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Título da Manifestação *
+                    Título do Protesto *
                   </label>
                   <input
                     type="text"
@@ -573,14 +574,14 @@ export default function CreateEventPage() {
                     value={formData.title}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Ex: Marcha pela Liberdade de Expressão"
+                    placeholder="Ex: Protesto pela Liberdade de Expressão"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tipo de Manifestação *
+                    Tipo de Protesto *
                   </label>
                   <select
                     name="type"
@@ -601,6 +602,48 @@ export default function CreateEventPage() {
                 </div>
               </div>
 
+              {/* Tutorial Messages for Each Protest Type */}
+              {formData.type === 'buzinaço' && (
+                <div className="bg-blue-50 p-3 rounded-md mt-2 text-sm text-blue-900">
+                  Em um Buzinaço, os manifestantes se reúnem em locais visíveis com faixas e cartazes enquanto motoristas buzinam em apoio. Apenas participantes a pé devem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'carreata' && (
+                <div className="bg-yellow-50 p-3 rounded-md mt-2 text-sm text-yellow-900">
+                  Em uma Carreata, veículos se deslocam em comboio seguindo uma rota específica. Apenas motoristas e passageiros de veículos devem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'motociata' && (
+                <div className="bg-orange-50 p-3 rounded-md mt-2 text-sm text-orange-900">
+                  Em una Motociata, motociclistas se deslocam em grupo seguindo uma rota planejada. Apenas motociclistas devem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'marcha' && (
+                <div className="bg-green-50 p-3 rounded-md mt-2 text-sm text-green-900">
+                  Em uma Marcha, manifestantes caminham pacificamente seguindo uma rota a pé. Apenas participantes pedestres devem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'caminhoneiros' && (
+                <div className="bg-red-50 p-3 rounded-md mt-2 text-sm text-red-900">
+                  Manifestação específica de caminhoneiros com veículos pesados. Apenas caminhoneiros e apoiadores em veículos devem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'tratorada' && (
+                <div className="bg-amber-50 p-3 rounded-md mt-2 text-sm text-amber-900">
+                  Manifestação de produtores rurais com tratores e máquinas agrícolas. Apenas produtores rurais e apoiadores em veículos devem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'assembleia' && (
+                <div className="bg-purple-50 p-3 rounded-md mt-2 text-sm text-purple-900">
+                  Assembleia pacífica em local fixo para discussão e organização. Todos os tipos de participantes podem confirmar presença.
+                </div>
+              )}
+              {formData.type === 'manifestacao' && (
+                <div className="bg-gray-50 p-3 rounded-md mt-2 text-sm text-gray-900">
+                  Protesto geral que pode incluir diferentes tipos de participação. Todos os tipos de participantes podem confirmar presença.
+                </div>
+              )}
+
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Descrição *
@@ -611,7 +654,7 @@ export default function CreateEventPage() {
                   onChange={handleInputChange}
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Descreva os objetivos e propósitos da manifestação..."
+                  placeholder="Descreva os objetivos e propósitos do protesto..."
                   required
                 />
               </div>
@@ -1098,7 +1141,7 @@ export default function CreateEventPage() {
                 ) : (
                   <>
                     <RocketLaunchIcon className="h-6 w-6" />
-                    Criar Manifestação
+                    Criar Protesto
                   </>
                 )}
               </button>
@@ -1120,7 +1163,7 @@ export default function CreateEventPage() {
           setTimeout(() => router.push('/'), 500)
         }}
         title="Evento Criado com Sucesso!"
-        message="Sua manifestação foi registrada e será revisada pela moderação. Divulgue para seus amigos e familiares!"
+        message="Seu protesto foi registrado e será revisado pela moderação. Divulgue para seus amigos e familiares!"
       />
     </div>
   )

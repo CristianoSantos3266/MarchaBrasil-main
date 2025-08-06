@@ -7,8 +7,8 @@ import { getDonationStats } from '@/lib/supabase';
 
 export default function DonationStatsDisplay() {
   const [stats, setStats] = useState<DonationStats>({
-    totalRaised: 867,
-    totalDonors: 23,
+    totalRaised: 0,
+    totalDonors: 0,
     currency: 'BRL',
     lastUpdated: new Date().toISOString()
   });
