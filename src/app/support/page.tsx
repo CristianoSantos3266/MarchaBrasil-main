@@ -8,6 +8,7 @@ import PixDonations from '@/components/donations/PixDonations';
 import DonationStatsDisplay from '@/components/donations/DonationStats';
 import DonorRecognition from '@/components/donations/DonorRecognition';
 import StripeCheckout from '@/components/donations/StripeCheckout';
+import Navigation from '@/components/ui/Navigation';
 import { 
   ArrowLeftIcon,
   CreditCardIcon,
@@ -63,19 +64,13 @@ export default function SupportPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <Navigation />
+      
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => window.history.back()}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2"
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-              Voltar à Plataforma
-            </button>
-          </div>
-          <div className="text-center mt-4">
+          <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
               Apoie Marcha Brasil
             </h1>

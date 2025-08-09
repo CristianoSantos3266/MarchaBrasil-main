@@ -7,8 +7,6 @@ export const metadata: Metadata = {
   title: "🇧🇷 Marcha Brasil - Manifestações Pacíficas",
   description: "Plataforma de coordenação para manifestações pacíficas e democráticas no Brasil",
   manifest: '/manifest.json',
-  themeColor: '#002776',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -19,6 +17,14 @@ export const metadata: Metadata = {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent'
   }
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#002776'
 };
 
 export default function RootLayout({

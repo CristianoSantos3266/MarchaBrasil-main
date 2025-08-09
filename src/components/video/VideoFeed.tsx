@@ -282,24 +282,36 @@ export default function VideoFeed({ showSearchFilters = true, maxVideos, protest
       )}
 
       {/* Video Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-full overflow-hidden">
+        <style jsx>{`
+          iframe {
+            max-width: 100% !important;
+            max-height: 100% !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+        `}</style>
         {videos.map((video) => (
           <div
             key={video.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300"
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 max-w-full"
+            style={{ maxHeight: '500px', width: '100%', contain: 'layout size' }}
           >
             {/* Video Player or Thumbnail */}
-            <div className="relative aspect-video bg-gray-900">
+            <div className="relative aspect-video bg-gray-900 overflow-hidden rounded-t-lg" style={{ maxWidth: '100%', maxHeight: '300px' }}>
               {playingVideo === video.id && video.isYouTube ? (
-                // Embedded YouTube player
-                <iframe
-                  src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1`}
-                  title={video.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
+                // Embedded YouTube player with proper constraints
+                <div className="relative w-full h-full max-w-full max-h-full" style={{ overflow: 'hidden', contain: 'strict' }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+                    title={video.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full object-contain"
+                    style={{ maxWidth: '100%', maxHeight: '100%', width: '100%', height: '100%' }}
+                  />
+                </div>
               ) : (
                 // Thumbnail with click to play
                 <div 

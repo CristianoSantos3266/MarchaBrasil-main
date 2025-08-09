@@ -53,6 +53,11 @@ export default function CreateEventPage() {
     isInternational: false
   })
 
+  const [isHistoricalEvent, setIsHistoricalEvent] = useState(false)
+  
+  // Check if current user is admin (site owner)
+  const isAdmin = userProfile?.role === 'admin' || user?.email === 'cristiano@marchabrasil.com'
+
   const [showCalendar, setShowCalendar] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
@@ -374,7 +379,7 @@ export default function CreateEventPage() {
         const month = parseInt(parts[1])
         const year = parseInt(parts[2])
         
-        if (day < 1 || day > 31 || month < 1 || month > 12 || year < new Date().getFullYear()) {
+        if (day < 1 || day > 31 || month < 1 || month > 12 || (!(isHistoricalEvent && isAdmin) && year < new Date().getFullYear())) {
           return false
         }
         
@@ -447,6 +452,7 @@ export default function CreateEventPage() {
         })
         setThumbnail(null)
         setThumbnailFile(null)
+        setIsHistoricalEvent(false)
 
         // Don't auto-redirect in demo mode - let user see the success message
         return
@@ -488,6 +494,7 @@ export default function CreateEventPage() {
       })
       setThumbnail(null)
       setThumbnailFile(null)
+      setIsHistoricalEvent(false)
 
       // Redirect after 3 seconds
       setTimeout(() => {
@@ -795,7 +802,7 @@ export default function CreateEventPage() {
                             const isToday = day === today.getDate() && 
                                           currentMonth === today.getMonth() && 
                                           currentYear === today.getFullYear()
-                            const isPast = new Date(currentYear, currentMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate())
+                            const isPast = !(isHistoricalEvent && isAdmin) && new Date(currentYear, currentMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate())
                             
                             return (
                               <button
@@ -863,6 +870,28 @@ export default function CreateEventPage() {
                     Localização *
                   </label>
                   
+                  {/* Historical Event Toggle - Admin Only */}
+                  {isAdmin && (
+                    <div className="mb-4 p-4 bg-orange-100 border border-orange-300 rounded-lg">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isHistoricalEvent}
+                          onChange={(e) => setIsHistoricalEvent(e.target.checked)}
+                          className="h-4 w-4 text-orange-600 border-orange-300 rounded focus:ring-orange-500"
+                        />
+                        <span className="text-sm font-medium text-orange-800">
+                          📅 Evento Histórico - Permitir Datas Passadas (Admin)
+                        </span>
+                      </label>
+                      {isHistoricalEvent && (
+                        <p className="text-xs text-orange-700 mt-2">
+                          Permite criar eventos sobre protestos que já aconteceram (aparecerão na seção "Eventos Encerrados")
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {/* National Event Toggle */}
                   <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-lg">
                     <label className="flex items-center gap-3 cursor-pointer">
