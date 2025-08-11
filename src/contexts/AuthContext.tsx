@@ -16,7 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Demo mode detection
-const isDemoMode = !supabase || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<SupabaseUser | null>(null)

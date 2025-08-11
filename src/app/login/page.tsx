@@ -34,14 +34,24 @@ export default function LoginPage() {
       if (isSignUp) {
         result = await signUp(email, password)
         if (result.error) {
-          setMessage(result.error.message || 'Erro ao criar conta')
+          // Handle network errors specifically
+          if (result.error.message?.includes('fetch')) {
+            setMessage('Erro de conexão. Verifique sua internet e tente novamente.')
+          } else {
+            setMessage(result.error.message || 'Erro ao criar conta')
+          }
           return
         }
         setMessage('Conta criada com sucesso! Redirecionando...')
       } else {
         result = await signIn(email, password)
         if (result.error) {
-          setMessage(result.error.message || 'Erro ao fazer login')
+          // Handle network errors specifically
+          if (result.error.message?.includes('fetch') || result.error.message?.includes('NetworkError')) {
+            setMessage('Erro de conexão. Verifique sua internet e tente novamente.')
+          } else {
+            setMessage(result.error.message || 'Erro ao fazer login')
+          }
           return
         }
         setMessage('Login realizado com sucesso! Redirecionando...')
@@ -160,17 +170,19 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <DocumentTextIcon className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div className="text-sm text-blue-800">
-                  <p className="font-medium mb-1">Modo Demonstração</p>
-                  <p>Esta é uma versão de demonstração. Use qualquer email/senha para testar.</p>
+          {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <DocumentTextIcon className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">Modo Demonstração</p>
+                    <p>Esta é uma versão de demonstração. Use qualquer email/senha para testar.</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
