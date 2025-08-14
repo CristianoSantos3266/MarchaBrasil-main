@@ -1,6 +1,6 @@
-# 🛡️ Global Civic Mobilization Platform
+# 🇧🇷 Marcha Brasil Platform
 
-A censorship-resistant web platform for coordinating peaceful protests and civic demonstrations worldwide.
+A censorship-resistant Civic Mobilization Platform for Brazil, designed to coordinate peaceful mass demonstrations nationwide with advanced security features.
 
 ## 🎯 Purpose
 
@@ -11,13 +11,13 @@ This platform serves as neutral civic infrastructure for:
 - Showing the scale and composition of each action
 - Withstanding censorship, blocks, or takedown attempts
 
-## ✨ Features
+## ✨ Key Features
 
-### 🗺️ Interactive Global Map
-- Clickable country and region selection
-- Support for Brazil, Argentina, USA, France, Canada and more
+### 🗺️ Interactive Brazil Map with Mapbox
+- State-by-state clickable selection
 - Real-time protest listings per region
-- Visual overview of worldwide activity
+- Professional mapping with convoy routes
+- Visual overview of nationwide activity
 
 ### 📝 Anonymous RSVP System
 - No personal data collection
@@ -29,27 +29,35 @@ This platform serves as neutral civic infrastructure for:
   - 🛍️ Comerciantes (Merchants)
   - 👥 População Geral (General Population)
 
+### 💰 Donation System
+- **PIX Integration**: Instant Brazilian payments
+- **Stripe**: Credit/debit card processing
+- **Crypto**: Bitcoin, USDT, Monero support
+- Complete donation tracking and analytics
+
 ### 🛣️ Convoy Coordination
 - Route mapping for carreatas/motociatas
 - Start/end points with coordinates
 - Departure times and waypoints
 - Join location options (start, route, destination)
 
-### 📬 Email Alerts
-- Subscribe to specific states and protest types
-- Anonymous email storage
-- No tracking or personal data collection
+### 🔐 Admin Dashboard
+- Secure admin panel with role-based access
+- Complete event management system
+- Real-time analytics and reporting
+- User and organizer management
+- Financial tracking and donation oversight
 
-### 🔐 Admin Panel
-- Password-protected content management
-- Create and edit protest events
-- Manage convoy routes and details
+### 📱 Progressive Web App (PWA)
+- Offline functionality with service worker
+- Push notifications for event updates
+- Mobile app-like experience
+- Background sync capabilities
 
 ### 🌐 Censorship Resistance
 - Static site export for IPFS deployment
 - Multiple mirror domain support
-- Tor .onion service compatibility
-- Automatic domain health checking
+- Anti-censorship detection and alerts
 - DNS rotation and failover
 
 ## 🚀 Quick Start
@@ -57,128 +65,86 @@ This platform serves as neutral civic infrastructure for:
 ### Development
 ```bash
 # Clone and install
-git clone <repository-url>
-cd civic-mobilization
+git clone https://github.com/CristianoSantos3266/MarchaBrasil-Platform.git
+cd MarchaBrasil-Platform
 npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Add your Supabase, Stripe, and Mapbox credentials
 
 # Start development server
 npm run dev
 ```
 
 ### Production Deployment
-
-#### Traditional Hosting
 ```bash
-# Build for standard hosting
+# Build for production
 npm run build
 
-# Deploy to Vercel
-vercel --prod
-```
-
-#### IPFS Deployment (Censorship-Resistant)
-```bash
-# Build static files for IPFS
-npm run deploy:ipfs
-
-# Upload 'out' folder to IPFS
-ipfs add -r out/
+# Start production server
+npm start
 ```
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 15 + React 19 + TypeScript
 - **Styling**: Tailwind CSS  
-- **Maps**: Leaflet.js + React Leaflet
-- **Date Handling**: date-fns
+- **Database**: Supabase (PostgreSQL)
+- **Payments**: Stripe + PIX integration
+- **Maps**: Mapbox GL JS
+- **Authentication**: Supabase Auth
 - **Deployment**: Static export for maximum portability
-
-## 📱 Browser Support
-
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
-- Works on mobile devices
-- Progressive Web App (PWA) features
 
 ## 🔒 Security & Privacy
 
 ### Data Protection
-- **No personal data collection**: Only anonymous email addresses for alerts
-- **No tracking**: No analytics, cookies, or user identification
-- **Client-side only**: All processing happens in the browser
-- **No server vulnerabilities**: Static site deployment
+- **Minimal data collection**: Only essential information
+- **LGPD compliant**: Brazilian data protection compliance
+- **Encrypted communications**: All data in transit encrypted
+- **Server-side validation**: Admin role protection
 
 ### Censorship Resistance
-- **Multiple domains**: Automatic mirror detection and failover
-- **IPFS deployment**: Decentralized hosting immune to takedowns
+- **Multiple deployment options**: Traditional hosting + IPFS
+- **Mirror detection**: Automatic failover systems
 - **Tor compatibility**: Accessible via .onion addresses
 - **VPN friendly**: Works with all VPN services
+
+## 📊 Platform Components
+
+### Core Pages
+- **Home**: Platform overview and featured events
+- **Manifestações**: Event listings and search
+- **Como Agir**: Action guides and resources
+- **Apoie**: Donation and support page
+- **Admin**: Secure management dashboard
+
+### Advanced Features
+- **Real-time updates**: Live event information
+- **Email notifications**: Event alerts and updates
+- **Social sharing**: WhatsApp, Twitter, Facebook integration
+- **Multi-language**: Portuguese with internationalization ready
 
 ## 🏛️ Legal & Ethical
 
 ### Peaceful Purpose
 - **Defensive tool**: Designed to protect freedom of assembly
 - **Political neutrality**: Not tied to any party or leader
-- **Constitutional rights**: Supports Article 5, XVI of Brazilian Constitution
+- **Constitutional rights**: Supports Brazilian Constitution Article 5, XVI
 - **Non-violence**: Explicitly promotes peaceful demonstration
 
 ### Compliance
 - **LGPD compliant**: Minimal data collection, user consent
-- **International law**: Supports UN Declaration of Human Rights Article 20
 - **Transparency**: Open source code for audit
+- **Legal use only**: Platform cannot be used for illegal activities
 
-## 💰 Donation System
+## 📞 Support & Contact
 
-Support the platform at `/support`:
-
-**Traditional Donations (Stripe):**
-- **Base Supporter** ($10): Infrastructure support
-- **Builder** ($50): Feature development  
-- **Defender** ($200): Advanced security features
-
-**Crypto Donations:**
-- Bitcoin, USDT (TRC20), Monero, Litecoin
-- QR codes for easy sending
-- Complete anonymity
-
-## 📊 Analytics & Monitoring
-
-**Real-time Metrics:**
-- Trending events by RSVP growth
-- Platform-wide statistics  
-- Regional activity breakdown
-- User engagement tracking
-
-## 📖 Admin Panel
-
-Access the admin panel at `/admin` with passwords: `admin123` or `civic2024!`
-
-**Features:**
-- Create and edit protest events globally
-- Manage convoy routes and coordinates
-- Session management (8-hour timeout)
-- Multi-country support
-- Delete inappropriate content
-- Monitor RSVP counts
-
-## 🆘 Emergency Access
-
-If the main domain is blocked:
-
-1. **Try mirrors**: Check alternative domains listed in censorship alert
-2. **Use VPN**: Psiphon, Outline, or other circumvention tools
-3. **Tor Browser**: Access via .onion address
-4. **IPFS Gateway**: Direct IPFS hash access
-5. **Local copy**: Keep offline version for emergencies
-
-## 📞 Support
-
-For technical issues or security concerns:
+For technical issues or questions:
 - **GitHub Issues**: Report bugs and feature requests
-- **Security**: Contact maintainers privately for vulnerabilities
-- **Legal**: Consult local lawyers for jurisdiction-specific advice
+- **Email**: Contact maintainers for support
+- **Security**: Private security vulnerability reporting
 
 ---
 
-**Remember**: This platform is designed to protect and enable peaceful civic participation. Use it responsibly and in accordance with local laws while supporting the fundamental right to freedom of assembly.
+**Remember**: This platform is designed to protect and enable peaceful civic participation. Use it responsibly and in accordance with Brazilian laws while supporting the fundamental right to freedom of assembly.
