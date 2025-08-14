@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DevicePhoneMobileIcon, CreditCardIcon, ShareIcon, HandRaisedIcon, ChartBarIcon, ShieldCheckIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 
 interface SupporterActivity {
   id: string;
@@ -86,13 +87,13 @@ export default function SupporterFeed() {
 
   const getActivityIcon = (activity: SupporterActivity) => {
     if (activity.type === 'contribution') {
-      if (activity.method === 'pix') return '📱';
-      if (activity.method === 'card') return '💳';
-      if (activity.method === 'crypto') return '₿';
+      if (activity.method === 'pix') return <DevicePhoneMobileIcon className="h-5 w-5 text-green-600" />;
+      if (activity.method === 'card') return <CreditCardIcon className="h-5 w-5 text-blue-600" />;
+      if (activity.method === 'crypto') return <span className="text-purple-600 font-bold">₿</span>;
     }
-    if (activity.type === 'share') return '📱';
-    if (activity.type === 'signup') return '👋';
-    return '💚';
+    if (activity.type === 'share') return <ShareIcon className="h-5 w-5 text-blue-600" />;
+    if (activity.type === 'signup') return <HandRaisedIcon className="h-5 w-5 text-green-600" />;
+    return <HandRaisedIcon className="h-5 w-5 text-green-600" />;
   };
 
   const getActivityMessage = (activity: SupporterActivity) => {
@@ -137,7 +138,10 @@ export default function SupporterFeed() {
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6">
-        <h2 className="text-xl font-bold mb-2">🔥 Atividade em Tempo Real</h2>
+        <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+          <ChartBarIcon className="h-6 w-6 text-green-100" />
+          Atividade em Tempo Real
+        </h2>
         <p className="text-green-100">
           Veja outros brasileiros apoiando nossa causa neste momento
         </p>
@@ -151,7 +155,7 @@ export default function SupporterFeed() {
               key={activity.id}
               className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"
             >
-              <div className="text-2xl">{getActivityIcon(activity)}</div>
+              <div className="w-8 h-8 flex items-center justify-center">{getActivityIcon(activity)}</div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">
                   {getActivityMessage(activity)}
@@ -174,15 +178,25 @@ export default function SupporterFeed() {
         {/* Social Proof Footer */}
         <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
-              <strong>📊 Mais de 1.247 brasileiros</strong> apoiaram hoje
+            <p className="text-sm text-gray-600 mb-2 flex items-center justify-center gap-2">
+              <ChartBarIcon className="h-4 w-4 text-blue-600" />
+              <strong>Mais de 1.247 brasileiros</strong> apoiaram hoje
             </p>
             <div className="flex justify-center items-center gap-4 text-xs text-gray-500">
-              <span>🌟 4.8/5 confiança</span>
+              <span className="flex items-center gap-1">
+                <span className="text-yellow-500">⭐</span>
+                4.8/5 confiança
+              </span>
               <span>•</span>
-              <span>🔒 100% seguro</span>
+              <span className="flex items-center gap-1">
+                <ShieldCheckIcon className="h-3 w-3 text-green-600" />
+                100% seguro
+              </span>
               <span>•</span>
-              <span>🇧🇷 Brasileiro</span>
+              <span className="flex items-center gap-1">
+                <GlobeAltIcon className="h-3 w-3 text-blue-600" />
+                Brasileiro
+              </span>
             </div>
           </div>
         </div>

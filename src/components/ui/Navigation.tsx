@@ -107,7 +107,7 @@ export default function Navigation() {
             </Link>
             
             <Link 
-              href="/support" 
+              href="/apoie" 
               className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-2"
             >
               <CurrencyDollarIcon className="h-5 w-5" />
@@ -289,7 +289,7 @@ export default function Navigation() {
               
               
               <Link 
-                href="/support" 
+                href="/apoie" 
                 className="text-gray-700 hover:text-purple-600 font-medium py-2 transition-colors flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >

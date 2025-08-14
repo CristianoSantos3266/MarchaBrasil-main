@@ -198,7 +198,7 @@ export default function SupportPaymentPanel() {
           <div className="bg-purple-50 rounded-xl p-6 border border-purple-200">
             <div className="text-center mb-6">
               <div className="bg-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl text-white">₿</span>
+                <span className="text-2xl text-white font-bold">₿</span>
               </div>
               <h3 className="text-xl font-bold text-purple-900">Criptomoedas</h3>
               <p className="text-purple-700">Máxima privacidade e anonimato</p>

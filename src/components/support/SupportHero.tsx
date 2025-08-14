@@ -1,5 +1,7 @@
 'use client';
 
+import { HeartIcon, ShareIcon, ShieldCheckIcon, ChartBarIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
+
 interface SupportHeroProps {
   onContribuir: () => void;
   onCompartilhar: () => void;
@@ -22,7 +24,8 @@ export default function SupportHero({ onContribuir, onCompartilhar }: SupportHer
       {/* Hero Content */}
       <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-          🇧🇷 Apoie a <span className="text-green-400">Marcha Brasil</span>
+          <GlobeAltIcon className="inline h-16 w-16 text-green-400 mr-4" />
+          Apoie a <span className="text-green-400">Marcha Brasil</span>
         </h1>
         
         <p className="text-xl sm:text-2xl mb-8 text-gray-100 leading-relaxed">
@@ -53,20 +56,33 @@ export default function SupportHero({ onContribuir, onCompartilhar }: SupportHer
             onClick={onContribuir}
             className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 min-w-[200px]"
           >
-            💚 Contribuir Agora
+            <HeartIcon className="h-6 w-6" />
+            Contribuir Agora
           </button>
           
           <button
             onClick={onCompartilhar}
             className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-900 font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 min-w-[200px]"
           >
-            📱 Compartilhar
+            <ShareIcon className="h-6 w-6" />
+            Compartilhar
           </button>
         </div>
 
-        <p className="mt-6 text-sm text-gray-200">
-          🔒 <strong>100% seguro</strong> • 🇧🇷 <strong>Apoio brasileiro</strong> • 📊 <strong>Transparência total</strong>
-        </p>
+        <div className="mt-6 flex justify-center items-center gap-6 text-sm text-gray-200 flex-wrap">
+          <span className="flex items-center gap-2">
+            <ShieldCheckIcon className="h-5 w-5 text-green-400" />
+            <strong>100% seguro</strong>
+          </span>
+          <span className="flex items-center gap-2">
+            <GlobeAltIcon className="h-5 w-5 text-blue-400" />
+            <strong>Apoio brasileiro</strong>
+          </span>
+          <span className="flex items-center gap-2">
+            <ChartBarIcon className="h-5 w-5 text-purple-400" />
+            <strong>Transparência total</strong>
+          </span>
+        </div>
       </div>
 
       {/* Animated elements */}

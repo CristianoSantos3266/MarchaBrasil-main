@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ChartBarIcon, HeartIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { TrophyIcon } from '@heroicons/react/24/solid';
 
 export default function ImpactBar() {
   const [currentAmount, setCurrentAmount] = useState(867);
@@ -32,8 +34,9 @@ export default function ImpactBar() {
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          🎯 Meta de Apoio Mensal
+        <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
+          <ChartBarIcon className="h-8 w-8 text-blue-600" />
+          Meta de Apoio Mensal
         </h2>
         <p className="text-gray-600">
           Ajude-nos a alcançar nossa meta para manter a plataforma funcionando
@@ -93,16 +96,26 @@ export default function ImpactBar() {
 
       {/* Call to Action */}
       <div className="text-center">
-        <p className="text-sm text-gray-600 mb-3">
-          💚 <strong>Ou compartilhe com 3 amigos</strong> — cada apoio conta
+        <p className="text-sm text-gray-600 mb-3 flex items-center justify-center gap-2">
+          <HeartIcon className="h-4 w-4 text-green-600" />
+          <strong>Ou compartilhe com 3 amigos</strong> — cada apoio conta
         </p>
         
-        <div className="flex justify-center gap-2 text-xs text-gray-500">
-          <span>🏆 426 apoiadores</span>
+        <div className="flex justify-center gap-2 text-xs text-gray-500 flex-wrap">
+          <span className="flex items-center gap-1">
+            <TrophyIcon className="h-3 w-3 text-yellow-600" />
+            426 apoiadores
+          </span>
           <span>•</span>
-          <span>⚡ Última doação: 3 min</span>
+          <span className="flex items-center gap-1">
+            <ClockIcon className="h-3 w-3 text-blue-600" />
+            Última doação: 3 min
+          </span>
           <span>•</span>
-          <span>🔄 {Math.floor(progressPercentage)}% da meta</span>
+          <span className="flex items-center gap-1">
+            <ChartBarIcon className="h-3 w-3 text-green-600" />
+            {Math.floor(progressPercentage)}% da meta
+          </span>
         </div>
       </div>
     </div>
