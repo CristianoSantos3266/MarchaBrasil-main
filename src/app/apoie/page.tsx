@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Navigation from '@/components/ui/Navigation';
 import SupportHero from '@/components/support/SupportHero';
 import SupporterFeed from '@/components/support/SupporterFeed';
 import ImpactBar from '@/components/support/ImpactBar';
@@ -18,6 +19,9 @@ export default function ApoiePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50">
+      {/* Navigation */}
+      <Navigation />
+      
       {/* Hero Section */}
       <SupportHero 
         onContribuir={handleContribuir}

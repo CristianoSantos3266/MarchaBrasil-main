@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import Navigation from '@/components/ui/Navigation';
 import SupportPaymentPanel from '@/components/support/SupportPaymentPanel';
 import SupporterFeed from '@/components/support/SupporterFeed';
 import ImpactBar from '@/components/support/ImpactBar';
@@ -32,6 +33,9 @@ export default function ContribuirPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50">
+      {/* Navigation */}
+      <Navigation />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowLeftIcon, ShareIcon, LinkIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import Navigation from '@/components/ui/Navigation';
 
 export default function CompartilharPage() {
   const [copied, setCopied] = useState(false);
@@ -36,6 +37,9 @@ export default function CompartilharPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50">
+      {/* Navigation */}
+      <Navigation />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
