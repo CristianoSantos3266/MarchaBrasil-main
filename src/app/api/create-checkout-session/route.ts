@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
     const params: Stripe.Checkout.SessionCreateParams = {
       mode: isMonthly ? 'subscription' : 'payment',
       payment_method_types: paymentMethods,
-      success_url: `${req.nextUrl.origin}/support?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.nextUrl.origin}/support?canceled=true`,
+      success_url: `${req.nextUrl.origin}/apoie/contribuir?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.nextUrl.origin}/apoie/contribuir?canceled=true`,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       shipping_address_collection: country ? {

@@ -29,6 +29,40 @@ export default function SupportPaymentPanel() {
     alert('Chave PIX copiada para a área de transferência!');
   };
 
+  const handleStripePayment = async () => {
+    if (!finalAmount || finalAmount < 5) {
+      alert('Por favor, selecione um valor mínimo de R$ 5');
+      return;
+    }
+
+    try {
+      // Create Stripe checkout session
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: finalAmount,
+          currency: 'brl',
+          description: `Apoio à Marcha Brasil - R$ ${finalAmount}`,
+        }),
+      });
+
+      const { url } = await response.json();
+      
+      if (url) {
+        // Redirect to Stripe checkout
+        window.location.href = url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Erro ao processar pagamento. Tente novamente.');
+    }
+  };
+
   const finalAmount = getSelectedAmount();
 
   return (
@@ -173,7 +207,11 @@ export default function SupportPaymentPanel() {
                   <div className="text-2xl font-bold text-blue-900">R$ {finalAmount}</div>
                   <p className="text-blue-700">Pagamento único</p>
                 </div>
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                <button 
+                  onClick={handleStripePayment}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <CreditCardIcon className="h-5 w-5" />
                   Pagar com Cartão
                 </button>
                 <p className="text-xs text-gray-500 mt-2 text-center">
