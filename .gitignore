@@ -10,3 +10,13 @@ static/
 .env.local
 *.log
 .vercel/
+# Additional large files to ignore
+*.tar.gz
+*.zip
+deployment-package/
+full-deployment/
+static/
+complete-*.tar.gz
+marcha*.tar.gz
+*-deployment.tar.gz
+*-fix.tar.gz
