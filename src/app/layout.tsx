@@ -43,21 +43,6 @@ export default function RootLayout({
         />
         <link rel="stylesheet" href="/css/hero-images.css" />
         <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(function(registration) {
-                    console.log('SW registered: ', registration);
-                  })
-                  .catch(function(registrationError) {
-                    console.log('SW registration failed: ', registrationError);
-                  });
-              });
-            }
-          `
-        }} />
       </head>
       <body className="antialiased font-sans">
         <AuthProvider>
