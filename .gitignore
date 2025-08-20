@@ -8,6 +8,13 @@ full-deployment/
 static/
 .env
 .env.local
+
+# Deployment logs
+logs/*.log
+*.log
+
+# PM2 logs
+.pm2/
 *.log
 .vercel/
 # Additional large files to ignore

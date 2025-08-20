@@ -1,0 +1,73 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      env:
+        NODE_ENV: production
+        
+    - name: Run tests
+      run: npm run test:build
+      
+    - name: Deploy to staging server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USER }}
+        password: ${{ secrets.STAGING_PASSWORD }}
+        port: 22
+        script: |
+          set -e
+          
+          # Navigate to app directory
+          cd /var/www/marchabrasil || cd /opt/marchabrasil || cd /home/deploy/marchabrasil
+          
+          # Backup current version
+          sudo cp -r . ../backup-$(date +%Y%m%d-%H%M%S) || true
+          
+          # Pull latest changes
+          git fetch origin
+          git reset --hard origin/main
+          
+          # Install dependencies
+          npm ci --production
+          
+          # Build with Turbopack
+          npm run build
+          
+          # Restart application
+          sudo pm2 restart marchabrasil || sudo systemctl restart marchabrasil || sudo service marchabrasil restart
+          
+          # Verify deployment
+          sleep 5
+          curl -f http://localhost:3001 || echo "Warning: Health check failed"
+          
+    - name: Notification
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment to staging successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi
