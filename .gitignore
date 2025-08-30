@@ -27,3 +27,11 @@ complete-*.tar.gz
 marcha*.tar.gz
 *-deployment.tar.gz
 *-fix.tar.gz
+
+# env & build
+.env*
+.next/
+node_modules/
+
+# ignore
+complete-platform.tar.gz
