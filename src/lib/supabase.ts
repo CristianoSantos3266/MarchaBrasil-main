@@ -832,4 +832,3 @@ export const flagComment = async (commentId: string) => {
     .eq('id', commentId)
 
   return { error }
-}

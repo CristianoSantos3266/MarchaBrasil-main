@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import Navigation from '@/components/ui/Navigation';
 import SupportPaymentPanel from '@/components/support/SupportPaymentPanel';
+import { APOIAR_URL } from '@/lib/links';
 import SupporterFeed from '@/components/support/SupporterFeed';
 import ImpactBar from '@/components/support/ImpactBar';
 

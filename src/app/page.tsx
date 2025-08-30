@@ -38,6 +38,9 @@ import CompletedProtestsFeed from '@/components/protest/CompletedProtestsFeed';
 import VideoFeed from '@/components/video/VideoFeed';
 import { getPublishedNews } from '@/lib/supabase';
 import { NewsPost } from '@/types/news';
+import { DONATE_URL, APOIAR_URL } from "@/lib/links";
+// ...
+<Link href={DONATE_URL} className="...">Apoiar Plataforma</Link>
 
 const SmartMapboxGlobal = dynamic(() => import('@/components/map/SmartMapboxGlobal'), {
   ssr: false,
@@ -185,7 +188,7 @@ export default function Home() {
             </p>
             <div className="mt-4">
               <Link 
-                href="/support" 
+                href={APOIAR_URL} 
                 className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur text-white border-2 border-white/30 rounded-lg hover:bg-white/30 transition-all text-lg font-bold shadow-lg"
               >
                 <HeartIcon className="h-6 w-6 mr-2" />

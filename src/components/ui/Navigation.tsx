@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { APOIAR_URL } from '@/lib/links'
 import { 
   MapPinIcon, 
   CalendarIcon, 
@@ -107,7 +108,7 @@ export default function Navigation() {
             </Link>
             
             <Link 
-              href="/apoie" 
+              href={APOIAR_URL} 
               className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-2"
             >
               <CurrencyDollarIcon className="h-5 w-5" />
@@ -289,7 +290,7 @@ export default function Navigation() {
               
               
               <Link 
-                href="/apoie" 
+                href={APOIAR_URL} 
                 className="text-gray-700 hover:text-purple-600 font-medium py-2 transition-colors flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >

@@ -1,13 +1,30 @@
 'use client';
 
+import { useMemo } from 'react';
 import { HeartIcon, ShareIcon, ShieldCheckIcon, ChartBarIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
+import { SHOW_DONATION_STATS, MOMENTUM_MIN_DONORS_7D, MOMENTUM_MIN_PROGRESS } from '@/lib/featureFlags';
+import { FundraisingStats, shouldShowProgress, pct, formatBRL } from '@/lib/fundraising';
 
 interface SupportHeroProps {
   onContribuir: () => void;
   onCompartilhar: () => void;
+  stats?: FundraisingStats;
 }
 
-export default function SupportHero({ onContribuir, onCompartilhar }: SupportHeroProps) {
+export default function SupportHero({ onContribuir, onCompartilhar, stats }: SupportHeroProps) {
+  const fallback: FundraisingStats = { goalCents: 0, raisedCents: 0, donorsLast7d: 0 };
+  const effective = stats ?? fallback;
+
+  const showProgress = useMemo(() => {
+    if (!SHOW_DONATION_STATS) return false;
+    return shouldShowProgress(effective, {
+      minProgress: MOMENTUM_MIN_PROGRESS,
+      minDonors7d: MOMENTUM_MIN_DONORS_7D,
+    });
+  }, [effective]);
+
+  const progressPct = Math.round(pct(effective) * 100);
+
   return (
     <div className="bg-white py-12 sm:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,30 +33,42 @@ export default function SupportHero({ onContribuir, onCompartilhar }: SupportHer
           <div className="text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-gray-900">
               <GlobeAltIcon className="inline h-12 w-12 text-green-600 mr-3" />
-              Apoie a <span className="text-green-600">Marcha Brasil</span>
+              Ajude a manter o <span className="text-green-600">Marcha Brasil</span> no ar
             </h1>
             
             <p className="text-xl sm:text-2xl mb-8 text-gray-700 leading-relaxed">
-              Junte-se a milhares de brasileiros que acreditam na <strong>coordenação cívica pacífica</strong>. 
-              Cada apoio fortalece nossa voz coletiva por um Brasil melhor.
+              Sua contribuição cobre <strong>servidores</strong>, <strong>CDN</strong>, <strong>monitoramento</strong> e
+              <strong> horas de desenvolvimento</strong> para evoluirmos a plataforma com segurança e transparência.
             </p>
 
-            <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-200">
-              <div className="grid sm:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl sm:text-3xl font-bold text-green-600">20.000</div>
-                  <div className="text-sm text-gray-600">Meta de Apoiadores</div>
+            {/* Impact bullets (always shown) */}
+            <ul className="mb-8 space-y-2 text-gray-700">
+              <li>• <strong>R$30</strong> ajuda com custos de hospedagem e logs</li>
+              <li>• <strong>R$60</strong> cobre monitoramento e backups</li>
+              <li>• <strong>R$120</strong> financia horas de desenvolvimento e melhorias</li>
+            </ul>
+
+            {/* Momentum-aware: show progress only if rule passes */}
+            {showProgress && (
+              <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-200">
+                <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                  <span>Progresso</span>
+                  <span>{progressPct}%</span>
                 </div>
-                <div>
-                  <div className="text-2xl sm:text-3xl font-bold text-blue-600">15.847</div>
-                  <div className="text-sm text-gray-600">Já Participando</div>
+                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="bg-green-600 h-2"
+                    style={{ width: `${progressPct}%` }}
+                    aria-label={`Progresso ${progressPct}%`}
+                  />
                 </div>
-                <div>
-                  <div className="text-2xl sm:text-3xl font-bold text-purple-600">79%</div>
-                  <div className="text-sm text-gray-600">Da Meta Alcançada</div>
+
+                <div className="mt-2 text-sm text-gray-600">
+                  <span className="mr-3">Meta: <strong>{formatBRL(effective.goalCents)}</strong></span>
+                  <span>Já arrecadado: <strong>{formatBRL(effective.raisedCents)}</strong></span>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Call to Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">

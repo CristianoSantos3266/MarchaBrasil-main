@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CreditCardIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import CryptoDonations from '@/components/support/CryptoDonations';
 
 export default function SupportPaymentPanel() {
   const [activeTab, setActiveTab] = useState<'pix' | 'card' | 'crypto'>('pix');
@@ -232,41 +233,7 @@ export default function SupportPaymentPanel() {
           </div>
         )}
 
-        {activeTab === 'crypto' && (
-          <div className="bg-purple-50 rounded-xl p-6 border border-purple-200">
-            <div className="text-center mb-6">
-              <div className="bg-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl text-white font-bold">₿</span>
-              </div>
-              <h3 className="text-xl font-bold text-purple-900">Criptomoedas</h3>
-              <p className="text-purple-700">Máxima privacidade e anonimato</p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="bg-white rounded-lg p-4 border border-purple-200 text-center">
-                <div className="font-bold text-gray-900 mb-2">Bitcoin (BTC)</div>
-                <code className="text-xs text-gray-600 block mb-2">
-                  bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
-                </code>
-                <button className="text-purple-600 text-sm hover:text-purple-800">Copiar</button>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-purple-200 text-center">
-                <div className="font-bold text-gray-900 mb-2">USDT (TRC20)</div>
-                <code className="text-xs text-gray-600 block mb-2">
-                  TNPEzfkpjpWZ1OXsw8k4z7YU7JT6KVHZsD
-                </code>
-                <button className="text-purple-600 text-sm hover:text-purple-800">Copiar</button>
-              </div>
-            </div>
-
-            {finalAmount > 0 && (
-              <div className="mt-4 bg-white rounded-lg p-4 border border-purple-200 text-center">
-                <p className="font-bold text-purple-900">Valor: R$ {finalAmount}</p>
-                <p className="text-sm text-purple-700">Use qualquer endereço acima</p>
-              </div>
-            )}
-          </div>
-        )}
+        {activeTab === 'crypto' && <CryptoDonations />}
       </div>
     </div>
   );

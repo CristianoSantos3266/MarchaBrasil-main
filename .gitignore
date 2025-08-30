@@ -35,3 +35,8 @@ node_modules/
 
 # ignore
 complete-platform.tar.gz
+
+# backups
+*.bak
+src/lib/supabase.ts.bak*
+
