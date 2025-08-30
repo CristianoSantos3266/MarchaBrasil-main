@@ -1,0 +1,37 @@
+QUICK UPLOAD GUIDE - Since git push is timing out
+
+1. PREPARE FILES FOR MANUAL UPLOAD:
+   - Select ALL files and folders in this directory
+   - EXCLUDE these large items:
+     ❌ node_modules/ folder
+     ❌ .next/ folder  
+     ❌ .git/ folder
+     ❌ any .log files
+     ❌ apoie-bundle.bundle
+
+2. UPLOAD TO GITHUB:
+   - Go to: https://github.com/CristianoSantos3266/MarchaBrasil-Platform-v2
+   - Click "uploading an existing file"
+   - Drag and drop all files (except excluded ones above)
+   - Commit with message: "Initial deployment setup with enhanced icon fixes"
+
+3. SET UP GITHUB ACTIONS:
+   - Go to repo Settings → Secrets and variables → Actions
+   - Add secrets:
+     STAGING_HOST: 148.230.85.210
+     STAGING_USER: root
+     STAGING_PASSWORD: HelenaReis3266##
+
+4. DEPLOY:
+   - Either push a small change to trigger GitHub Actions
+   - Or run: ./deploy-staging.sh manually
+
+IMPORTANT FILES INCLUDED:
+✅ .github/workflows/deploy-staging.yml - Auto deployment
+✅ ecosystem.config.js - PM2 config
+✅ deploy-staging.sh - Manual deployment script
+✅ scripts/health-check.js - Health verification
+✅ Enhanced CSS fixes for icon sizing
+✅ Disabled service worker
+
+The deployment pipeline is ready! 🚀

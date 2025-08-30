@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { isStrongPassword, PASSWORD_HELP_PT } from '@/lib/validation'
 
 // Simple type definition to avoid import issues
 type Database = {
@@ -32,6 +33,10 @@ const DEMO_MODE = !hasValidCredentials || process.env.NEXT_PUBLIC_DEMO_MODE === 
 
 // Auth helpers
 export const signUp = async (email: string, password: string) => {
+  if (!isStrongPassword(password)) {
+    return { data: null, error: { message: PASSWORD_HELP_PT } }
+  }
+  
   if (DEMO_MODE) {
     // Demo mode - simulate successful signup
     await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate network delay

@@ -29,7 +29,8 @@
     "react-dom": "19.1.0",
     "react-leaflet": "^5.0.0",
     "react-map-gl": "^8.0.4",
-    "stripe": "^18.3.0"
+    "stripe": "^18.3.0",
+    "swr": "^2.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
