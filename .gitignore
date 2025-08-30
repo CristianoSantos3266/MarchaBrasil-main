@@ -40,3 +40,7 @@ complete-platform.tar.gz
 *.bak
 src/lib/supabase.ts.bak*
 
+
+# editor backups
+*.bak
+src/lib/supabase.ts.bak*
