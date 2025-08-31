@@ -137,6 +137,16 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="••••••••"
               />
+              {!isSignUp && (
+                <div className="text-right mt-2">
+                  <Link 
+                    href="/forgot-password" 
+                    className="text-sm text-green-600 hover:text-green-800 font-medium"
+                  >
+                    Esqueceu a senha?
+                  </Link>
+                </div>
+              )}
             </div>
 
             {message && (
