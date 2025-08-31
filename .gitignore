@@ -44,3 +44,9 @@ src/lib/supabase.ts.bak*
 # editor backups
 *.bak
 src/lib/supabase.ts.bak*
+
+# artifacts & builds
+*.tar.gz
+*.tgz
+.next/
+node_modules/
