@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
@@ -10,7 +10,7 @@ import { APOIAR_URL } from '@/lib/links';
 import SupporterFeed from '@/components/support/SupporterFeed';
 import ImpactBar from '@/components/support/ImpactBar';
 
-export default function ContribuirPage() {
+function ContribuirContent() {
   const searchParams = useSearchParams();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCanceled, setShowCanceled] = useState(false);
@@ -108,5 +108,17 @@ export default function ContribuirPage() {
         <SupporterFeed />
       </div>
     </div>
+  );
+}
+
+export default function ContribuirPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-pulse text-gray-500">Carregando...</div>
+      </div>
+    </div>}>
+      <ContribuirContent />
+    </Suspense>
   );
 }
