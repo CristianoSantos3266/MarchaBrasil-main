@@ -225,13 +225,21 @@ export default function Navigation() {
                 )}
               </div>
             ) : (
-              <Link 
-                href="/login"
-                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2 whitespace-nowrap"
-              >
-                <LockClosedIcon className="h-5 w-5" />
-                Criar Conta
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link 
+                  href="/criar-perfil"
+                  className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+                >
+                  Criar conta
+                </Link>
+                <Link 
+                  href="/login"
+                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2 whitespace-nowrap"
+                >
+                  <LockClosedIcon className="h-5 w-5" />
+                  Entrar
+                </Link>
+              </div>
             )}
           </div>
 
@@ -370,14 +378,23 @@ export default function Navigation() {
                   </button>
                 </div>
               ) : (
-                <Link 
-                  href="/login"
-                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg font-bold text-center mt-2 flex items-center justify-center gap-2 whitespace-nowrap"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <LockClosedIcon className="h-5 w-5" />
-                  Criar Conta
-                </Link>
+                <div className="flex flex-col gap-2 mt-2">
+                  <Link 
+                    href="/criar-perfil"
+                    className="text-gray-700 hover:text-green-600 font-medium py-2 text-center transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Criar conta
+                  </Link>
+                  <Link 
+                    href="/login"
+                    className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg font-bold text-center flex items-center justify-center gap-2 whitespace-nowrap"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <LockClosedIcon className="h-5 w-5" />
+                    Entrar
+                  </Link>
+                </div>
               )}
             </div>
           </div>

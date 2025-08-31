@@ -175,7 +175,7 @@ export default function LoginPage() {
             >
               {isSignUp 
                 ? 'Já tem uma conta? Fazer login' 
-                : 'Não tem conta? Criar agora'
+                : 'Não tem conta? Criar conta'
               }
             </button>
           </div>
