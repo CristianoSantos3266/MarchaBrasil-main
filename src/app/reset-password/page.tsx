@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/ui/Navigation'
@@ -8,7 +8,7 @@ import { updatePassword } from '@/lib/supabase'
 import { isStrongPassword, PASSWORD_HELP_PT } from '@/lib/validation'
 import { LockClosedIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -79,10 +79,7 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white">
-        <Navigation />
-        
-        <div className="max-w-md mx-auto pt-20 px-4">
+      <div className="max-w-md mx-auto pt-20 px-4">
           <div className="bg-white rounded-xl shadow-lg p-8">
             <div className="text-center mb-8">
               <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-4">
@@ -111,15 +108,11 @@ export default function ResetPasswordPage() {
             </Link>
           </div>
         </div>
-      </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white">
-      <Navigation />
-      
-      <div className="max-w-md mx-auto pt-20 px-4">
+    <div className="max-w-md mx-auto pt-20 px-4">
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="text-center mb-8">
             <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-4">
@@ -217,6 +210,16 @@ export default function ResetPasswordPage() {
           </div>
         </div>
       </div>
+    )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white">
+      <Navigation />
+      <Suspense fallback={<div className="max-w-md mx-auto pt-20 px-4 text-center">Carregando...</div>}>
+        <ResetPasswordForm />
+      </Suspense>
     </div>
   )
 }
