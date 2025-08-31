@@ -1,187 +1,80 @@
-'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import Navigation from '@/components/ui/Navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import { signIn, signUp } from '@/lib/supabase'
-import { DocumentTextIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
+'use client';
+import { useState } from 'react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const router = useRouter()
-  const { refreshProfile } = useAuth()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!email || !password) {
-      setMessage('Por favor, preencha todos os campos.')
-      return
-    }
-    
-    setLoading(true)
-    setMessage('')
-
-    try {
-      let result;
-      
-      if (isSignUp) {
-        result = await signUp(email, password)
-        if (result.error) {
-          // Handle network errors specifically
-          if (result.error.message?.includes('fetch')) {
-            setMessage('Erro de conexão. Verifique sua internet e tente novamente.')
-          } else {
-            setMessage(result.error.message || 'Erro ao criar conta')
-          }
-          return
-        }
-        setMessage('Conta criada com sucesso! Redirecionando...')
-      } else {
-        result = await signIn(email, password)
-        if (result.error) {
-          // Handle network errors specifically
-          if (result.error.message?.includes('fetch') || result.error.message?.includes('NetworkError')) {
-            setMessage('Erro de conexão. Verifique sua internet e tente novamente.')
-          } else {
-            setMessage(result.error.message || 'Erro ao fazer login')
-          }
-          return
-        }
-        setMessage('Login realizado com sucesso! Redirecionando...')
-      }
-
-      // In demo mode, the signIn/signUp functions handle the demo user creation
-      // Store user data for AuthContext to pick up
-      if (result.data?.user) {
-        const demoUser = {
-          id: result.data.user.id,
-          email: result.data.user.email,
-          name: result.data.user.email?.split('@')[0] || 'User',
-          public_name: result.data.user.email?.split('@')[0] || 'User',
-          role: 'user',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        localStorage.setItem('demo-user', JSON.stringify(demoUser))
-        
-        // Dispatch event to notify AuthContext
-        window.dispatchEvent(new CustomEvent('demo-user-updated'))
-      }
-      
-      // Navigate after a short delay
-      setTimeout(() => {
-        router.push('/')
-      }, 1000)
-      
-    } catch (error: any) {
-      setMessage(error.message || 'Erro ao processar solicitação')
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  const [showPwd, setShowPwd] = useState(false);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white">
-      <Navigation />
-      
-      <div className="max-w-md mx-auto pt-20 px-4">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-4">
-              <ShieldCheckIcon className="h-12 w-12 text-green-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {isSignUp ? 'Criar Conta' : 'Entrar'}
-            </h1>
-            <p className="text-gray-600">
-              {isSignUp 
-                ? 'Junte-se à comunidade cívica' 
-                : 'Acesse sua conta'
-              }
-            </p>
+    <div className="max-w-md mx-auto pt-20 px-4">
+      <div className="bg-white rounded-xl shadow-lg p-8">
+        {/* Header — no big circle */}
+        <div className="text-center mb-8 space-y-2">
+          {/* Tiny optional badge (remove this block if not desired) */}
+          <div className="inline-flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.96 11.96 0 0 1 3.6 6 12 12 0 0 0 3 9.75c0 5.59 3.82 10.29 9 11.62 5.18-1.33 9-6.03 9-11.62 0-1.31-.21-2.57-.6-3.75h-.15C17.05 6 14.15 4.75 12 2.71" />
+            </svg>
+            <span>Ambiente seguro</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Entrar</h1>
+          <p className="text-gray-600">Acesse sua conta</p>
+        </div>
+
+        <form className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              id="email"
+              required
+              autoComplete="email"
+              inputMode="email"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="seu@email.com"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Senha</label>
+            <div className="relative">
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="seu@email.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Senha
-              </label>
-              <input
-                type="password"
+                type={showPwd ? 'text' : 'password'}
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                autoComplete="current-password"
+                className="w-full pr-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="••••••••"
               />
-              {!isSignUp && (
-                <div className="text-right mt-2">
-                  <Link 
-                    href="/forgot-password" 
-                    className="text-sm text-green-600 hover:text-green-800 font-medium"
-                  >
-                    Esqueceu a senha?
-                  </Link>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowPwd(s => !s)}
+                className="absolute inset-y-0 right-3 my-1 px-2 text-sm text-gray-600 hover:text-gray-800"
+                aria-label={showPwd ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPwd ? 'Ocultar' : 'Mostrar'}
+              </button>
             </div>
-
-            {message && (
-              <div className={`p-4 rounded-lg text-sm ${
-                message.includes('sucesso') 
-                  ? 'bg-green-50 text-green-800 border border-green-200' 
-                  : 'bg-red-50 text-red-800 border border-red-200'
-              }`}>
-                {message}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? 'Processando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-green-600 hover:text-green-800 text-sm font-medium"
-            >
-              {isSignUp 
-                ? 'Já tem uma conta? Fazer login' 
-                : 'Não tem conta? Criar conta'
-              }
-            </button>
+            <div className="mt-2">
+              <a href="/support-redirect" className="text-green-600 hover:text-green-800 text-sm font-medium">
+                Esqueceu a senha?
+              </a>
+            </div>
           </div>
 
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <a href="/criar-perfil" className="text-green-600 hover:text-green-800 text-sm font-medium">
+            Não tem conta? Criar conta
+          </a>
         </div>
       </div>
     </div>
-  )
+  );
 }
