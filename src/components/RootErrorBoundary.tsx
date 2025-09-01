@@ -15,9 +15,23 @@ export default class RootErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: any, errorInfo: any) {
-    console.error('🚨 RootErrorBoundary caught error:', error, errorInfo);
-    // Also log to help debug
+    console.error('🚨 RootErrorBoundary caught error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     console.error('Component stack:', errorInfo.componentStack);
+    console.error('Error info:', errorInfo);
+    
+    // Also log to localStorage for debugging
+    try {
+      localStorage.setItem('lastError', JSON.stringify({
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (e) {
+      console.error('Could not save error to localStorage:', e);
+    }
   }
 
   render() {

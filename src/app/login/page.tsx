@@ -47,7 +47,7 @@ export default function LoginPage() {
               </button>
             </div>
             <div className="mt-2">
-              <a href="/support-redirect" className="text-green-600 hover:text-green-800 text-sm font-medium">
+              <a href="/forgot-password" className="text-green-600 hover:text-green-800 text-sm font-medium">
                 Esqueceu a senha?
               </a>
             </div>
