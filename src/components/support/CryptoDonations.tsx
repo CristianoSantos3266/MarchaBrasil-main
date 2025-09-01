@@ -1,77 +1,94 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
-import { CRYPTO_METHODS } from '@/config/crypto';
+import Image from "next/image";
+import { useState } from "react";
+import { CRYPTO_ADDRESSES } from "@/config/crypto";
+
+type CoinKey = "ETH" | "BTC" | "LTC" | "DOGE";
+
+const COINS: {
+  key: CoinKey;
+  name: string;
+  ticker: string;
+  address: string;
+  qrSrc: string;   // public path
+}[] = [
+  {
+    key: "ETH",
+    name: "Ethereum",
+    ticker: "ETH",
+    address: CRYPTO_ADDRESSES.ETH,
+    qrSrc: "/qr/eth.png",
+  },
+  {
+    key: "BTC",
+    name: "Bitcoin",
+    ticker: "BTC",
+    address: CRYPTO_ADDRESSES.BTC,
+    qrSrc: "/qr/btc.png",
+  },
+  {
+    key: "LTC",
+    name: "Litecoin",
+    ticker: "LTC",
+    address: CRYPTO_ADDRESSES.LTC,
+    qrSrc: "/qr/ltc.png",
+  },
+  {
+    key: "DOGE",
+    name: "Dogecoin",
+    ticker: "DOGE",
+    address: CRYPTO_ADDRESSES.DOGE,
+    qrSrc: "/qr/doge.png",
+  },
+];
 
 export default function CryptoDonations() {
   const [copied, setCopied] = useState<string | null>(null);
-  const onCopy = async (addr: string, key: string) => {
-    if (!addr) return;
-    await navigator.clipboard.writeText(addr);
-    setCopied(key);
-    setTimeout(() => setCopied(null), 1200);
+
+  const copy = async (text: string, coin: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(coin);
+    setTimeout(() => setCopied(null), 1500);
   };
 
-  const allEmpty = CRYPTO_METHODS.every(m => !m.addr);
-
   return (
-    <div className="bg-purple-50 rounded-xl p-6">
-      <div className="text-center mb-6">
-        <div className="mx-auto w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-2xl">₿</div>
-        <h3 className="mt-3 text-lg font-semibold text-gray-900">Criptomoedas</h3>
-        <p className="text-sm text-purple-700">Máxima privacidade e anonimato</p>
-      </div>
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {COINS.map((c) => (
+        <div key={c.key} className="rounded-2xl border p-4 shadow-sm">
+          <h3 className="text-lg font-semibold">{c.name} ({c.ticker})</h3>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {CRYPTO_METHODS.map(m => {
-          const empty = !m.addr;
-          return (
-            <div key={m.key} className="bg-white rounded-lg border border-purple-200 p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <div className="font-semibold text-gray-900">{m.label}</div>
-              </div>
-              <div className="text-xs text-gray-500 mb-3">{m.note}</div>
+          <div className="mt-3 flex justify-center">
+            <Image
+              src={c.qrSrc}
+              alt={`${c.name} QR`}
+              width={220}
+              height={220}
+              className="rounded-lg"
+              priority
+            />
+          </div>
 
-              {/* QR Code */}
-              <div className="flex justify-center mb-3">
-                <div className="w-24 h-24 bg-white border border-gray-200 rounded-lg p-2">
-                  <Image
-                    src={m.qrPath}
-                    alt={`QR Code for ${m.label}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              </div>
+          <p className="mt-3 break-all text-sm">
+            <span className="font-medium">Address:</span> {c.address}
+          </p>
 
-              <div className={`font-mono text-sm break-all rounded-md px-3 py-2 ${
-                empty ? 'bg-gray-50 text-gray-400' : 'bg-gray-100 text-gray-800'
-              }`}>
-                {empty ? '— a ser preenchido —' : m.addr}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => onCopy(m.addr, m.key)}
-                disabled={empty}
-                className={`mt-3 w-full rounded-md px-3 py-2 text-sm font-medium transition ${
-                  empty ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-purple-600 text-white hover:bg-purple-700'
-                }`}
-                title={empty ? 'Endereço ainda não definido' : 'Copiar endereço'}
-              >
-                {empty ? 'Em breve' : (copied === m.key ? 'Copiado!' : 'Copiar')}
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
-      {allEmpty && (
-        <p className="mt-4 text-center text-sm text-purple-700">
-          Os endereços de carteira serão adicionados em breve (ETH, BTC, LTC e DOGE).
-        </p>
-      )}
+          <div className="mt-3 flex gap-2">
+            <button
+              className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50"
+              onClick={() => copy(c.address, c.ticker)}
+            >
+              {copied === c.ticker ? "Copied!" : "Copy address"}
+            </button>
+            <a
+              href={c.qrSrc}
+              download={`${c.ticker}-qr.png`}
+              className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50"
+            >
+              Download QR
+            </a>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
