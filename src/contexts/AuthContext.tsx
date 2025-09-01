@@ -19,9 +19,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [ready, setReady] = useState(false)
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [userProfile, setUserProfile] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Prevent hydration mismatch - only render after client is ready
+  useEffect(() => {
+    setReady(true)
+  }, [])
 
   const loadDemoUser = () => {
     if (typeof window !== 'undefined') {
@@ -171,6 +177,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data: profile } = await getUserProfile(user.id)
       setUserProfile(profile)
     }
+  }
+
+  // Prevent hydration mismatch - only render provider after client is ready
+  if (!ready) {
+    return (
+      <AuthContext.Provider value={{
+        user: null,
+        userProfile: null,
+        loading: true,
+        signOut: async () => {},
+        refreshProfile: async () => {}
+      }}>
+        {children}
+      </AuthContext.Provider>
+    )
   }
 
   return (

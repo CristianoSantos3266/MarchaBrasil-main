@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ParticipantGrowthScheduler from "@/components/admin/ParticipantGrowthScheduler";
+import RootErrorBoundary from "@/components/RootErrorBoundary";
 
 export const metadata: Metadata = {
   title: "🇧🇷 Marcha Brasil - Manifestações Pacíficas",
@@ -45,10 +46,12 @@ export default function RootLayout({
         <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
       </head>
       <body className="antialiased font-sans">
-        <AuthProvider>
-          {children}
-          <ParticipantGrowthScheduler enabled={true} intervalMinutes={60} />
-        </AuthProvider>
+        <RootErrorBoundary>
+          <AuthProvider>
+            {children}
+            <ParticipantGrowthScheduler enabled={true} intervalMinutes={60} />
+          </AuthProvider>
+        </RootErrorBoundary>
       </body>
     </html>
   );
