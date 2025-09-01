@@ -1,17 +1,7 @@
 'use client';
 import { useState } from 'react';
-
-const BTC_ADDRESS  = '';
-const USDT_TRC20   = '';
-const ETH_ADDRESS  = '';
-
-type Method = { key: string; label: string; note: string; code?: string; addr: string };
-
-const methods: Method[] = [
-  { key: 'btc',  label: 'Bitcoin (BTC)',     note: 'Rede Bitcoin',        addr: BTC_ADDRESS },
-  { key: 'usdt', label: 'USDT (TRC20)',      note: 'Tether na rede Tron', addr: USDT_TRC20, code: 'TRC20' },
-  { key: 'eth',  label: 'Ethereum (ETH)',    note: 'Rede Ethereum',       addr: ETH_ADDRESS },
-];
+import Image from 'next/image';
+import { CRYPTO_METHODS } from '@/config/crypto';
 
 export default function CryptoDonations() {
   const [copied, setCopied] = useState<string | null>(null);
@@ -22,7 +12,7 @@ export default function CryptoDonations() {
     setTimeout(() => setCopied(null), 1200);
   };
 
-  const allEmpty = methods.every(m => !m.addr);
+  const allEmpty = CRYPTO_METHODS.every(m => !m.addr);
 
   return (
     <div className="bg-purple-50 rounded-xl p-6">
@@ -33,15 +23,27 @@ export default function CryptoDonations() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {methods.map(m => {
+        {CRYPTO_METHODS.map(m => {
           const empty = !m.addr;
           return (
             <div key={m.key} className="bg-white rounded-lg border border-purple-200 p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <div className="font-semibold text-gray-900">{m.label}</div>
-                {m.code && <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-800">{m.code}</span>}
               </div>
               <div className="text-xs text-gray-500 mb-3">{m.note}</div>
+
+              {/* QR Code */}
+              <div className="flex justify-center mb-3">
+                <div className="w-24 h-24 bg-white border border-gray-200 rounded-lg p-2">
+                  <Image
+                    src={m.qrPath}
+                    alt={`QR Code for ${m.label}`}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
 
               <div className={`font-mono text-sm break-all rounded-md px-3 py-2 ${
                 empty ? 'bg-gray-50 text-gray-400' : 'bg-gray-100 text-gray-800'
@@ -67,7 +69,7 @@ export default function CryptoDonations() {
 
       {allEmpty && (
         <p className="mt-4 text-center text-sm text-purple-700">
-          Os endereços de carteira serão adicionados em breve (BTC, USDT-TRC20 e ETH).
+          Os endereços de carteira serão adicionados em breve (ETH, BTC, LTC e DOGE).
         </p>
       )}
     </div>
