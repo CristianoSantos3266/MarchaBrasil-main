@@ -11,6 +11,7 @@ const COINS: {
   ticker: string;
   address: string;
   qrSrc: string;   // public path
+  iconSrc: string; // coin logo
 }[] = [
   {
     key: "ETH",
@@ -18,6 +19,7 @@ const COINS: {
     ticker: "ETH",
     address: CRYPTO_ADDRESSES.ETH,
     qrSrc: "/qr/eth.png",
+    iconSrc: "/icons/eth.svg",
   },
   {
     key: "BTC",
@@ -25,6 +27,7 @@ const COINS: {
     ticker: "BTC",
     address: CRYPTO_ADDRESSES.BTC,
     qrSrc: "/qr/btc.png",
+    iconSrc: "/icons/btc.svg",
   },
   {
     key: "LTC",
@@ -32,6 +35,7 @@ const COINS: {
     ticker: "LTC",
     address: CRYPTO_ADDRESSES.LTC,
     qrSrc: "/qr/ltc.png",
+    iconSrc: "/icons/ltc.svg",
   },
   {
     key: "DOGE",
@@ -39,6 +43,7 @@ const COINS: {
     ticker: "DOGE",
     address: CRYPTO_ADDRESSES.DOGE,
     qrSrc: "/qr/doge.png",
+    iconSrc: "/icons/doge.svg",
   },
 ];
 
@@ -55,7 +60,16 @@ export default function CryptoDonations() {
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {COINS.map((c) => (
         <div key={c.key} className="rounded-2xl border p-4 shadow-sm">
-          <h3 className="text-lg font-semibold">{c.name} ({c.ticker})</h3>
+          <div className="flex items-center gap-2 mb-3">
+            <Image
+              src={c.iconSrc}
+              alt={`${c.name} logo`}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            <h3 className="text-lg font-semibold">{c.name} ({c.ticker})</h3>
+          </div>
 
           <div className="mt-3 flex justify-center">
             <Image
