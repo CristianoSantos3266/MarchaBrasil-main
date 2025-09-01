@@ -42,17 +42,18 @@ import { DONATE_URL, APOIAR_URL } from "@/lib/links";
 // ...
 <Link href={DONATE_URL} className="...">Apoiar Plataforma</Link>
 
-const SmartMapboxGlobal = dynamic(() => import('@/components/map/SmartMapboxGlobal'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
-      <div className="text-center">
-        <div className="w-8 h-8 bg-blue-600 rounded-full mx-auto mb-2 animate-bounce"></div>
-        <p className="text-gray-600">Carregando mapa...</p>
-      </div>
-    </div>
-  )
-});
+// Temporarily disabled - causing hydration issues
+// const SmartMapboxGlobal = dynamic(() => import('@/components/map/SmartMapboxGlobal'), {
+//   ssr: false,
+//   loading: () => (
+//     <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
+//       <div className="text-center">
+//         <div className="w-8 h-8 bg-blue-600 rounded-full mx-auto mb-2 animate-bounce"></div>
+//         <p className="text-gray-600">Carregando mapa...</p>
+//       </div>
+//     </div>
+//   )
+// });
 
 export default function Home() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
@@ -323,15 +324,17 @@ export default function Home() {
               Descubra manifestações pacíficas em sua região. Clique no mapa para ver os eventos em sua cidade.
             </p>
           </div>
-          <SmartMapboxGlobal
-            selectedCountry={selectedCountry?.code}
-            onProtestSelect={(protest) => {
-              // Navigate to protest detail page
-              window.location.href = `/protest/${protest.id}`;
-            }}
-            onCountrySelect={handleCountrySelect}
-            onRegionSelect={handleRegionSelect}
-          />
+{/* Safe dynamic import with error boundary */}
+          <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+            <div className="text-center">
+              <div className="text-4xl mb-4">🗺️</div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Mapa Interativo</h3>
+              <p className="text-gray-500 mb-4">Explore manifestações por região</p>
+              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                Visualizar Mapa
+              </button>
+            </div>
+          </div>
         </section>
 
         {selectedRegion && (
