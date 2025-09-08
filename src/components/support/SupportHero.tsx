@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { HeartIcon, ShareIcon, ShieldCheckIcon, ChartBarIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
+import { HeartIcon, ShareIcon, ShieldCheckIcon, ChartBarIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import { SHOW_DONATION_STATS, MOMENTUM_MIN_DONORS_7D, MOMENTUM_MIN_PROGRESS } from '@/lib/featureFlags';
 import { FundraisingStats, shouldShowProgress, pct, formatBRL } from '@/lib/fundraising';
 
