@@ -1,205 +1,216 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
+import { useState } from 'react'
 import Navigation from '@/components/ui/Navigation'
-import { getPublishedNews } from '@/lib/supabase'
-import { NewsPost } from '@/types/news'
-import { CalendarIcon, EyeIcon, TagIcon, PlayIcon } from '@heroicons/react/24/outline'
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('pt-BR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
-}
-
-function getYouTubeVideoId(url: string): string | null {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
-  const match = url.match(regex)
-  return match ? match[1] : null
-}
+import Footer from '@/components/ui/Footer'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function NewsPage() {
-  const [posts, setPosts] = useState<NewsPost[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
+  const [selectedCategory, setSelectedCategory] = useState('all')
 
-  useEffect(() => {
-    const loadNews = async () => {
-      try {
-        const { data, error } = await getPublishedNews()
-        if (error) {
-          console.error('Error loading news:', error)
-          setError('Erro ao carregar notícias')
-        } else {
-          setPosts(data || [])
-        }
-      } catch (err) {
-        console.error('Error loading news:', err)
-        setError('Erro ao carregar notícias')
-      } finally {
-        setLoading(false)
-      }
+  const categories = [
+    { id: 'all', name: 'Todas', icon: '📰' },
+    { id: 'politics', name: 'Política', icon: '🏛️' },
+    { id: 'democracy', name: 'Democracia', icon: '🗳️' },
+    { id: 'manifestations', name: 'Manifestações', icon: '✊' },
+    { id: 'rights', name: 'Direitos', icon: '⚖️' }
+  ]
+
+  const mockNews = [
+    {
+      id: 1,
+      title: 'Nova Lei de Manifestações Pacíficas em Discussão',
+      summary: 'Congresso debate regulamentação que garante direitos constitucionais dos manifestantes.',
+      category: 'politics',
+      date: '2025-01-08',
+      readTime: '5 min',
+      featured: true
+    },
+    {
+      id: 2,
+      title: 'Manifestação Pacífica Reúne Milhares em São Paulo',
+      summary: 'Evento organizado pela plataforma mobiliza cidadãos em defesa da democracia.',
+      category: 'manifestations',
+      date: '2025-01-07',
+      readTime: '3 min',
+      featured: false
+    },
+    {
+      id: 3,
+      title: 'Como Organizar Manifestações Seguras e Eficazes',
+      summary: 'Guia completo com dicas práticas para organizadores de eventos cívicos.',
+      category: 'rights',
+      date: '2025-01-06',
+      readTime: '8 min',
+      featured: false
     }
-    loadNews()
-  }, [])
+  ]
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-        <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Carregando notícias...</p>
-          </div>
-        </div>
-      </div>
-    )
+  const filteredNews = selectedCategory === 'all' 
+    ? mockNews 
+    : mockNews.filter(item => item.category === selectedCategory)
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Navigation />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            📰 Notícias
+            📰 Notícias e Atualizações
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Acompanhe as últimas notícias sobre manifestações pacíficas e movimentos cívicos em todo o Brasil
+            Fique por dentro das últimas notícias sobre manifestações pacíficas, 
+            direitos democráticos e mobilizações cidadãs no Brasil
           </p>
         </div>
 
-        {error ? (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
-              <TagIcon className="h-16 w-16 mx-auto text-red-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar</h3>
-              <p className="text-gray-600">{error}</p>
-            </div>
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
-              <TagIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma notícia ainda</h3>
-              <p className="text-gray-600">
-                As primeiras notícias serão publicadas em breve.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post: NewsPost) => (
-              <article key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
-                {/* Media */}
-                <div className="relative aspect-video bg-gray-900">
-                  {post.image_url ? (
-                    <Image
-                      src={post.image_url}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        // Fallback for missing images
-                        (e.target as HTMLImageElement).style.display = 'none'
-                      }}
-                    />
-                  ) : post.video_url && getYouTubeVideoId(post.video_url) ? (
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={`https://i.ytimg.com/vi/${getYouTubeVideoId(post.video_url)}/maxresdefault.jpg`}
-                        alt={post.title}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                        <div className="bg-red-600 rounded-full p-3">
-                          <PlayIcon className="h-8 w-8 text-white" />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <TagIcon className="h-16 w-16 mx-auto mb-2 opacity-80" />
-                        <p className="text-sm font-medium">Marcha Brasil</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                    <div className="flex items-center gap-1">
-                      <CalendarIcon className="h-4 w-4" />
-                      <span>{formatDate(post.published_at || post.created_at)}</span>
-                    </div>
-                    {post.view_count !== undefined && (
-                      <div className="flex items-center gap-1">
-                        <EyeIcon className="h-4 w-4" />
-                        <span>{post.view_count} visualizações</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
-                    <Link href={`/news/${post.slug}`} className="hover:text-blue-600 transition-colors">
-                      {post.title}
-                    </Link>
-                  </h2>
-
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {post.excerpt || post.content.replace(/[#*`]/g, '').substring(0, 150) + '...'}
-                  </p>
-
-                  {/* Tags */}
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {post.tags.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
-                        >
-                          #{tag.replace(/\s/g, '')}
-                        </span>
-                      ))}
-                      {post.tags.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                          +{post.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Author */}
-                  <div className="text-xs text-gray-500 border-t pt-3">
-                    Por {post.author_name || 'Redação Marcha Brasil'}
-                  </div>
-
-                  {/* Read More */}
-                  <div className="mt-4">
-                    <Link
-                      href={`/news/${post.slug}`}
-                      className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
-                    >
-                      Ler mais →
-                    </Link>
-                  </div>
-                </div>
-              </article>
+        {/* Categories Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap justify-center gap-3">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all duration-200 ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-white text-gray-700 hover:bg-blue-50 border border-gray-200'
+                }`}
+              >
+                <span>{category.icon}</span>
+                {category.name}
+              </button>
             ))}
           </div>
+        </div>
+
+        {/* Featured Article */}
+        {selectedCategory === 'all' && (
+          <div className="mb-12">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white">
+              <div className="flex items-start justify-between mb-4">
+                <span className="bg-yellow-400 text-blue-900 px-3 py-1 rounded-full text-sm font-bold">
+                  ⭐ Destaque
+                </span>
+                <span className="text-blue-100 text-sm">
+                  {formatDate(mockNews[0].date)}
+                </span>
+              </div>
+              <h2 className="text-3xl font-bold mb-4">
+                {mockNews[0].title}
+              </h2>
+              <p className="text-xl text-blue-100 mb-6">
+                {mockNews[0].summary}
+              </p>
+              <div className="flex items-center gap-4">
+                <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition-colors">
+                  Ler Matéria Completa
+                </button>
+                <span className="text-blue-200 text-sm">
+                  ⏱️ {mockNews[0].readTime} de leitura
+                </span>
+              </div>
+            </div>
+          </div>
         )}
+
+        {/* News Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredNews.filter(item => !item.featured || selectedCategory !== 'all').map((article) => (
+            <article
+              key={article.id}
+              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100"
+            >
+              <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 flex items-center justify-center">
+                <span className="text-6xl opacity-50">📰</span>
+              </div>
+              
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    {categories.find(cat => cat.id === article.category)?.icon}
+                    {categories.find(cat => cat.id === article.category)?.name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(article.date)}
+                  </span>
+                </div>
+                
+                <h3 className="font-bold text-gray-900 mb-3 text-lg leading-tight">
+                  {article.title}
+                </h3>
+                
+                <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                  {article.summary}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <button className="text-blue-600 font-medium hover:text-blue-700 transition-colors text-sm">
+                    Ler mais →
+                  </button>
+                  <span className="text-xs text-gray-500">
+                    ⏱️ {article.readTime}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {filteredNews.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📰</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Nenhuma notícia encontrada
+            </h3>
+            <p className="text-gray-600">
+              Não há notícias disponíveis nesta categoria no momento.
+            </p>
+          </div>
+        )}
+
+        {/* Newsletter Signup */}
+        <div className="mt-16 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 border border-green-200">
+          <div className="text-center">
+            <div className="text-4xl mb-4">📬</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              Receba as Últimas Notícias
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Mantenha-se informado sobre manifestações, direitos democráticos e 
+              mobilizações cidadãs. Receba nossa newsletter semanal.
+            </p>
+            <div className="max-w-md mx-auto flex gap-3">
+              <input
+                type="email"
+                placeholder="Seu melhor e-mail"
+                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors">
+                Inscrever
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
+              Respeitamos sua privacidade. Cancele a qualquer momento.
+            </p>
+          </div>
+        </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

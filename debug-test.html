@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test - Marcha Brasil</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Authentication Debug Test</h1>
+    <div id="status">Loading...</div>
+    <div id="testResults"></div>
+    
+    <script>
+        console.log('Script started');
+        document.getElementById('status').innerHTML = 'Script loaded';
+        
+        setTimeout(() => {
+            console.log('Testing Supabase...');
+            const results = [];
+            
+            // Test 1: Check if supabase global exists
+            if (typeof supabase !== 'undefined') {
+                results.push('✅ Supabase global available');
+                
+                // Test 2: Try to create client
+                try {
+                    const client = supabase.createClient(
+                        'https://xjkaqdsldkhlhjnptrga.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqa2FxZHNsZGtobGhqbnB0cmdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM0ODY5MjIsImV4cCI6MjAzOTA2MjkyMn0.ooEL_pW9nL5c5pMiJT_t-pkxEiDzcKGP5dbmz0L-z0Q'
+                    );
+                    results.push('✅ Supabase client created');
+                    
+                    // Test 3: Try a simple auth call
+                    client.auth.getSession().then(response => {
+                        results.push('✅ Auth connection working');
+                        console.log('Session response:', response);
+                        document.getElementById('testResults').innerHTML = results.join('<br>');
+                    }).catch(error => {
+                        results.push('❌ Auth error: ' + error.message);
+                        console.error('Auth error:', error);
+                        document.getElementById('testResults').innerHTML = results.join('<br>');
+                    });
+                    
+                } catch (error) {
+                    results.push('❌ Client creation error: ' + error.message);
+                    console.error('Client error:', error);
+                }
+            } else {
+                results.push('❌ Supabase global not available');
+            }
+            
+            if (results.length > 0) {
+                document.getElementById('testResults').innerHTML = results.join('<br>');
+            }
+            
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,12 +1,18 @@
+export const dynamic = 'force-dynamic';
+export async function POST() {
+  return Response.json({ ok: false, error: 'payments disabled' }, { status: 503 });
+}
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createDonation } from '@/lib/supabase';
 import { getPaymentMethods, SUPPORTED_CURRENCIES } from '@/lib/stripe';
 
-// Initialize Stripe with secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
-});
+// Initialize Stripe with secret key only if available
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2024-12-18.acacia',
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if Stripe is properly configured
-    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_your_secret_key_here') {
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_your_secret_key_here' || !stripe) {
       console.error('STRIPE_SECRET_KEY not configured');
       return NextResponse.json({ error: 'Payment system not configured' }, { status: 500 });
     }

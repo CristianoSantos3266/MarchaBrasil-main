@@ -32,7 +32,7 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
           {/* Left side - Content */}
           <div className="text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-gray-900">
-              <GlobeAltIcon className="inline h-12 w-12 text-green-600 mr-3" />
+              <GlobeAltIcon className="inline h-8 w-8 text-green-600 mr-3" />
               Ajude a manter o <span className="text-green-600">Marcha Brasil</span> no ar
             </h1>
             
@@ -70,24 +70,24 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
               </div>
             )}
 
-            {/* Call to Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <button
-                onClick={onContribuir}
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-              >
-                <HeartIcon className="h-6 w-6" />
-                Contribuir Agora
-              </button>
-              
-              <button
-                onClick={onCompartilhar}
-                className="bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-gray-200 flex items-center justify-center gap-3"
-              >
-                <ShareIcon className="h-6 w-6" />
-                Compartilhar
-              </button>
-            </div>
+{/* Call to Action Buttons */}
+<div className="flex flex-col sm:flex-row gap-4 mb-6">
+  <a
+    href="/apoie/contribuir"
+    className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+  >
+    <HeartIcon className="h-6 w-6" />
+    Contribuir Agora
+  </a>
+
+  <a
+    href="/apoie/compartilhar"
+    className="bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-gray-200 flex items-center justify-center gap-3"
+  >
+    <ShareIcon className="h-6 w-6" />
+    Compartilhar
+  </a>
+</div>
 
             <div className="flex justify-center sm:justify-start items-center gap-6 text-sm text-gray-600 flex-wrap">
               <span className="flex items-center gap-2">

@@ -1,58 +1,56 @@
-import { loadStripe } from '@stripe/stripe-js';
+// src/lib/stripe-client.ts
 
-// This is a test publishable key - replace with your actual publishable key
-const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_51234567890abcdef';
+// NOTE: This file is safe to import from both server and client.
+// We DO NOT mark it 'use client'. We only touch Stripe.js in the browser.
 
-export const stripePromise = loadStripe(stripePublishableKey);
+type CurrencyCode =
+  | 'BRL' | 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY' | 'CHF' | 'MXN' | 'ARS';
 
-// International currency configuration
-export const SUPPORTED_CURRENCIES = {
-  BRL: { name: 'Brazilian Real', symbol: 'R$', locale: 'pt-BR', zeroDecimal: false },
-  USD: { name: 'US Dollar', symbol: '$', locale: 'en-US', zeroDecimal: false },
-  EUR: { name: 'Euro', symbol: '€', locale: 'de-DE', zeroDecimal: false },
-  GBP: { name: 'British Pound', symbol: '£', locale: 'en-GB', zeroDecimal: false },
-  CAD: { name: 'Canadian Dollar', symbol: 'C$', locale: 'en-CA', zeroDecimal: false },
-  AUD: { name: 'Australian Dollar', symbol: 'A$', locale: 'en-AU', zeroDecimal: false },
-  JPY: { name: 'Japanese Yen', symbol: '¥', locale: 'ja-JP', zeroDecimal: true },
-  CHF: { name: 'Swiss Franc', symbol: 'CHF', locale: 'de-CH', zeroDecimal: false },
-  MXN: { name: 'Mexican Peso', symbol: 'MX$', locale: 'es-MX', zeroDecimal: false },
-  ARS: { name: 'Argentine Peso', symbol: 'ARS$', locale: 'es-AR', zeroDecimal: false }
+export const SUPPORTED_CURRENCIES: Record<
+  CurrencyCode,
+  { name: string; symbol: string; locale: string; zeroDecimal: boolean }
+> = {
+  BRL: { name: 'Brazilian Real',     symbol: 'R$',  locale: 'pt-BR', zeroDecimal: false },
+  USD: { name: 'US Dollar',          symbol: '$',   locale: 'en-US', zeroDecimal: false },
+  EUR: { name: 'Euro',               symbol: '€',   locale: 'de-DE', zeroDecimal: false },
+  GBP: { name: 'British Pound',      symbol: '£',   locale: 'en-GB', zeroDecimal: false },
+  CAD: { name: 'Canadian Dollar',    symbol: 'C$',  locale: 'en-CA', zeroDecimal: false },
+  AUD: { name: 'Australian Dollar',  symbol: 'A$',  locale: 'en-AU', zeroDecimal: false },
+  JPY: { name: 'Japanese Yen',       symbol: '¥',   locale: 'ja-JP', zeroDecimal: true  },
+  CHF: { name: 'Swiss Franc',        symbol: 'CHF', locale: 'de-CH', zeroDecimal: false },
+  MXN: { name: 'Mexican Peso',       symbol: 'MX$', locale: 'es-MX', zeroDecimal: false },
+  ARS: { name: 'Argentine Peso',     symbol: 'ARS$',locale: 'es-AR', zeroDecimal: false },
 };
 
-export const formatCurrency = (amount: number, currency: string = 'BRL') => {
-  const currencyConfig = SUPPORTED_CURRENCIES[currency as keyof typeof SUPPORTED_CURRENCIES];
-  const locale = currencyConfig?.locale || 'pt-BR';
-  
-  return new Intl.NumberFormat(locale, {
+// ---------- Amount & formatting helpers ----------
+
+export const formatCurrency = (amount: number, currency: CurrencyCode = 'BRL') => {
+  const cfg = SUPPORTED_CURRENCIES[currency] ?? SUPPORTED_CURRENCIES.BRL;
+  const safe = Number.isFinite(amount) ? amount : 0;
+  return new Intl.NumberFormat(cfg.locale, {
     style: 'currency',
-    currency: currency,
-    minimumFractionDigits: currencyConfig?.zeroDecimal ? 0 : 2,
-    maximumFractionDigits: currencyConfig?.zeroDecimal ? 0 : 2,
-  }).format(amount);
+    currency,
+    minimumFractionDigits: cfg.zeroDecimal ? 0 : 2,
+    maximumFractionDigits: cfg.zeroDecimal ? 0 : 2,
+  }).format(safe);
 };
 
-export const convertToStripeAmount = (amount: number, currency: string = 'BRL') => {
-  const currencyConfig = SUPPORTED_CURRENCIES[currency as keyof typeof SUPPORTED_CURRENCIES];
-  
-  // Zero-decimal currencies (like JPY) don't use cents
-  if (currencyConfig?.zeroDecimal) {
-    return Math.round(amount);
-  }
-  
-  // Most currencies use 2 decimal places (cents)
-  return Math.round(amount * 100);
+export const convertToStripeAmount = (amount: number, currency: CurrencyCode = 'BRL') => {
+  const cfg = SUPPORTED_CURRENCIES[currency] ?? SUPPORTED_CURRENCIES.BRL;
+  const safe = Number.isFinite(amount) ? amount : 0;
+  return cfg.zeroDecimal ? Math.round(safe) : Math.round(safe * 100);
 };
 
-// Get user's likely currency based on their location
-export const getUserCurrency = (): string => {
+// ---------- Currency detection (browser only) ----------
+
+export const getUserCurrency = (): CurrencyCode => {
   if (typeof window === 'undefined') return 'BRL';
-  
+
   try {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const locale = navigator.language;
-    
-    // Map common locales/timezones to currencies
-    const currencyMap: Record<string, string> = {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const locale = navigator.language || 'pt-BR';
+
+    const tzMap: Partial<Record<string, CurrencyCode>> = {
       'America/Sao_Paulo': 'BRL',
       'America/Fortaleza': 'BRL',
       'America/Recife': 'BRL',
@@ -69,52 +67,55 @@ export const getUserCurrency = (): string => {
       'Australia/Sydney': 'AUD',
       'America/Toronto': 'CAD',
       'America/Mexico_City': 'MXN',
-      'America/Argentina/Buenos_Aires': 'ARS'
+      'America/Argentina/Buenos_Aires': 'ARS',
     };
-    
-    // First try timezone mapping
-    if (currencyMap[timezone]) {
-      return currencyMap[timezone];
-    }
-    
-    // Fallback to locale-based detection
+
+    if (tzMap[timezone]) return tzMap[timezone] as CurrencyCode;
+
+    // Explicit parentheses to avoid precedence surprises
     if (locale.startsWith('pt-BR') || locale.startsWith('pt')) return 'BRL';
-    if (locale.startsWith('en-US') || locale.startsWith('en') && !locale.includes('GB')) return 'USD';
+    if (locale.startsWith('en-US') || (locale.startsWith('en') && !locale.includes('GB'))) return 'USD';
     if (locale.startsWith('en-GB')) return 'GBP';
-    if (locale.startsWith('de') || locale.startsWith('fr') || locale.startsWith('es') || locale.startsWith('it')) return 'EUR';
+    if (/^(de|fr|es|it)/.test(locale)) return 'EUR';
     if (locale.startsWith('ja')) return 'JPY';
     if (locale.startsWith('en-AU')) return 'AUD';
     if (locale.startsWith('en-CA') || locale.startsWith('fr-CA')) return 'CAD';
     if (locale.startsWith('es-MX')) return 'MXN';
     if (locale.startsWith('es-AR')) return 'ARS';
-    
-    return 'BRL'; // Default to BRL
-  } catch (error) {
-    console.warn('Could not detect user currency:', error);
+
+    return 'BRL';
+  } catch {
     return 'BRL';
   }
 };
 
-// Get payment methods available for each country/currency
-export const getPaymentMethods = (currency: string): string[] => {
-  const basePaymentMethods = ['card'];
-  
-  // For now, only use card payments until other methods are properly configured
-  // TODO: Enable additional payment methods once Stripe account is fully configured
-  switch (currency) {
-    case 'BRL':
-      return basePaymentMethods; // Removed boleto until activated in Stripe dashboard
-    case 'EUR':
-      return basePaymentMethods; // Simplified for testing
-    case 'GBP':
-      return basePaymentMethods;
-    case 'USD':
-      return basePaymentMethods;
-    case 'MXN':
-      return basePaymentMethods;
-    case 'JPY':
-      return basePaymentMethods;
-    default:
-      return basePaymentMethods;
-  }
+// ---------- Payment methods (kept simple for now) ----------
+
+export const getPaymentMethods = (currency: CurrencyCode): string[] => {
+  // Keep only card until dashboard enables local methods.
+  return ['card'];
 };
+
+// ---------- Safe Stripe.js loader (never runs on server) ----------
+
+const PUBLISHABLE = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+
+let _stripePromise: Promise<import('@stripe/stripe-js').Stripe | null> | null = null;
+
+/**
+ * Load Stripe.js in the browser on demand.
+ * Returns `null` on server or when no publishable key is configured.
+ */
+export async function getStripe() {
+  if (typeof window === 'undefined') return null;
+  if (!PUBLISHABLE || PUBLISHABLE.startsWith('pk_test_51234567890abcdef')) {
+    // Key missing or placeholder – treat as disabled
+    return null;
+  }
+  if (!_stripePromise) {
+    const { loadStripe } = await import('@stripe/stripe-js');
+    _stripePromise = loadStripe(PUBLISHABLE);
+  }
+  return _stripePromise;
+}
+
