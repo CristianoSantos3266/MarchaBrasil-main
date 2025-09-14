@@ -22,74 +22,40 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure proper icon sizing - critical for Heroicons */
+/* ---------- SVG & media guardrails ---------- */
+/* Never stretch SVGs globally. No width:100% rules here. */
 svg {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
 }
 
-/* Heroicons specific fixes */
-svg[data-slot="icon"] {
-  width: 1.5rem !important;
-  height: 1.5rem !important;
+/* Heroicons default size (data-slot="icon" is present on v2 icons).
+   :where(...) keeps specificity at 0 so Tailwind classes like h-5 w-5
+   still override when you intentionally set a different size. */
+:where(svg[data-slot="icon"]) {
+  width: 1.25rem;  /* 20px (Tailwind h-5) */
+  height: 1.25rem;
 }
 
-/* Override for specific size classes - force override Tailwind preflight */
-.h-4.w-4 svg,
-svg.h-4.w-4,
-.h-4.w-4,
-svg.h-4 {
-  width: 1rem !important;
-  height: 1rem !important;
-  max-width: 1rem !important;
-  max-height: 1rem !important;
+/* Keep media responsive without touching generic SVG sizing */
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
 }
 
-.h-5.w-5 svg,
-svg.h-5.w-5,
-.h-5.w-5,
-svg.h-5 {
-  width: 1.25rem !important;
-  height: 1.25rem !important;
-  max-width: 1.25rem !important;
-  max-height: 1.25rem !important;
-}
-
-.h-6.w-6 svg,
-svg.h-6.w-6,
-.h-6.w-6,
-svg.h-6 {
-  width: 1.5rem !important;
-  height: 1.5rem !important;
-  max-width: 1.5rem !important;
-  max-height: 1.5rem !important;
-}
-
-.h-8.w-8 svg,
-svg.h-8.w-8,
-.h-8.w-8,
-svg.h-8 {
-  width: 2rem !important;
-  height: 2rem !important;
-  max-width: 2rem !important;
-  max-height: 2rem !important;
-}
-
-/* Ensure proper text sizing */
+/* ---------- Typography ---------- */
 html {
   font-size: 16px;
   line-height: 1.5;
 }
 
-/* Global box-sizing */
-*,
-*::before,
-*::after {
+/* ---------- Box sizing ---------- */
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* === Force form text to black (incl iOS Safari/autofill) === */
+/* ---------- Form text visibility (incl. iOS autofill) ---------- */
 input, textarea, select { color:#111827 !important; }   /* gray-900 */
 ::placeholder { color:#9CA3AF !important; opacity:1; }  /* gray-400 */
 input:-webkit-autofill,
@@ -98,3 +64,4 @@ select:-webkit-autofill {
   -webkit-text-fill-color:#111827 !important;
   transition: background-color 9999s ease-out 0s;
 }
+

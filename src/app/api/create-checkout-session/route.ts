@@ -1,144 +1,52 @@
-export const dynamic = 'force-dynamic';
-export async function POST() {
-  return Response.json({ ok: false, error: 'payments disabled' }, { status: 503 });
-}
-import { NextRequest, NextResponse } from 'next/server';
+
 import Stripe from 'stripe';
-import { createDonation } from '@/lib/supabase';
-import { getPaymentMethods, SUPPORTED_CURRENCIES } from '@/lib/stripe';
 
-// Initialize Stripe with secret key only if available
-const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
-    })
-  : null;
+export const dynamic = 'force-dynamic'; // ensure it runs on the server each request
 
-export async function POST(req: NextRequest) {
+// Create the Stripe client with your LIVE secret key
+const secret = process.env.STRIPE_SECRET_KEY;
+if (!secret) {
+  console.warn('STRIPE_SECRET_KEY is missing. Payments will not work.');
+}
+const stripe = secret ? new Stripe(secret, { apiVersion: '2024-06-20' }) : null;
+
+export async function POST(req: Request) {
   try {
-    console.log('Stripe API route called');
-    const body = await req.json();
-    console.log('Request body:', body);
-    
-    const { amount, currency = 'brl', isMonthly = false, donationTier, country } = body;
-
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
+    if (!stripe) {
+      return new Response(JSON.stringify({ error: 'Stripe not configured' }), { status: 500 });
     }
 
-    // Check if Stripe is properly configured
-    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_your_secret_key_here' || !stripe) {
-      console.error('STRIPE_SECRET_KEY not configured');
-      return NextResponse.json({ error: 'Payment system not configured' }, { status: 500 });
+    const body = await req.json().catch(() => ({}));
+    const amount = Number(body?.amount);
+    const currency = (body?.currency || 'BRL').toLowerCase();
+
+    if (!amount || Number.isNaN(amount) || amount < 5) {
+      return new Response(JSON.stringify({ error: 'Invalid amount' }), { status: 400 });
     }
 
-    // Validate currency
-    const upperCurrency = currency.toUpperCase();
-    if (!SUPPORTED_CURRENCIES[upperCurrency as keyof typeof SUPPORTED_CURRENCIES]) {
-      return NextResponse.json({ error: 'Unsupported currency' }, { status: 400 });
-    }
-
-    // Convert amount to Stripe format (handles zero-decimal currencies)
-    const currencyConfig = SUPPORTED_CURRENCIES[upperCurrency as keyof typeof SUPPORTED_CURRENCIES];
-    const stripeAmount = currencyConfig.zeroDecimal ? Math.round(amount) : Math.round(amount * 100);
-
-    // Get appropriate payment methods for the currency/country
-    const paymentMethods = getPaymentMethods(upperCurrency);
-    
-    const params: Stripe.Checkout.SessionCreateParams = {
-      mode: isMonthly ? 'subscription' : 'payment',
-      payment_method_types: paymentMethods,
-      success_url: `${req.nextUrl.origin}/apoie/contribuir?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.nextUrl.origin}/apoie/contribuir?canceled=true`,
-      allow_promotion_codes: true,
-      billing_address_collection: 'auto',
-      shipping_address_collection: country ? {
-        allowed_countries: [country.toUpperCase()]
-      } : undefined,
-      metadata: {
-        donationTier: donationTier || 'custom',
-        isMonthly: isMonthly.toString(),
-        currency: upperCurrency,
-        country: country || 'unknown'
-      },
-    };
-
-    if (isMonthly) {
-      // Create a subscription for monthly donations
-      params.line_items = [
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'], // add 'pix' here if Pix is enabled on your Stripe account
+      line_items: [
         {
+          quantity: 1,
           price_data: {
-            currency: upperCurrency.toLowerCase(),
+            currency,
+            unit_amount: Math.round(amount * 100),
             product_data: {
-              name: `Monthly Support - ${donationTier || 'Custom Donation'}`,
-              description: 'Monthly support for Marcha Brasil civic infrastructure',
-              images: [`${req.nextUrl.origin}/logo-stripe.png`],
-            },
-            unit_amount: stripeAmount,
-            recurring: {
-              interval: 'month',
+              name: 'Doação para Marcha Brasil',
             },
           },
-          quantity: 1,
         },
-      ];
-    } else {
-      // Create a one-time payment
-      params.line_items = [
-        {
-          price_data: {
-            currency: upperCurrency.toLowerCase(),
-            product_data: {
-              name: `One-time Donation - ${donationTier || 'Custom Amount'}`,
-              description: 'One-time donation to support Marcha Brasil civic infrastructure',
-              images: [`${req.nextUrl.origin}/logo-stripe.png`],
-            },
-            unit_amount: stripeAmount,
-          },
-          quantity: 1,
-        },
-      ];
-    }
-
-    console.log('Creating Stripe session with params:', JSON.stringify(params, null, 2));
-    const checkoutSession = await stripe.checkout.sessions.create(params);
-    console.log('Stripe session created:', checkoutSession.id);
-
-    // Record the donation in database
-    if (checkoutSession.id) {
-      try {
-        await createDonation({
-          stripe_session_id: checkoutSession.id,
-          amount: amount,
-          payment_method: 'stripe',
-          is_monthly: isMonthly,
-          donation_tier: donationTier || 'custom',
-          tier_name: donationTier || 'Custom Amount',
-          metadata: {
-            stripe_session_id: checkoutSession.id,
-            amount: amount,
-            currency: upperCurrency,
-            is_monthly: isMonthly,
-            country: country || 'unknown',
-            payment_methods: paymentMethods
-          }
-        });
-      } catch (dbError) {
-        console.error('Failed to record donation in database:', dbError);
-        // Don't fail the checkout if database recording fails
-      }
-    }
-
-    return NextResponse.json({ 
-      id: checkoutSession.id,
-      url: checkoutSession.url 
+      ],
+      success_url: process.env.STRIPE_SUCCESS_URL || 'http://localhost:3000/apoie/contribuir?success=true',
+      cancel_url: process.env.STRIPE_CANCEL_URL || 'http://localhost:3000/apoie/contribuir?canceled=true',
     });
-  } catch (err: any) {
-    console.error('Stripe checkout session creation failed:', err);
-    console.error('Error details:', err.message, err.stack);
-    return NextResponse.json(
-      { error: err.message || 'Failed to create checkout session' },
-      { status: 500 }
-    );
+
+    return Response.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe create session error:', err);
+    return new Response(JSON.stringify({ error: 'Stripe error' }), { status: 500 });
   }
 }
+

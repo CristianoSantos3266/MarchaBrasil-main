@@ -1,17 +1,35 @@
 'use client';
 
 import { useMemo } from 'react';
-import { HeartIcon, ShareIcon, ShieldCheckIcon, ChartBarIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
-import { SHOW_DONATION_STATS, MOMENTUM_MIN_DONORS_7D, MOMENTUM_MIN_PROGRESS } from '@/lib/featureFlags';
-import { FundraisingStats, shouldShowProgress, pct, formatBRL } from '@/lib/fundraising';
+import {
+  HeartIcon,
+  ShareIcon,
+  ShieldCheckIcon,
+  ChartBarIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline';
+
+import {
+  SHOW_DONATION_STATS,
+  MOMENTUM_MIN_DONORS_7D,
+  MOMENTUM_MIN_PROGRESS,
+} from '@/lib/featureFlags';
+import {
+  FundraisingStats,
+  shouldShowProgress,
+  pct,
+  formatBRL,
+} from '@/lib/fundraising';
 
 interface SupportHeroProps {
-  onContribuir: () => void;
-  onCompartilhar: () => void;
+  // Keep these in the type so callers can still pass them,
+  // but we won't *use* them since we’re linking directly.
+  onContribuir?: () => void;
+  onCompartilhar?: () => void;
   stats?: FundraisingStats;
 }
 
-export default function SupportHero({ onContribuir, onCompartilhar, stats }: SupportHeroProps) {
+export default function SupportHero({ stats }: SupportHeroProps) {
   const fallback: FundraisingStats = { goalCents: 0, raisedCents: 0, donorsLast7d: 0 };
   const effective = stats ?? fallback;
 
@@ -32,16 +50,17 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
           {/* Left side - Content */}
           <div className="text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-gray-900">
-              <GlobeAltIcon className="inline h-8 w-8 text-green-600 mr-3" />
+              {/* Hard-size the globe so it can’t blow up due to global CSS. */}
+              <GlobeAltIcon width={32} height={32} className="inline text-green-600 mr-3" aria-hidden="true" />
               Ajude a manter o <span className="text-green-600">Marcha Brasil</span> no ar
             </h1>
-            
+
             <p className="text-xl sm:text-2xl mb-8 text-gray-700 leading-relaxed">
               Sua contribuição cobre <strong>servidores</strong>, <strong>CDN</strong>, <strong>monitoramento</strong> e
               <strong> horas de desenvolvimento</strong> para evoluirmos a plataforma com segurança e transparência.
             </p>
 
-            {/* Impact bullets (always shown) */}
+            {/* Impact bullets */}
             <ul className="mb-8 space-y-2 text-gray-700">
               <li>• <strong>R$30</strong> ajuda com custos de hospedagem e logs</li>
               <li>• <strong>R$60</strong> cobre monitoramento e backups</li>
@@ -70,36 +89,36 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
               </div>
             )}
 
-{/* Call to Action Buttons */}
-<div className="flex flex-col sm:flex-row gap-4 mb-6">
-  <a
-    href="/apoie/contribuir"
-    className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-  >
-    <HeartIcon className="h-6 w-6" />
-    Contribuir Agora
-  </a>
+            {/* Call to Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <a
+                href="/apoie/contribuir"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+              >
+                <HeartIcon className="h-5 w-5" aria-hidden="true" />
+                Contribuir Agora
+              </a>
 
-  <a
-    href="/apoie/compartilhar"
-    className="bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-gray-200 flex items-center justify-center gap-3"
-  >
-    <ShareIcon className="h-6 w-6" />
-    Compartilhar
-  </a>
-</div>
+              <a
+                href="/apoie/compartilhar"
+                className="bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-gray-200 flex items-center justify-center gap-3"
+              >
+                <ShareIcon className="h-5 w-5" aria-hidden="true" />
+                Compartilhar
+              </a>
+            </div>
 
             <div className="flex justify-center sm:justify-start items-center gap-6 text-sm text-gray-600 flex-wrap">
               <span className="flex items-center gap-2">
-                <ShieldCheckIcon className="h-5 w-5 text-green-600" />
+                <ShieldCheckIcon className="h-5 w-5 text-green-600" aria-hidden="true" />
                 <strong>100% seguro</strong>
               </span>
               <span className="flex items-center gap-2">
-                <GlobeAltIcon className="h-5 w-5 text-blue-600" />
+                <GlobeAltIcon className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 <strong>Apoio brasileiro</strong>
               </span>
               <span className="flex items-center gap-2">
-                <ChartBarIcon className="h-5 w-5 text-purple-600" />
+                <ChartBarIcon className="h-5 w-5 text-purple-600" aria-hidden="true" />
                 <strong>Transparência total</strong>
               </span>
             </div>
@@ -107,7 +126,7 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
 
           {/* Right side - Image */}
           <div className="lg:order-last">
-            <div 
+            <div
               className="relative rounded-2xl overflow-hidden shadow-2xl h-80 sm:h-96 lg:h-[500px]"
               style={{
                 backgroundImage: 'url(/images/brazilian-flag-hero.jpg)',
@@ -116,7 +135,7 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
               }}
             >
               {/* Overlay for better aesthetics */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
           </div>
         </div>
@@ -124,3 +143,4 @@ export default function SupportHero({ onContribuir, onCompartilhar, stats }: Sup
     </div>
   );
 }
+
