@@ -1,37 +1,55 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowLeftIcon, ShareIcon, LinkIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import Link from 'next/link';
+import {
+  ArrowLeftIcon,
+  ShareIcon,
+  ClipboardDocumentIcon,
+  LinkIcon,
+} from '@heroicons/react/24/outline';
 import Navigation from '@/components/ui/Navigation';
+
+const getHomeUrl = () => {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (typeof window !== 'undefined' ? window.location.origin : 'https://marchabrasil.com');
+  // ensure exactly one trailing slash
+  return base.replace(/\/+$/, '') + '/';
+};
 
 export default function CompartilharPage() {
   const [copied, setCopied] = useState(false);
-  const shareUrl = 'https://marchabrasil.com/apoie';
-  const shareText = 'Apoie a Marcha Brasil - coordenação cívica pacífica. Junte-se a nós:';
+
+  // ✅ NOW SHARING THE MAIN PAGE, NOT /apoie
+  const homeUrl = getHomeUrl();
+  const shareText =
+    'Apoie a Marcha Brasil - coordenação cívica pacífica. Junte-se a nós:';
 
   const shareViaWhatsApp = () => {
-    const url = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-    window.open(url, '_blank');
+    const url = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${homeUrl}`)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const shareViaTwitter = () => {
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-    window.open(url, '_blank');
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      shareText
+    )}&url=${encodeURIComponent(homeUrl)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const shareViaFacebook = () => {
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-    window.open(url, '_blank');
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(homeUrl)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(homeUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      console.error('Falha ao copiar link:', err);
     }
   };
 
@@ -39,12 +57,12 @@ export default function CompartilharPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-green-50">
       {/* Navigation */}
       <Navigation />
-      
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4">
-            <Link 
+            <Link
               href="/apoie"
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
@@ -52,9 +70,7 @@ export default function CompartilharPage() {
               Voltar
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Compartilhar Marcha Brasil
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">Compartilhar Marcha Brasil</h1>
               <p className="text-gray-600 mt-1">
                 Ajude a espalhar nossa causa e fortaleça nossa mobilização
               </p>
@@ -63,15 +79,13 @@ export default function CompartilharPage() {
         </div>
       </div>
 
+      {/* Main card */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Main Share Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8">
-          {/* Header */}
+          {/* Card header */}
           <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-12 h-12 fill-current text-green-100">
-                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92S19.61 16.08 18 16.08z"/>
-              </svg>
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-white/10">
+              <ShareIcon className="w-10 h-10 text-green-100" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Espalhe a Palavra</h2>
             <p className="text-green-100">
@@ -79,44 +93,45 @@ export default function CompartilharPage() {
             </p>
           </div>
 
+          {/* Message preview */}
           <div className="p-8">
-            {/* Share message preview */}
             <div className="mb-8">
-              <h3 className="font-semibold text-gray-900 mb-4">Mensagem que será compartilhada:</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">
+                Mensagem que será compartilhada:
+              </h3>
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <p className="text-gray-700 italic">
-                  "{shareText}"
-                </p>
-                <p className="text-blue-600 mt-2 font-medium">{shareUrl}</p>
+                <p className="text-gray-700 italic">"{shareText}"</p>
+                {/* ✅ shows main page now */}
+                <p className="text-blue-600 mt-2 font-medium">{homeUrl}</p>
               </div>
             </div>
 
-            {/* Share buttons */}
+            {/* Share actions */}
             <div className="space-y-4">
               <button
+                type="button"
                 onClick={shareViaWhatsApp}
-                className="w-full flex items-center gap-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                className="w-full flex items-center gap-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition-all"
               >
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.893 3.488"/>
-                  </svg>
-                </div>
+                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+                  <path d="M20.52 3.48A11.86 11.86 0 0 0 12.01 0C5.4 0 .06 5.34.06 11.94c0 2.1.55 4.16 1.6 5.98L0 24l6.25-1.64a12 12 0 0 0 5.76 1.47h.01c6.6 0 11.94-5.34 11.94-11.94 0-3.19-1.24-6.18-3.44-8.41zM12.02 22a9.98 9.98 0 0 1-5.08-1.39l-.36-.21-3.72.98.99-3.63-.24-.37A9.98 9.98 0 1 1 22 12.06 10 10 0 0 1 12.02 22zm5.46-7.47c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.14-.19.27-.74.95-.9 1.13-.17.18-.33.2-.61.07-.3-.15-1.28-.47-2.44-1.49-.9-.8-1.5-1.78-1.68-2.08-.17-.3-.02-.46.13-.6.14-.14.3-.36.45-.54.15-.18.2-.31.3-.51.1-.2.05-.38-.02-.53-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.08-.79.38-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.11 3.22 5.1 4.52.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.08 1.75-.72 2-1.42.25-.71.25-1.32.17-1.45-.07-.13-.27-.21-.57-.36z" />
+                </svg>
                 <div className="text-left flex-1">
                   <div className="text-lg">Compartilhar no WhatsApp</div>
-                  <div className="text-green-100 text-sm">Envie para seus contatos e grupos</div>
+                  <div className="text-green-100 text-sm">
+                    Envie para seus contatos e grupos
+                  </div>
                 </div>
               </button>
 
               <button
+                type="button"
                 onClick={shareViaTwitter}
-                className="w-full flex items-center gap-4 bg-gray-900 hover:bg-black text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                className="w-full flex items-center gap-4 bg-gray-900 hover:bg-black text-white font-bold py-4 px-6 rounded-xl transition-all"
               >
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                </div>
+                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+                  <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.27 4.27 0 0 0 1.87-2.37 8.54 8.54 0 0 1-2.71 1.04A4.25 4.25 0 0 0 11.1 9.2c0 .33.04.65.1.96A12.05 12.05 0 0 1 3 5.63a4.25 4.25 0 0 0 1.32 5.67 4.22 4.22 0 0 1-1.92-.53v.05c0 2.05 1.46 3.76 3.4 4.15-.36.1-.74.15-1.13.15-.28 0-.55-.03-.81-.08.55 1.73 2.16 2.99 4.06 3.02A8.53 8.53 0 0 1 2 19.54 12.03 12.03 0 0 0 8.29 21c7.55 0 11.68-6.26 11.68-11.68 0-.18-.01-.35-.02-.53A8.32 8.32 0 0 0 22.46 6z" />
+                </svg>
                 <div className="text-left flex-1">
                   <div className="text-lg">Compartilhar no X (Twitter)</div>
                   <div className="text-gray-100 text-sm">Publique para seus seguidores</div>
@@ -124,14 +139,13 @@ export default function CompartilharPage() {
               </button>
 
               <button
+                type="button"
                 onClick={shareViaFacebook}
-                className="w-full flex items-center gap-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                className="w-full flex items-center gap-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all"
               >
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                </div>
+                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+                  <path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24H12.82v-9.294H9.692V11.29h3.127V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.793.143v3.24l-1.918.001c-1.504 0-1.796.715-1.796 1.765v2.314h3.588l-.467 3.416h-3.12V24h6.117C23.407 24 24 23.407 24 22.675V1.325C24 .593 23.407 0 22.675 0z" />
+                </svg>
                 <div className="text-left flex-1">
                   <div className="text-lg">Compartilhar no Facebook</div>
                   <div className="text-blue-100 text-sm">Publique no seu perfil ou grupos</div>
@@ -139,24 +153,30 @@ export default function CompartilharPage() {
               </button>
 
               <button
+                type="button"
                 onClick={copyLink}
-                className="w-full flex items-center gap-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                className="w-full flex items-center gap-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-xl transition-all"
               >
                 <ClipboardDocumentIcon className="h-6 w-6" />
                 <div className="text-left flex-1">
-                  <div className="text-lg">{copied ? 'Link Copiado!' : 'Copiar Link'}</div>
+                  <div className="text-lg">
+                    {copied ? 'Link Copiado!' : 'Copiar Link'}
+                  </div>
                   <div className="text-gray-100 text-sm">Cole em qualquer lugar</div>
                 </div>
+                <LinkIcon className="h-6 w-6 opacity-75" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Impact message */}
+        {/* Extra info */}
         <div className="bg-blue-50 rounded-xl p-6 border border-blue-200 text-center">
-          <h3 className="text-xl font-bold text-blue-900 mb-2">💪 O Poder do Compartilhamento</h3>
+          <h3 className="text-xl font-bold text-blue-900 mb-2">
+            💪 O Poder do Compartilhamento
+          </h3>
           <p className="text-blue-800 mb-4">
-            Cada pessoa que você trouxer fortalece nossa mobilização cívica. 
+            Cada pessoa que você trouxer fortalece nossa mobilização cívica.
             Estudos mostram que <strong>1 compartilhamento gera 3 novos apoiadores</strong> em média.
           </p>
           <div className="grid grid-cols-3 gap-4 text-center">
@@ -175,11 +195,9 @@ export default function CompartilharPage() {
           </div>
         </div>
 
-        {/* Alternative contribution */}
+        {/* Alternate CTA */}
         <div className="mt-8 text-center">
-          <p className="text-gray-600 mb-4">
-            Prefere contribuir financeiramente?
-          </p>
+          <p className="text-gray-600 mb-4">Prefere contribuir financeiramente?</p>
           <Link
             href="/apoie/contribuir"
             className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
@@ -191,3 +209,4 @@ export default function CompartilharPage() {
     </div>
   );
 }
+
